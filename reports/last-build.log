@@ -1,0 +1,87 @@
+FNF Mobile — log de build
+run: 2 | commit: 9525508d33d5bb9d72ca2368218f92c4cfd6b55a | modo: full
+início: Thu Oct  1 22:52:17 UTC 2026
+==> Android SDK em: /home/runner/android-sdk
+==> JDK para o sdkmanager: /usr/lib/jvm/temurin-17-jdk-amd64
+==> Baixando command-line tools
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0 11  127M   11 14.6M    0     0  41.6M      0  0:00:03 --:--:--  0:00:03 41.5M100  127M  100  127M    0     0   146M      0 --:--:-- --:--:-- --:--:--  146M
+==> Aceitando licenças
+yes: standard output: Broken pipe
+==> SKIP_NDK=1: pulando o download do NDK (modo typecheck)
+==> Instalando: platform-tools platforms;android-30 build-tools;30.0.3
+==> SDK instalado:
+    build-tools
+    cmdline-tools
+    licenses
+    platform-tools
+    platforms
+==> Haxe 4.2.5 (home: /home/runner/haxe)
+==> haxelib path: /home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib
+==> baixando https://github.com/HaxeFoundation/haxe/releases/download/4.2.5/haxe-4.2.5-linux64.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0 9698k    0 31833    0     0   129k      0  0:01:14 --:--:--  0:01:14  129k100 9698k  100 9698k    0     0  34.9M      0 --:--:-- --:--:-- --:--:--  304M
+-rw-r--r-- 1 runner runner 9931371 Oct  1 22:52 /tmp/haxe-download.tar.gz
+==> haxe --version
+4.2.5
+==> haxelib version
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: haxelib setup retornou erro
+==> instalando hxcpp 4.3.2
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 4.3.2 indisponível; instalando a mais recente de hxcpp
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+==> instalando lime 8.0.2
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 8.0.2 indisponível; instalando a mais recente de lime
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+==> instalando openfl 9.3.2
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 9.3.2 indisponível; instalando a mais recente de openfl
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+==> instalando flixel 4.11.0
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 4.11.0 indisponível; instalando a mais recente de flixel
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+==> instalando flixel-addons 2.11.0
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 2.11.0 indisponível; instalando a mais recente de flixel-addons
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+==> instalando flixel-ui 2.5.0
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 2.5.0 indisponível; instalando a mais recente de flixel-ui
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+==> instalando hscript 2.5.0
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: falhou com --always; tentando sem flag
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+AVISO: versão 2.5.0 indisponível; instalando a mais recente de hscript
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+
+==> bibliotecas instaladas (haxelib list):
+haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory
+
+==> caminhos resolvidos:
+    hxcpp            haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+    lime             haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+    openfl           haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+    flixel           haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+    flixel-addons    haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+    flixel-ui        haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+    hscript          haxelib: error while loading shared libraries: libneko.so.2: cannot open shared object file: No such file or directory 
+ERRO: bibliotecas ausentes: hxcpp lime openfl flixel flixel-addons flixel-ui hscript
