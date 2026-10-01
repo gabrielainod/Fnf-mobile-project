@@ -8,6 +8,10 @@
 # -----------------------------------------------------------------------------
 set -uo pipefail
 
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=haxe_env.sh
+source "$ROOT/tools/haxe_env.sh"
+
 ANDROID_SDK="${ANDROID_SDK:-$HOME/android-sdk}"
 NDK_VERSION="${NDK_VERSION:-21.4.7075529}"
 ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$ANDROID_SDK/ndk/$NDK_VERSION}"

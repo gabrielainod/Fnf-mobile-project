@@ -22,8 +22,8 @@ QUICK="${QUICK:-0}"
 ABIS="${ABIS:-both}"
 if [ "$QUICK" = "1" ]; then ABIS="arm64"; fi
 
-export HAXELIB_PATH="${HAXELIB_PATH:-$ROOT/.haxelib}"
-export PATH="${HAXE_HOME:-$HOME/haxe}:$PATH"
+# shellcheck source=haxe_env.sh
+source "$ROOT/tools/haxe_env.sh"
 export ANDROID_SDK="${ANDROID_SDK:-$HOME/android-sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_SDK"
 export ANDROID_HOME="$ANDROID_SDK"
