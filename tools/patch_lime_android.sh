@@ -16,9 +16,14 @@ ANDROID_SDK="${ANDROID_SDK:-$HOME/android-sdk}"
 NDK_VERSION="${NDK_VERSION:-21.4.7075529}"
 ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$ANDROID_SDK/ndk/$NDK_VERSION}"
 
-LIME_DIR="$(haxelib path lime 2>/dev/null | head -1 | tr -d '\r')"
+LIME_DIR="$(haxelib libpath lime 2>/dev/null | head -1 | tr -d '\r')"
 if [ -z "$LIME_DIR" ] || [ ! -d "$LIME_DIR" ]; then
-	echo "ERRO: lime não encontrado no haxelib"
+	# fallback: "haxelib path lime" imprime "-cp /caminho/"
+	LIME_DIR="$(haxelib path lime 2>/dev/null | grep -oE '/[^ ]+' | head -1 | tr -d '\r')"
+fi
+if [ -z "$LIME_DIR" ] || [ ! -d "$LIME_DIR" ]; then
+	echo "ERRO: lime não encontrado no haxelib (haxelib libpath falhou)"
+	echo "haxelib list:"; haxelib list 2>&1 | head -10
 	exit 1
 fi
 echo "==> Lime: $LIME_DIR"
