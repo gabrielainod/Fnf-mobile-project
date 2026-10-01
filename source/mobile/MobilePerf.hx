@@ -33,7 +33,7 @@ class MobilePerf
 		if (lowEnd)
 		{
 			// aparelho fraco: sem antialiasing, sem shaders, menos efeitos
-			FlxSprite.defaultAntialiasing = false;
+			// (o Psych consulta esses campos ao criar cada sprite/nota)
 			ClientPrefs.globalAntialiasing = false;
 			ClientPrefs.shaders = false;
 			ClientPrefs.noteSplashes = false;

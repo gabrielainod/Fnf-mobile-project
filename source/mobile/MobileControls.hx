@@ -406,6 +406,13 @@ class MobileControls
 		if (pauseButton == null) createPauseButton();
 		if (pauseButton == null) return;
 
+		// o botão fica sempre do lado oposto à linha das setas, senão ele cobriria
+		// a hitbox da seta da direita (em cima na descida, embaixo na subida)
+		var px:Float = FlxG.width - 134;
+		var py:Float = ClientPrefs.downScroll ? 24 : FlxG.height - 134;
+		pauseButton.setPosition(px, py);
+		if (pauseCenter != null) pauseCenter.setPosition(px + 34, py + 26);
+
 		pauseButton.visible = canPlay();
 		if (pauseCenter != null) pauseCenter.visible = pauseButton.visible;
 	}
@@ -414,14 +421,14 @@ class MobileControls
 	{
 		if (playState == null) return;
 
-		pauseButton = new FlxSprite(FlxG.width - 130, 20);
+		pauseButton = new FlxSprite(FlxG.width - 134, 24);
 		pauseButton.makeGraphic(110, 110, 0x55000000);
 		pauseButton.scrollFactor.set(0, 0);
 		pauseButton.alpha = 0.85;
 		if (playState.camHUD != null) pauseButton.cameras = [playState.camHUD];
 
 		pauseCenter = new FlxSprite(pauseButton.x + 34, pauseButton.y + 26);
-		pauseCenter.makeGraphic(42, 58, FlxColor.WHITE);
+		pauseCenter.makeGraphic(42, 58, 0xAAFFFFFF);
 		pauseCenter.scrollFactor.set(0, 0);
 		pauseCenter.alpha = 0.85;
 		if (playState.camHUD != null) pauseCenter.cameras = [playState.camHUD];

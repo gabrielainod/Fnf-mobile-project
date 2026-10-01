@@ -52,7 +52,15 @@ jobs:
         run: bash tools/setup_haxe.sh >> "$LOGFILE" 2>&1
 
       - name: Assets do FNF (Semanas 1-3)
-        run: bash tools/fetch_assets.sh >> "$LOGFILE" 2>&1
+        run: |
+          if [ "$TYPECHECK_ONLY" = "1" ]; then
+            # no typecheck os assets não são usados: só cria as pastas para o
+            # Project.xml não reclamar (economiza ~1 min por iteração)
+            mkdir -p assets/preload assets/songs assets/shared assets/week2 assets/week3 assets/fonts
+            echo "==> typecheck: assets pulados (apenas pastas vazias)" >> "$LOGFILE"
+          else
+            bash tools/fetch_assets.sh >> "$LOGFILE" 2>&1
+          fi
 
       - name: Ajustes no template Android do Lime
         run: bash tools/patch_lime_android.sh >> "$LOGFILE" 2>&1
