@@ -174,7 +174,7 @@ class MobilePlatform
 
 	public static function deviceInfo():String
 	{
-		var info:String = 'plataforma: ' + LimeSystem.platformType + ' (' + LimeSystem.platformName + ')';
+		var info:String = 'plataforma: ' + LimeSystem.platformName + ' ' + LimeSystem.platformVersion;
 		#if android info += ' | android'; #end
 		#if cpp info += ' | cpp'; #end
 		info += ' | sistema: ' + LimeSystem.platformVersion;

@@ -183,9 +183,10 @@ class MobileControls
 	 */
 	static function toViewSpace(stageX:Float, stageY:Float, cam:FlxCamera):FlxPoint
 	{
-		var p = FlxG.game.globalToLocal(tmpFlashPoint.setTo(stageX, stageY));
-		tmpTouch.x = (p.x - cam.x + 0.5 * cam.width * (cam.zoom - cam.initialZoom)) / cam.zoom;
-		tmpTouch.y = (p.y - cam.y + 0.5 * cam.height * (cam.zoom - cam.initialZoom)) / cam.zoom;
+		tmpFlashPoint.setTo(stageX, stageY);
+		FlxG.game.globalToLocal(tmpFlashPoint);
+		tmpTouch.x = (tmpFlashPoint.x - cam.x + 0.5 * cam.width * (cam.zoom - cam.initialZoom)) / cam.zoom;
+		tmpTouch.y = (tmpFlashPoint.y - cam.y + 0.5 * cam.height * (cam.zoom - cam.initialZoom)) / cam.zoom;
 		return tmpTouch;
 	}
 

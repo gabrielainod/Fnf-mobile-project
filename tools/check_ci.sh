@@ -5,12 +5,10 @@ set -uo pipefail
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ "${1:-}" != "--no-wait" ]; then
-  rid=$(gh run list --limit 1 --json databaseId -q '.[0].databaseId')
-  for _ in $(seq 1 40); do
-    st=$(gh run view "$rid" --json status -q .status 2>/dev/null || echo "?")
-    [ "$st" = "completed" ] && break
-    sleep 15
-  done
+  rid=$(gh run list --limit 1 --json databaseId,status -q '.[0].databaseId')
+  echo "==> aguardando o run $rid terminar (gh run watch)"
+  gh run watch "$rid" --interval 15 >/dev/null 2>&1 || true
+  gh run view "$rid" --json status,conclusion -q '"run \(.status)/\(.conclusion)"' 2>/dev/null || true
 fi
 gh run list --limit 3 | cat
 

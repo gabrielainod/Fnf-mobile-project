@@ -103,10 +103,10 @@ install_lib() {
 	return 0
 }
 
-# Versões que casam com o Psych Engine 0.6.3 (openfl 9.3 / flixel 4.11)
+# Versões que casam com o Psych Engine 0.6.3 (openfl 9.2 / lime 8.0 / flixel 4.11)
 install_lib hxcpp 4.3.2
 install_lib lime 8.0.2
-install_lib openfl 9.3.2
+install_lib openfl 9.2.2 # o FlxSound do Psych 0.6.3 usa _channel.__source (removido no 9.3+)
 install_lib flixel 4.11.0
 install_lib flixel-addons 2.11.0
 install_lib flixel-ui 2.5.0
