@@ -53,8 +53,11 @@ COMMIT_MSG="$(git log -1 --pretty=%s 2>/dev/null || echo '?')"
 	echo "-- erros encontrados no log --"
 	grep -n -i -E "error|error:|fatal|exception|failed|não encontrado|no such file" "$LOG" 2>/dev/null | head -60 || echo "(nenhum)"
 	echo ""
-	echo "-- últimas 120 linhas do log --"
-	tail -120 "$LOG" 2>/dev/null
+	echo "-- contexto dos primeiros erros --"
+	grep -n -i -B6 -A18 -m2 -E "^[^#]*error|ERROR:|exception|fatal" "$LOG" 2>/dev/null || echo "(nada)"
+	echo ""
+	echo "-- últimas 200 linhas do log --"
+	tail -200 "$LOG" 2>/dev/null
 } > "$REPORT" 2>&1
 
 echo "==> Relatório:"
@@ -115,8 +118,9 @@ if [ -n "${GH_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ]; then
 	git -C "$WORK" push -q -f origin HEAD:ci-report && echo "relatório publicado no branch ci-report" || echo "AVISO: falha ao publicar relatório"
 fi
 
+echo ""
+echo "==> Resultado: $STATUS"
 if [ "${STATUS#OK}" = "$STATUS" ]; then
-	echo "==> BUILD COM FALHA: $STATUS"
 	exit 1
 fi
-echo "==> BUILD OK"
+exit 0

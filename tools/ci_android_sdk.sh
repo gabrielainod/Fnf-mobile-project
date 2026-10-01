@@ -53,8 +53,14 @@ export ANDROID_HOME="$SDK"
 echo "==> Aceitando licenças"
 yes | "$SDKMANAGER" --sdk_root="$SDK" --licenses >/dev/null 2>&1 || true
 
-echo "==> Instalando platform-tools, $PLATFORM, build-tools;$BUILD_TOOLS e ndk;$NDK_VERSION"
-"$SDKMANAGER" --sdk_root="$SDK" "platform-tools" "platforms;$PLATFORM" "build-tools;$BUILD_TOOLS" "ndk;$NDK_VERSION" >/tmp/sdkmanager.log 2>&1 || {
+PACKAGES=("platform-tools" "platforms;$PLATFORM" "build-tools;$BUILD_TOOLS")
+if [ "${SKIP_NDK:-0}" != "1" ]; then
+	PACKAGES+=("ndk;$NDK_VERSION")
+else
+	echo "==> SKIP_NDK=1: pulando o download do NDK (modo typecheck)"
+fi
+echo "==> Instalando: ${PACKAGES[*]}"
+"$SDKMANAGER" --sdk_root="$SDK" "${PACKAGES[@]}" >/tmp/sdkmanager.log 2>&1 || {
 	echo "ERRO: sdkmanager falhou";
 	tail -30 /tmp/sdkmanager.log;
 	exit 1;

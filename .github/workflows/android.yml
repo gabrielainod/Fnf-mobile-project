@@ -5,10 +5,11 @@ on:
     branches: ['arena/**']
   workflow_dispatch:
     inputs:
-      quick:
-        description: 'Build rápido (somente arm64-v8a)'
-        type: boolean
-        default: false
+      mode:
+        description: 'full = APK completo | typecheck = só compila o Haxe (rápido)'
+        type: choice
+        options: [full, typecheck]
+        default: full
 
 permissions:
   contents: write
@@ -21,8 +22,20 @@ jobs:
   apk:
     runs-on: ubuntu-latest
     timeout-minutes: 150
+    env:
+      LOGFILE: ${{ github.workspace }}/build.log
+      TYPECHECK_ONLY: ${{ (inputs.mode == 'typecheck' || contains(github.event.head_commit.message, '[typecheck]')) && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Iniciar log
+        run: |
+          : > build.log
+          {
+            echo "FNF Mobile — log de build"
+            echo "run: ${{ github.run_number }} | commit: ${{ github.sha }} | modo: ${{ inputs.mode || 'full' }}"
+            echo "início: $(date -u)"
+          } >> build.log
 
       - name: JDK 8 (usado pelo build do jogo)
         uses: actions/setup-java@v4
@@ -31,22 +44,22 @@ jobs:
           java-version: '8'
 
       - name: Android SDK + NDK r21e
-        run: bash tools/ci_android_sdk.sh
+        env:
+          SKIP_NDK: ${{ env.TYPECHECK_ONLY == '1' && '1' || '0' }}
+        run: bash tools/ci_android_sdk.sh >> "$LOGFILE" 2>&1
 
       - name: Haxe 4.2.5 + bibliotecas
-        run: bash tools/setup_haxe.sh
+        run: bash tools/setup_haxe.sh >> "$LOGFILE" 2>&1
 
       - name: Assets do FNF (Semanas 1-3)
-        run: bash tools/fetch_assets.sh
+        run: bash tools/fetch_assets.sh >> "$LOGFILE" 2>&1
 
       - name: Ajustes no template Android do Lime
-        run: bash tools/patch_lime_android.sh
+        run: bash tools/patch_lime_android.sh >> "$LOGFILE" 2>&1
 
-      - name: Compilar APK
+      - name: Compilar
         id: build
         continue-on-error: true
-        env:
-          QUICK: ${{ (github.event.inputs.quick == 'true') && '1' || '0' }}
         run: bash tools/ci_build.sh
 
       - name: Publicar relatório + release
@@ -54,13 +67,3 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash tools/ci_report.sh
-
-      - name: Artefato do Actions
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fnf-mobile-apk
-          path: |
-            dist/*.apk
-            report.txt
-          if-no-files-found: warn

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
 # Build do APK (FNF Mobile). Faz typecheck rápido, compila (hxcpp/NDK), assina e
-# verifica o APK. Todo o log vai para ./build.log, que o CI publica no branch
-# "ci-report" (é assim que o build se reporta).
+# verifica o APK. TODO o log vai para ./build.log, que o CI publica no branch
+# "ci-report" — é assim que o build se reporta.
 #
 # Variáveis:
-#   QUICK=1     -> só arm64-v8a (build de teste mais rápido)
-#   ABIS=arm64  -> idem
+#   TYPECHECK_ONLY=1 -> só compila o Haxe (sem C++/gradle), para iterar rápido
+#   QUICK=1          -> build completo, mas só arm64-v8a
 # -----------------------------------------------------------------------------
 set -uo pipefail
 
@@ -14,10 +14,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 LOG="$ROOT/build.log"
-: > "$LOG"
 STATUS_FILE="$ROOT/.ci-status"
-echo "PENDING" > "$STATUS_FILE"
+[ -f "$STATUS_FILE" ] || echo "PENDING" > "$STATUS_FILE"
 
+TYPECHECK_ONLY="${TYPECHECK_ONLY:-0}"
 QUICK="${QUICK:-0}"
 ABIS="${ABIS:-both}"
 if [ "$QUICK" = "1" ]; then ABIS="arm64"; fi
@@ -30,7 +30,6 @@ export ANDROID_HOME="$ANDROID_SDK"
 NDK_VERSION="${NDK_VERSION:-21.4.7075529}"
 export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$ANDROID_SDK/ndk/$NDK_VERSION}"
 export ANDROID_NDK_DIR="$ANDROID_NDK_ROOT"
-export JAVA_HOME="${JAVA_HOME:-}"
 
 BUILD_TOOLS="$ANDROID_SDK/build-tools/30.0.3"
 APK_NAME="FNF-Mobile-1.0.0.apk"
@@ -59,21 +58,22 @@ run_step() {
 	return 1
 }
 
-# ---------------------------------------------------------------- passos simples
 dump_env() {
 	echo "commit: $(git rev-parse --short HEAD 2>/dev/null)"
 	echo "haxe: $(haxe --version 2>&1)"
-	echo "haxelib: $HAXELIB_PATH"
+	echo "haxelib path: $HAXELIB_PATH"
 	haxelib list 2>&1
 	echo "java: $(java -version 2>&1 | head -2 | tr '\n' ' ')"
+	echo "JAVA_HOME: ${JAVA_HOME:-<vazio>}"
 	echo "ANDROID_SDK: $ANDROID_SDK"
 	echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
 	echo "build-tools: $(ls "$ANDROID_SDK/build-tools" 2>&1 | tr '\n' ' ')"
 	echo "platforms: $(ls "$ANDROID_SDK/platforms" 2>&1 | tr '\n' ' ')"
 	echo "ndk: $(ls "$ANDROID_SDK/ndk" 2>&1 | tr '\n' ' ')"
-	echo "gcc/g++: $(g++ --version 2>&1 | head -1)"
+	echo "g++: $(g++ --version 2>&1 | head -1)"
 	echo "cpu: $(nproc) cores"
 	df -h / | tail -1
+	echo "assets: $(find assets -type f 2>/dev/null | wc -l) arquivos"
 }
 
 configure_abis() {
@@ -110,10 +110,8 @@ typecheck() {
 	cp Project.xml /tmp/Project.xml.orig
 	sed -i 's|</project>|\t<haxeflag name="--no-output" />\n</project>|' Project.xml
 	grep -n "no-output" Project.xml
-	set +e
 	haxelib run lime build android
 	local rc=$?
-	set -e
 	cp /tmp/Project.xml.orig Project.xml
 	return $rc
 }
@@ -139,15 +137,14 @@ package_apk() {
 	mkdir -p "$ROOT/dist"
 	out="$ROOT/dist/$APK_NAME"
 
-	"$BUILD_TOOLS/zipalign" -f -p 4 "$src" /tmp/aligned.apk || {
-		echo "ERRO: zipalign falhou"; return 1; }
+	"$BUILD_TOOLS/zipalign" -f -p 4 "$src" /tmp/aligned.apk || { echo "ERRO: zipalign falhou"; return 1; }
 
 	"$BUILD_TOOLS/apksigner" sign --ks "$KS" --ks-key-alias "$KS_ALIAS" \
 		--ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS" \
 		--v1-signing-enabled true --v2-signing-enabled true \
 		--out "$out" /tmp/aligned.apk || { echo "ERRO: apksigner falhou"; return 1; }
 
-	"$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$out" || { echo "ERRO: verificação da assinatura falhou"; return 1; }
+	"$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$out" || { echo "ERRO: verificação falhou"; return 1; }
 
 	echo ""
 	echo "==> APK final: $out"
@@ -158,10 +155,10 @@ package_apk() {
 	unzip -l "$out" | tail -3
 	echo "assets no APK: $(unzip -l "$out" | grep -c 'assets/')"
 	echo "libs nativas:"
-	unzip -l "$out" | grep -E "lib/(arm64-v8a|armeabi-v7a)/" | sed 's/^/    /'
+	unzip -l "$out" | grep -E "lib/(arm64-v8a|armeabi-v7a)/" || echo "    (nenhuma!)"
 	echo ""
 	echo "==> Assets empacotados (topo):"
-	unzip -l "$out" | awk '{print $4}' | grep -E "^assets/" | cut -d/ -f1-3 | sort -u | head -30
+	unzip -l "$out" | awk '{print $4}' | grep -E "^assets/" | cut -d/ -f1-3 | sort -u | head -40
 
 	echo "$out" > "$ROOT/.apk-final"
 }
@@ -169,6 +166,14 @@ package_apk() {
 main() {
 	run_step dump_env dump_env || exit 1
 	run_step configure_abis configure_abis || exit 1
+
+	if [ "$TYPECHECK_ONLY" = "1" ]; then
+		run_step typecheck typecheck || exit 1
+		echo "OK:typecheck" > "$STATUS_FILE"
+		log "########## TYPECHECK OK ##########"
+		exit 0
+	fi
+
 	run_step keystore fetch_keystore || exit 1
 	run_step typecheck typecheck || exit 1
 	run_step build_nativo build_apk || exit 1
