@@ -1,8 +1,8 @@
 # Relatórios de build (automático)
 
-Última atualização: 2026-10-01 22:54 UTC
-Status: FAIL:desconhecido
-Run: https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/36937693747
+Última atualização: 2026-10-01 22:55 UTC
+Status: FAIL:typecheck
+Run: https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/36937855797
 
 Arquivos:
 - reports/last-build.txt — resumo do último build
