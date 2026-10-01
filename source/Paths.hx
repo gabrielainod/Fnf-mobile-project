@@ -20,6 +20,7 @@ import sys.FileSystem;
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
 import haxe.Json;
+import mobile.MobilePlatform;
 
 import flash.media.Sound;
 
@@ -380,7 +381,17 @@ class Paths
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
 		// trace(gottenPath);
 		if(!currentTrackedSounds.exists(gottenPath))
-		#if MODS_ALLOWED
+		#if mobile
+		{
+			// Android: o áudio base está empacotado no APK (não existe como arquivo),
+			// então é carregado pelo sistema de assets do OpenFL. Mods continuam
+			// funcionando porque são arquivos de verdade e passam no teste acima.
+			var folder:String = '';
+			if(path == 'songs') folder = 'songs:';
+
+			currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(folder + getPath('$path/$key.$SOUND_EXT', SOUND, library)));
+		}
+		#elseif MODS_ALLOWED
 			currentTrackedSounds.set(gottenPath, Sound.fromFile('./' + gottenPath));
 		#else
 		{
@@ -396,7 +407,13 @@ class Paths
 
 	#if MODS_ALLOWED
 	inline static public function mods(key:String = '') {
+		#if mobile
+		// No Android "mods/" relativo não existe (o APK é somente leitura): os mods
+		// ficam em uma pasta de verdade do aparelho, definida pelo MobilePlatform.
+		return MobilePlatform.modsFolder + '/' + key;
+		#else
 		return 'mods/' + key;
+		#end
 	}
 
 	inline static public function modsFont(key:String) {
@@ -466,7 +483,7 @@ class Paths
 	static public function pushGlobalMods() // prob a better way to do this but idc
 	{
 		globalMods = [];
-		var path:String = 'modsList.txt';
+		var path:String = #if mobile MobilePlatform.modsFolder + '/modsList.txt' #else 'modsList.txt' #end;
 		if(FileSystem.exists(path))
 		{
 			var list:Array<String> = CoolUtil.coolTextFile(path);

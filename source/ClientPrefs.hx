@@ -54,6 +54,32 @@ class ClientPrefs {
 		'opponentplay' => false
 	];
 
+	// ------------------------------------------------------------------
+	// Opções exclusivas do FNF Mobile (aparecem no menu Options > Mobile)
+	// ------------------------------------------------------------------
+	#if mobile
+	/** Controles de toque nas setas (hitboxes). Desligar = voltar ao teclado/gamepad. */
+	public static var mobileControls:Bool = true;
+	/** Quantos pixels de folga tem cada hitbox em volta da seta (30 = bem generoso). */
+	public static var mobileHitboxSize:Int = 30;
+	/** Permite arrastar o dedo de uma seta para outra sem soltar. */
+	public static var mobileSlide:Bool = true;
+	/** Mostra as áreas de toque na cor de cada seta (útil para calibrar). */
+	public static var mobileShowHitboxes:Bool = false;
+	/** Botão de pausa desenhado no canto da tela durante a música. */
+	public static var mobilePauseButton:Bool = true;
+	/** Limite de quadros por segundo (30 economiza muita bateria em aparelho fraco). */
+	public static var mobileFPS:Int = 60;
+	/** Pausa a música automaticamente quando o jogador sai do aplicativo. */
+	public static var mobileAutoPause:Bool = true;
+	/** Vibra de leve no acerto e no erro (usa o vibrador do Android). */
+	public static var mobileVibration:Bool = true;
+	/** Reduz/para as animações de fundo das semanas 1 a 3. */
+	public static var mobileSimplifyBackground:Bool = true;
+	/** Modo aparelho fraco: desliga antialiasing, shaders, splashes e efeitos. */
+	public static var lowEndMode:Bool = false;
+	#end
+
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];
 	public static var ratingOffset:Int = 0;
 	public static var sickWindow:Int = 45;
@@ -130,7 +156,20 @@ class ClientPrefs {
 		FlxG.save.data.pauseMusic = pauseMusic;
 		FlxG.save.data.checkForUpdates = checkForUpdates;
 		FlxG.save.data.comboStacking = comboStacking;
-	
+
+		#if mobile
+		FlxG.save.data.mobileControls = mobileControls;
+		FlxG.save.data.mobileHitboxSize = mobileHitboxSize;
+		FlxG.save.data.mobileSlide = mobileSlide;
+		FlxG.save.data.mobileShowHitboxes = mobileShowHitboxes;
+		FlxG.save.data.mobilePauseButton = mobilePauseButton;
+		FlxG.save.data.mobileFPS = mobileFPS;
+		FlxG.save.data.mobileAutoPause = mobileAutoPause;
+		FlxG.save.data.mobileVibration = mobileVibration;
+		FlxG.save.data.mobileSimplifyBackground = mobileSimplifyBackground;
+		FlxG.save.data.lowEndMode = lowEndMode;
+		#end
+
 		FlxG.save.flush();
 
 		var save:FlxSave = new FlxSave();
@@ -267,6 +306,29 @@ class ClientPrefs {
 		if (FlxG.save.data.comboStacking != null)
 			comboStacking = FlxG.save.data.comboStacking;
 
+		#if mobile
+		if (FlxG.save.data.mobileControls != null)
+			mobileControls = FlxG.save.data.mobileControls;
+		if (FlxG.save.data.mobileHitboxSize != null)
+			mobileHitboxSize = FlxG.save.data.mobileHitboxSize;
+		if (FlxG.save.data.mobileSlide != null)
+			mobileSlide = FlxG.save.data.mobileSlide;
+		if (FlxG.save.data.mobileShowHitboxes != null)
+			mobileShowHitboxes = FlxG.save.data.mobileShowHitboxes;
+		if (FlxG.save.data.mobilePauseButton != null)
+			mobilePauseButton = FlxG.save.data.mobilePauseButton;
+		if (FlxG.save.data.mobileFPS != null)
+			mobileFPS = FlxG.save.data.mobileFPS;
+		if (FlxG.save.data.mobileAutoPause != null)
+			mobileAutoPause = FlxG.save.data.mobileAutoPause;
+		if (FlxG.save.data.mobileVibration != null)
+			mobileVibration = FlxG.save.data.mobileVibration;
+		if (FlxG.save.data.mobileSimplifyBackground != null)
+			mobileSimplifyBackground = FlxG.save.data.mobileSimplifyBackground;
+		if (FlxG.save.data.lowEndMode != null)
+			lowEndMode = FlxG.save.data.lowEndMode;
+		#end
+
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99');
 		if(save != null && save.data.customControls != null) {
@@ -277,6 +339,39 @@ class ClientPrefs {
 			reloadControls();
 		}
 	}
+
+	#if mobile
+	/**
+	 * Primeira execução em celular: liga o modo aparelho fraco conforme a RAM
+	 * real do aparelho (o Lime expõe isso no Android). Nunca sobrescreve uma
+	 * escolha do jogador - só define o padrão quando ainda não existe save.
+	 */
+	public static function applyMobileDefaults():Void
+	{
+		if (FlxG.save.data.fnfMobileDefaultsDone == true) return;
+
+		var ramMB:Float = 0;
+		try ramMB = openfl.system.System.totalMemory / (1024 * 1024);
+		catch (e:Dynamic) ramMB = 0;
+
+		if (ramMB > 0 && ramMB <= 2900)
+		{
+			lowEndMode = true;
+			mobileFPS = 30;
+			mobileSimplifyBackground = true;
+		}
+		else if (ramMB > 0 && ramMB <= 4200)
+		{
+			mobileSimplifyBackground = true;
+		}
+
+		// teclado virtual: os binds de teclado continuam valendo, mas em aparelho
+		// sem gamepad o toque é o controle principal
+		FlxG.save.data.fnfMobileDefaultsDone = true;
+		saveSettings();
+		FlxG.log.add('FNF Mobile: defaults aplicados (RAM: ' + Math.round(ramMB) + ' MB)');
+	}
+	#end
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic):Dynamic {
 		return /*PlayState.isStoryMode ? defaultValue : */ (gameplaySettings.exists(name) ? gameplaySettings.get(name) : defaultValue);

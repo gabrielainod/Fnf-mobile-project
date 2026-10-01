@@ -8,7 +8,8 @@ set -uo pipefail
 SDK="${ANDROID_SDK:-$HOME/android-sdk}"
 NDK_VERSION="${NDK_VERSION:-21.4.7075529}"
 BUILD_TOOLS="30.0.3"
-PLATFORM="android-30"
+# compileSdk do projeto = targetSdk = 28 (armazenamento legado p/ pasta de mods)
+PLATFORMS="android-28 android-30"
 CMDLINE_TOOLS_URL="https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip"
 
 echo "==> Android SDK em: $SDK"
@@ -53,7 +54,8 @@ export ANDROID_HOME="$SDK"
 echo "==> Aceitando licenças"
 yes | "$SDKMANAGER" --sdk_root="$SDK" --licenses >/dev/null 2>&1 || true
 
-PACKAGES=("platform-tools" "platforms;$PLATFORM" "build-tools;$BUILD_TOOLS")
+PACKAGES=("platform-tools" "build-tools;$BUILD_TOOLS")
+for p in $PLATFORMS; do PACKAGES+=("platforms;$p"); done
 if [ "${SKIP_NDK:-0}" != "1" ]; then
 	PACKAGES+=("ndk;$NDK_VERSION")
 else

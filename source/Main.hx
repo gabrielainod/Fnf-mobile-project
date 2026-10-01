@@ -10,6 +10,12 @@ import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.display.StageScaleMode;
+import mobile.MobileApp;
+import mobile.MobileBack;
+import mobile.MobileGestures;
+import mobile.MobileKeys;
+import mobile.MobilePerf;
+import mobile.MobilePlatform;
 
 //crash handler stuff
 #if CRASH_HANDLER
@@ -82,7 +88,25 @@ class Main extends Sprite
 		}
 	
 		ClientPrefs.loadDefaultKeys();
+
+		#if mobile
+		// ------------------------------------------------------------------
+		// FNF Mobile: inicialização da camada de compatibilidade Android.
+		// (pastas graváveis, opções que dependem do aparelho, teclado virtual,
+		//  gestos de menu e ciclo de vida do app)
+		// ------------------------------------------------------------------
+		MobilePlatform.init();
+		ClientPrefs.loadPrefs();
+		ClientPrefs.applyMobileDefaults();
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+		MobilePerf.applyPreferences();
+		MobileKeys.init();
+		MobileGestures.init();
+		MobileApp.init();
+		MobileBack.init();
+		#else
+		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+		#end
 
 		#if !mobile
 		fpsVar = new FPS(10, 3, 0xFFFFFF);

@@ -60,6 +60,11 @@ import StageData;
 import FunkinLua;
 import DialogueBoxPsych;
 import Conductor.Rating;
+import mobile.MobileCompat;
+import mobile.MobileControls;
+import mobile.MobileGestures;
+import mobile.MobilePerf;
+import mobile.MobilePlatform;
 
 #if !flash 
 import flixel.addons.display.FlxRuntimeShader;
@@ -1372,6 +1377,15 @@ class PlayState extends MusicBeatState
 		callOnLuas('onCreatePost', []);
 
 		super.create();
+
+		#if mobile
+		// ============================ FNF Mobile ============================
+		// controles por hitbox nas setas + botão de pausa + ajustes de cenário
+		MobileControls.attach(this);
+		MobileGestures.clear();
+		applyMobileSimplify();
+		// ====================================================================
+		#end
 
 		cacheCountdown();
 		cachePopUpScore();
@@ -2879,6 +2893,15 @@ class PlayState extends MusicBeatState
 		}*/
 		callOnLuas('onUpdate', [elapsed]);
 
+		#if mobile
+		if (mobilePauseRequest)
+		{
+			mobilePauseRequest = false;
+			mobileOpenPause();
+		}
+		MobileControls.update();
+		#end
+
 		switch (curStage)
 		{
 			case 'tank':
@@ -2888,7 +2911,7 @@ class PlayState extends MusicBeatState
 					bgGhouls.visible = false;
 				}
 			case 'philly':
-				if (trainMoving)
+				if (trainMoving && !MobileCompat.simplifyBackground())
 				{
 					trainFrameTiming += elapsed;
 
@@ -4975,6 +4998,11 @@ class PlayState extends MusicBeatState
 		if(FunkinLua.hscript != null) FunkinLua.hscript = null;
 		#end
 
+		#if mobile
+		MobileControls.detach();
+		MobileGestures.clear();
+		#end
+
 		if(!ClientPrefs.controllerMode)
 		{
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
@@ -5310,4 +5338,47 @@ class PlayState extends MusicBeatState
 
 	var curLight:Int = -1;
 	var curLightEvent:Int = -1;
+
+	#if mobile
+	// ============================== FNF Mobile ==============================
+	var mobilePauseRequest:Bool = false;
+
+	/**
+	 * Abre o menu de pausa. Usado pelo botão de pausa da tela e por quando o
+	 * aplicativo volta do segundo plano. É o mesmo caminho da tecla ESC.
+	 */
+	public function mobileOpenPause():Void
+	{
+		if (paused || isDead || endingSong || !startedCountdown) return;
+		if (subState != null) return;
+		openPauseMenu();
+	}
+
+	/** Pede a pausa para o próximo frame (o app acabou de voltar para a frente). */
+	public function mobileRequestPause():Void
+	{
+		mobilePauseRequest = true;
+	}
+
+	/**
+	 * Cenários enxutos das Semanas 1-3 para aparelho fraco: os dançarinos de
+	 * fundo e os efeitos de luz são os que mais custam, então saem de cena.
+	 */
+	function applyMobileSimplify():Void
+	{
+		if (!MobilePerf.skipBackgroundAnimations()) return;
+
+		try
+		{
+			if (bottomBoppers != null) bottomBoppers.visible = false;
+			if (upperBoppers != null) upperBoppers.visible = false;
+			if (bgGhouls != null) bgGhouls.visible = false;
+			if (phillyGlowParticles != null) phillyGlowParticles.visible = false;
+			if (phillyGlowGradient != null) phillyGlowGradient.visible = false;
+		}
+		catch (e:Dynamic) {}
+
+		MobilePlatform.logAppend('cenário simplificado aplicado (stage: ' + curStage + ')');
+	}
+	#end
 }

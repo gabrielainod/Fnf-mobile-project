@@ -10,10 +10,10 @@ import sys.io.File;
  * Camada base da compatibilidade mobile deste projeto.
  *
  * Cuida do que no Psych Engine simplesmente não existia no Android:
- *  - pastas graváveis (o APK é somente leitura, então "mods/" relativo não funciona)
- *  - pasta de mods acessível pelo jogador (Android/data/<pacote>/files/mods)
- *  - log em arquivo no próprio aparelho (sem precisar de ADB)
- *  - informações do aparelho usadas pelas opções de desempenho
+ *  - pastas graváveis (o APK é somente leitura, então "mods/" relativo não funciona);
+ *  - pasta de mods acessível pelo jogador, com teste real de escrita;
+ *  - log em arquivo no próprio aparelho (sem precisar de ADB);
+ *  - informações do aparelho usadas pelas opções de desempenho.
  */
 class MobilePlatform
 {
@@ -22,14 +22,15 @@ class MobilePlatform
 
 	/** Pasta onde os mods são lidos (absoluta no Android, relativa no PC). */
 	public static var modsFolder(default, null):String = 'mods';
-	/** Pasta pública opcional (ex.: /storage/emulated/0/FNF-Mobile/mods), se existir. */
-	public static var publicModsFolder(default, null):String = null;
-	/** Nome do pacote do aplicativo (com.fnfmobile.game). */
-	public static var packageName(default, null):String = null;
-	/** Pasta interna gravável do app. */
+	/** Pasta interna gravável do app (vem de applicationStorageDirectory). */
 	public static var storageFolder(default, null):String = null;
+	/** Nome do pacote do aplicativo. */
+	public static var packageName(default, null):String = null;
+	/** RAM total do aparelho em MB (0 se não deu para descobrir). */
+	public static var totalRamMB(default, null):Float = 0;
 
 	static var logPath:String = null;
+	static var logLines:Array<String> = [];
 	static var initialized:Bool = false;
 
 	public static function init():Void
@@ -48,81 +49,116 @@ class MobilePlatform
 			storageFolder = normalizePath(LimeSystem.applicationStorageDirectory);
 			packageName = detectPackageName(storageFolder);
 			ensureDir(storageFolder);
+			logPath = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
 
-			// Android/data/<pacote>/files — gravável SEM pedir nenhuma permissão
-			var external:String = detectExternalStorage();
-			var appExternal:String = external + '/Android/data/' + (packageName != null ? packageName : 'com.fnfmobile.game') + '/files';
+			try totalRamMB = openfl.system.System.totalMemory / (1024 * 1024);
+			catch (e:Dynamic) totalRamMB = 0;
 
-			if (ensureDir(appExternal))
-			{
-				modsFolder = appExternal + '/mods';
-			}
-			else
-			{
-				modsFolder = storageFolder + '/mods';
-			}
+			modsFolder = pickModsFolder();
 			ensureDir(modsFolder);
-
-			// pasta pública alternativa (só é usada se já existir e for legível)
-			var pub:String = external + '/FNF-Mobile/mods';
-			if (dirReadable(pub)) publicModsFolder = pub;
 		}
 		catch (e:Dynamic)
 		{
 			modsFolder = 'mods';
 		}
 
-		logPath = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
 		log('=== FNF Mobile iniciado ===');
 		log(deviceInfo());
-		log('mods: ' + modsFolder);
+		log('RAM total: ' + Math.round(totalRamMB) + ' MB');
+		log('pasta de mods: ' + modsFolder);
 	}
 
-	/** Todas as pastas de mods, na ordem em que são procuradas. */
-	public static function getModsFolders():Array<String>
+	/**
+	 * Escolhe a pasta de mods na seguinte ordem:
+	 *  1. /sdcard/FNF-Mobile/mods      -> o jogador copia mods por qualquer gerenciador de arquivos
+	 *  2. Android/data/<pacote>/files/mods -> sempre gravável, sem permissão nenhuma
+	 *  3. /data/data/<pacote>/files/mods   -> última alternativa (só o app enxerga)
+	 */
+	static function pickModsFolder():String
 	{
-		var list:Array<String> = [];
-		if (modsFolder != null && modsFolder != '') list.push(modsFolder);
-		if (publicModsFolder != null) list.push(publicModsFolder);
-		return list;
+		var external:String = detectExternalStorage();
+
+		if (external != null && external != '')
+		{
+			var pub:String = external + '/FNF-Mobile/mods';
+			if (probeWritable(pub)) return pub;
+
+			var appExternal:String = external + '/Android/data/' + packageName + '/files/mods';
+			if (probeWritable(appExternal)) return appExternal;
+		}
+
+		var internal:String = (storageFolder != null ? storageFolder : '.') + '/mods';
+		if (probeWritable(internal)) return internal;
+
+		return 'mods';
+	}
+
+	/** Cria a pasta e confirma que dá para escrever de verdade (não só existe). */
+	static function probeWritable(path:String):Bool
+	{
+		#if sys
+		if (path == null || path == '') return false;
+		try
+		{
+			if (!FileSystem.exists(path))
+			{
+				FileSystem.createDirectory(path);
+			}
+			var probe:String = path + '/.write-test';
+			File.saveContent(probe, 'ok');
+			var content:String = File.getContent(probe);
+			FileSystem.deleteFile(probe);
+			return content == 'ok';
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+		#else
+		return false;
+		#end
+	}
+
+	/** Nome amigável da pasta de mods para mostrar nas opções. */
+	public static function modsFolderLabel():String
+	{
+		if (modsFolder == null) return 'mods';
+		if (modsFolder.indexOf('FNF-Mobile') != -1) return '/sdcard/FNF-Mobile/mods';
+		if (modsFolder.indexOf('Android/data') != -1) return 'Android/data/' + packageName + '/files/mods';
+		return modsFolder;
 	}
 
 	public static function deviceInfo():String
 	{
 		var info:String = 'plataforma: ' + LimeSystem.platformType + ' (' + LimeSystem.platformName + ')';
 		#if android info += ' | android'; #end
-		#if (cpp || neko) info += ' | cpp'; #end
-		info += ' | pc: ' + LimeSystem.platformVersion;
+		#if cpp info += ' | cpp'; #end
+		info += ' | sistema: ' + LimeSystem.platformVersion;
+		info += ' | pacote: ' + packageName;
 		return info;
 	}
 
-	/** Escreve no log do aparelho (arquivo em Android/data/<pacote>/files/fnf-mobile.log). */
+	// ---------------------------------------------------------------- log
+
+	/** Log do aparelho (arquivo em Android/data/<pacote>/files/fnf-mobile.log). */
 	public static function log(message:String):Void
 	{
+		logAppend(message);
+		try { trace('[mobile] ' + message); } catch (e:Dynamic) {}
+	}
+
+	public static function logAppend(message:String):Void
+	{
+		var line:String = Date.now().toString() + '  ' + message;
+		logLines.push(line);
+		while (logLines.length > 120) logLines.shift();
+
 		#if sys
 		try
 		{
 			var path:String = logPath;
 			if (path == null) path = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
-			var stamp:String = Date.now().toString();
-			File.saveContent(path, stamp + '  ' + message + '\n');   // saveContent sobrescreve; mantemos só as últimas
-		}
-		catch (e:Dynamic) {}
-		#end
-		try { trace('[mobile] ' + message); } catch (e:Dynamic) {}
-	}
-
-	/** Salva um log acumulado (usado no final da música/erro). */
-	public static function logAppend(message:String):Void
-	{
-		#if sys
-		try
-		{
-			var path:String = logPath;
-			if (path == null) return;
-			var file = File.append(path, false);
-			file.writeString(Date.now().toString() + '  ' + message + '\n');
-			file.close();
+			File.saveContent(path, logLines.join('\n') + '\n');
 		}
 		catch (e:Dynamic) {}
 		#end
@@ -134,7 +170,7 @@ class MobilePlatform
 		if (path == null || path == '') return false;
 		try
 		{
-			if (FileSystem.exists(path)) return true;
+			if (FileSystem.exists(path)) return FileSystem.isDirectory(path);
 			FileSystem.createDirectory(path);
 			return true;
 		}
@@ -161,14 +197,14 @@ class MobilePlatform
 
 	static function detectPackageName(dir:String):String
 	{
-		if (dir == null) return null;
+		if (dir == null) return 'com.fnfmobile.game';
 		var clean:String = dir;
 		while (clean.length > 1 && (clean.charAt(clean.length - 1) == '/' || clean.charAt(clean.length - 1) == '\\'))
 			clean = clean.substr(0, clean.length - 1);
 		var parts:Array<String> = clean.split('/');
 		// .../data/data/<pacote>/files => <pacote>
 		if (parts.length >= 2) return parts[parts.length - 2];
-		return null;
+		return 'com.fnfmobile.game';
 	}
 
 	static function detectExternalStorage():String
@@ -176,7 +212,9 @@ class MobilePlatform
 		var candidates:Array<String> = [];
 		if (isAndroid)
 		{
-			var env:String = Sys.getEnv('EXTERNAL_STORAGE');
+			var env:String = null;
+			try env = Sys.getEnv('EXTERNAL_STORAGE');
+			catch (e:Dynamic) env = null;
 			if (env != null && env != '') candidates.push(env);
 			candidates.push('/storage/emulated/0');
 			candidates.push('/sdcard');
@@ -185,14 +223,13 @@ class MobilePlatform
 		{
 			if (c != null && c != '' && dirReadable(c)) return c;
 		}
-		return candidates.length > 0 ? candidates[0] : '/sdcard';
+		return candidates.length > 0 ? candidates[0] : '';
 	}
 
 	static function normalizePath(path:String):String
 	{
 		if (path == null) return null;
 		var p:String = path;
-		// o Lime pode devolver caminhos com "file://"
 		if (p.indexOf('file://') == 0) p = p.substr(7);
 		return p;
 	}

@@ -43,8 +43,9 @@ class MobilePerf
 			ClientPrefs.comboStacking = false;
 		}
 
-		// o FNF sempre quer vsync desligado no Android (o frame cap já limita)
-		FlxG.autoPause = ClientPrefs.mobileAutoPause;
+		// obs: FlxG.autoPause é ligado no MobileApp.init (economiza bateria quando o
+		// app vai para segundo plano). A opção mobileAutoPause controla a pausa da
+		// música/menu ao voltar.
 	}
 
 	/** Solta texturas/sons que não estão em uso (chamado ao trocar de estado). */
@@ -64,10 +65,12 @@ class MobilePerf
 		catch (e:Dynamic) {}
 	}
 
-	/** Fases 1-3 têm dançarinos no fundo; em modo desempenho eles são pulados. */
+	/** Fases 1-3 têm dançarinos e luzes no fundo; em modo desempenho eles saem de cena. */
 	public static function skipBackgroundAnimations():Bool
 	{
-		return lowEnd && ClientPrefs.mobileSimplifyBackground;
+		if (!MobilePlatform.isMobile) return false;
+		if (lowEnd) return true;                        // aparelho fraco: sempre simplifica
+		return ClientPrefs.mobileSimplifyBackground;    // escolha do jogador
 	}
 
 	/** NoteSplash é um dos efeitos mais caros por nota acertada. */
@@ -82,7 +85,9 @@ class MobilePerf
 		if (!MobilePlatform.isMobile || !ClientPrefs.mobileVibration) return;
 		try
 		{
-			lime.system.System.vibrate(0, durationMs);
+			// Lime 8: vibração via Haptic (precisa da permissão VIBRATE, que já está no
+			// AndroidManifest gerado pelo Project.xml)
+			lime.ui.Haptic.vibrate(0, durationMs);
 		}
 		catch (e:Dynamic) {}
 	}
