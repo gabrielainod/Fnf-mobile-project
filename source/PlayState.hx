@@ -5361,6 +5361,15 @@ class PlayState extends MusicBeatState
 	}
 
 	/**
+	 * O jogo está em condições de receber toque nas setas?
+	 * (contagem inicial terminou, não está pausado, morto ou no fim da música)
+	 */
+	public function mobileCanPlay():Bool
+	{
+		return startedCountdown && !paused && !endingSong && !isDead;
+	}
+
+	/**
 	 * Cenários enxutos das Semanas 1-3 para aparelho fraco: os dançarinos de
 	 * fundo e os efeitos de luz são os que mais custam, então saem de cena.
 	 */

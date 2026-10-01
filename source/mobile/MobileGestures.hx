@@ -83,8 +83,8 @@ class MobileGestures
 		if (ps != null)
 		{
 			var subStateOpened:Bool = (FlxG.state != null && FlxG.state.subState != null);
-			if (!subStateOpened && ps.startedCountdown && !ps.paused && !ps.endingSong && !ps.isDead)
-				return false;
+			if (!subStateOpened && ps.mobileCanPlay())
+				return false;   // música rolando: toque é só das setas
 		}
 		#end
 		return true;

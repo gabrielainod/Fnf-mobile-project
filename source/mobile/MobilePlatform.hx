@@ -62,6 +62,8 @@ class MobilePlatform
 			modsFolder = 'mods';
 		}
 
+		writeModsReadme();
+
 		log('=== FNF Mobile iniciado ===');
 		log(deviceInfo());
 		log('RAM total: ' + Math.round(totalRamMB) + ' MB');
@@ -91,6 +93,42 @@ class MobilePlatform
 		if (probeWritable(internal)) return internal;
 
 		return 'mods';
+	}
+
+	/** Explica na própria pasta como instalar mods (o jogador não tem manual). */
+	static function writeModsReadme():Void
+	{
+		#if sys
+		try
+		{
+			var path:String = modsFolder + '/LEIA-ME.txt';
+			if (FileSystem.exists(path)) return;
+			if (!FileSystem.exists(modsFolder)) return;
+
+			File.saveContent(path, [
+				'FNF Mobile - pasta de mods',
+				'',
+				'Cada mod e uma pasta aqui dentro, igual ao Psych Engine no PC:',
+				'',
+				'  <esta pasta>/MeuMod/pack.json',
+				'  <esta pasta>/MeuMod/data/bopeebo/bopeebo.json',
+				'  <esta pasta>/MeuMod/images/... (PNG + XML)',
+				'  <esta pasta>/MeuMod/songs/... (ogg)',
+				'  <esta pasta>/MeuMod/characters/... / stages/... / weeks/...',
+				'',
+				'Mods globais (rodam junto com o jogo base): crie um arquivo',
+				'modsList.txt nesta pasta, uma linha por mod, no formato:',
+				'',
+				'  MeuMod|1',
+				'',
+				'E onde esta esta pasta?',
+				'  ' + modsFolder,
+				'',
+				'Para atualizar a lista, feche e abra o jogo de novo.',
+			].join('\n'));
+		}
+		catch (e:Dynamic) {}
+		#end
 	}
 
 	/** Cria a pasta e confirma que dá para escrever de verdade (não só existe). */

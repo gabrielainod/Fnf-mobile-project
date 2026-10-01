@@ -94,7 +94,7 @@ class MobileApp
 
 		var ps = MobileControls.playState;
 		if (ps == null) return;
-		if (!ps.startedCountdown || ps.paused || ps.isDead || ps.endingSong) return;
+		if (!ps.mobileCanPlay()) return;
 
 		ps.mobileRequestPause();
 	}

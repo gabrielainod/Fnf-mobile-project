@@ -132,7 +132,7 @@ class MobileControls
 	inline public static function canPlay():Bool
 	{
 		if (playState == null) return false;
-		return playState.startedCountdown && !playState.paused && !playState.endingSong;
+		return playState.mobileCanPlay();
 	}
 
 	// ------------------------------------------------------------- hitboxes
