@@ -8,7 +8,7 @@ on:
       mode:
         description: 'full = APK completo | typecheck = só compila o Haxe (rápido)'
         type: choice
-        options: [full, typecheck]
+        options: [full, quick, typecheck]
         default: full
 
 permissions:
@@ -25,6 +25,7 @@ jobs:
     env:
       LOGFILE: ${{ github.workspace }}/build.log
       TYPECHECK_ONLY: ${{ (inputs.mode == 'typecheck' || contains(github.event.head_commit.message, '[typecheck]')) && '1' || '0' }}
+      QUICK: ${{ (inputs.mode == 'quick' || contains(github.event.head_commit.message, '[quick]')) && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
 

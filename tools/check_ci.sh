@@ -7,7 +7,14 @@ cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="$(git remote get-url origin | sed -E 's#.*github.com[:/]([^/]+/[^/.]+)(\.git)?#\1#')"
 
 if [ "${1:-}" != "--no-wait" ]; then
-  rid=$(gh run list --limit 1 --json databaseId -q '.[0].databaseId')
+  SHA="$(git rev-parse HEAD)"
+  rid=""
+  for _ in $(seq 1 20); do
+    rid=$(gh run list --limit 10 --json databaseId,headSha -q ".[] | select(.headSha==\"$SHA\") | .databaseId" 2>/dev/null | head -1)
+    [ -n "$rid" ] && break
+    sleep 5
+  done
+  [ -z "$rid" ] && { echo "nenhum run encontrado para $SHA"; exit 1; }
   echo "==> aguardando o run $rid terminar"
   for i in $(seq 1 90); do
     st=$(gh api "repos/$REPO/actions/runs/$rid" -q .status 2>/dev/null || echo "?")

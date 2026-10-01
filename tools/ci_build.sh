@@ -117,11 +117,15 @@ typecheck() {
 }
 
 build_apk() {
-	haxelib run lime build android
+	# -release: código otimizado (importante em aparelho fraco). O APK sai
+	# sem assinatura e é assinado por nós no passo seguinte.
+	haxelib run lime build android -release
 }
 
 find_apk() {
-	APK_SRC="$(find export/release/android -name "*.apk" -type f 2>/dev/null | head -1)"
+	# procura em todo o export (o Lime 8 usa export/release/android, mas o layout
+	# já mudou entre versões); pega o APK mais recente
+	APK_SRC="$(find export -name "*.apk" -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
 	if [ -z "$APK_SRC" ] || [ ! -f "$APK_SRC" ]; then
 		echo "ERRO: nenhum APK gerado em export/release/android"
 		find export -name "*.apk" 2>/dev/null | head
