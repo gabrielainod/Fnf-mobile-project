@@ -63,6 +63,31 @@ COMMIT_MSG="$(git log -1 --pretty=%s 2>/dev/null || echo '?')"
 echo "==> Relatório:"
 head -40 "$REPORT"
 
+# --------------------------------------- canal de status (sempre publicado)
+# o log do Actions não é legível fora do GitHub, então o resumo do build também
+# vai para o corpo de uma release fixa, que pode ser lida por API.
+if [ -n "${GH_TOKEN:-}" ]; then
+	SUMMARY="$(mktemp)"
+	{
+		head -30 "$REPORT"
+		echo ""
+		echo "-- erros --"
+		grep -n -i -E "error|fatal|exception|FALHOU" "$LOG" 2>/dev/null | head -40 || true
+		echo ""
+		echo "-- fim do log --"
+		tail -60 "$LOG" 2>/dev/null
+	} > "$SUMMARY" 2>&1
+
+	if gh release view ci-status >/dev/null 2>&1; then
+		gh release edit ci-status --title "Status do build (automático)" --notes-file "$SUMMARY" >/dev/null 2>&1 \
+			&& echo "status publicado em 'ci-status'" || echo "AVISO: falha ao editar a release ci-status"
+	else
+		gh release create ci-status --title "Status do build (automático)" --notes-file "$SUMMARY" >/dev/null 2>&1 \
+			&& echo "release 'ci-status' criada" || echo "AVISO: falha ao criar a release ci-status"
+	fi
+	rm -f "$SUMMARY"
+fi
+
 # --------------------------------------------------------------------- release
 if [ -n "$APK" ] && [ -f "$APK" ] && [ -n "${GH_TOKEN:-}" ]; then
 	echo "==> Publicando release $RELEASE_TAG"
@@ -115,7 +140,23 @@ if [ -n "${GH_TOKEN:-}" ] && [ -n "${GITHUB_REPOSITORY:-}" ]; then
 	git -C "$WORK" config user.name "FNF Mobile CI"
 	git -C "$WORK" add -A
 	git -C "$WORK" commit -q -m "ci: build #$RUN_NUMBER — $STATUS" || echo "nada para commitar"
-	git -C "$WORK" push -q -f origin HEAD:ci-report && echo "relatório publicado no branch ci-report" || echo "AVISO: falha ao publicar relatório"
+
+	PUBLISHED=0
+	for attempt in 1 2 3; do
+		if git -C "$WORK" push -f origin HEAD:ci-report 2>/tmp/ci-push-err.log; then
+			PUBLISHED=1
+			echo "relatório publicado no branch ci-report (tentativa $attempt)"
+			break
+		fi
+		echo "AVISO: push do relatório falhou (tentativa $attempt):"
+		head -5 /tmp/ci-push-err.log
+		sleep 5
+		git -C "$WORK" fetch -q origin ci-report 2>/dev/null || true
+	done
+	if [ "$PUBLISHED" != "1" ]; then
+		echo "ERRO: não foi possível publicar o relatório no branch ci-report"
+		head -20 /tmp/ci-push-err.log
+	fi
 fi
 
 echo ""
