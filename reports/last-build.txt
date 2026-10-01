@@ -1,0 +1,16 @@
+FNF Mobile — relatório de build
+================================
+status    : FAIL:desconhecido
+run       : #1
+run url   : https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/36937226351
+commit    : ed55a5d — build: pipeline Android (SDK/NDK, Haxe, assets semanas 1-3, APK assinado + release)
+data      : 2026-10-01 22:49:04 UTC
+
+APK       : (nenhum APK gerado)
+
+-- marcos do log --
+
+-- erros encontrados no log --
+(nenhum)
+
+-- últimas 120 linhas do log --
