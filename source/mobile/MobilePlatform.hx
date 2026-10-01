@@ -51,8 +51,14 @@ class MobilePlatform
 			ensureDir(storageFolder);
 			logPath = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
 
-			try totalRamMB = openfl.system.System.totalMemory / (1024 * 1024);
-			catch (e:Dynamic) totalRamMB = 0;
+			try
+			{
+				totalRamMB = openfl.system.System.totalMemory / (1024 * 1024);
+			}
+			catch (e:Dynamic)
+			{
+				totalRamMB = 0;
+			}
 
 			modsFolder = pickModsFolder();
 			ensureDir(modsFolder);
@@ -251,8 +257,14 @@ class MobilePlatform
 		if (isAndroid)
 		{
 			var env:String = null;
-			try env = Sys.getEnv('EXTERNAL_STORAGE');
-			catch (e:Dynamic) env = null;
+			try
+			{
+				env = Sys.getEnv('EXTERNAL_STORAGE');
+			}
+			catch (e:Dynamic)
+			{
+				env = null;
+			}
 			if (env != null && env != '') candidates.push(env);
 			candidates.push('/storage/emulated/0');
 			candidates.push('/sdcard');

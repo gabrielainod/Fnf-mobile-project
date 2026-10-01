@@ -351,8 +351,14 @@ class ClientPrefs {
 		if (FlxG.save.data.fnfMobileDefaultsDone == true) return;
 
 		var ramMB:Float = 0;
-		try ramMB = openfl.system.System.totalMemory / (1024 * 1024);
-		catch (e:Dynamic) ramMB = 0;
+		try
+		{
+			ramMB = openfl.system.System.totalMemory / (1024 * 1024);
+		}
+		catch (e:Dynamic)
+		{
+			ramMB = 0;
+		}
 
 		if (ramMB > 0 && ramMB <= 2900)
 		{
