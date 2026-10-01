@@ -1,0 +1,18 @@
+# Build artifacts (nunca commitar)
+export/
+dist/
+build.log
+ci-report/
+
+# Dependências (baixadas pelos scripts)
+.haxelib/
+.haxe/
+android-sdk/
+
+# Assets do FNF: baixados por tools/fetch_assets.sh (não são redistribuídos no repositório)
+assets/
+example_mods_bkp/
+
+# Temporários
+*.tmp
+.DS_Store

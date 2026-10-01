@@ -1,0 +1,185 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# Build do APK (FNF Mobile). Faz typecheck rápido, compila (hxcpp/NDK), assina e
+# verifica o APK. Todo o log vai para ./build.log, que o CI publica no branch
+# "ci-report" (é assim que o build se reporta).
+#
+# Variáveis:
+#   QUICK=1     -> só arm64-v8a (build de teste mais rápido)
+#   ABIS=arm64  -> idem
+# -----------------------------------------------------------------------------
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+LOG="$ROOT/build.log"
+: > "$LOG"
+STATUS_FILE="$ROOT/.ci-status"
+echo "PENDING" > "$STATUS_FILE"
+
+QUICK="${QUICK:-0}"
+ABIS="${ABIS:-both}"
+if [ "$QUICK" = "1" ]; then ABIS="arm64"; fi
+
+export HAXELIB_PATH="${HAXELIB_PATH:-$ROOT/.haxelib}"
+export PATH="${HAXE_HOME:-$HOME/haxe}:$PATH"
+export ANDROID_SDK="${ANDROID_SDK:-$HOME/android-sdk}"
+export ANDROID_SDK_ROOT="$ANDROID_SDK"
+export ANDROID_HOME="$ANDROID_SDK"
+NDK_VERSION="${NDK_VERSION:-21.4.7075529}"
+export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$ANDROID_SDK/ndk/$NDK_VERSION}"
+export ANDROID_NDK_DIR="$ANDROID_NDK_ROOT"
+export JAVA_HOME="${JAVA_HOME:-}"
+
+BUILD_TOOLS="$ANDROID_SDK/build-tools/30.0.3"
+APK_NAME="FNF-Mobile-1.0.0.apk"
+KS_DIR="$ROOT/signing"
+KS="$KS_DIR/fnf-mobile.keystore"
+KS_PASS="${KS_PASS:-fnfmobile}"
+KS_ALIAS="fnfmobile"
+
+log() { echo "$*" | tee -a "$LOG"; }
+
+run_step() {
+	local name="$1"; shift
+	log ""
+	log "########## STEP: $name ##########"
+	local t0 dt rc
+	t0=$(date +%s)
+	"$@" >>"$LOG" 2>&1
+	rc=$?
+	dt=$(( $(date +%s) - t0 ))
+	if [ "$rc" -eq 0 ]; then
+		log "########## OK: $name (${dt}s) ##########"
+		return 0
+	fi
+	log "########## FALHOU: $name (exit $rc, ${dt}s) ##########"
+	echo "FAIL:$name" > "$STATUS_FILE"
+	return 1
+}
+
+# ---------------------------------------------------------------- passos simples
+dump_env() {
+	echo "commit: $(git rev-parse --short HEAD 2>/dev/null)"
+	echo "haxe: $(haxe --version 2>&1)"
+	echo "haxelib: $HAXELIB_PATH"
+	haxelib list 2>&1
+	echo "java: $(java -version 2>&1 | head -2 | tr '\n' ' ')"
+	echo "ANDROID_SDK: $ANDROID_SDK"
+	echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
+	echo "build-tools: $(ls "$ANDROID_SDK/build-tools" 2>&1 | tr '\n' ' ')"
+	echo "platforms: $(ls "$ANDROID_SDK/platforms" 2>&1 | tr '\n' ' ')"
+	echo "ndk: $(ls "$ANDROID_SDK/ndk" 2>&1 | tr '\n' ' ')"
+	echo "gcc/g++: $(g++ --version 2>&1 | head -1)"
+	echo "cpu: $(nproc) cores"
+	df -h / | tail -1
+}
+
+configure_abis() {
+	echo "ABIs solicitadas: $ABIS"
+	if [ "$ABIS" = "arm64" ]; then
+		sed -i 's|<architecture name="armv7" />|<architecture name="armv7" exclude="armv7" />|' Project.xml
+		echo "armv7 removida (build rápido)"
+	fi
+	grep -n "<architecture" Project.xml
+}
+
+fetch_keystore() {
+	mkdir -p "$KS_DIR"
+	if [ -f "$KS" ]; then
+		echo "keystore já existe no workspace"
+		return 0
+	fi
+	if git fetch -q origin ci-report 2>/dev/null; then
+		if git show origin/ci-report:signing/fnf-mobile.keystore > "$KS" 2>/dev/null && [ -s "$KS" ]; then
+			echo "keystore recuperado do branch ci-report (assinatura estável entre builds)"
+			return 0
+		fi
+	fi
+	rm -f "$KS"
+	echo "gerando keystore novo"
+	keytool -genkeypair -keystore "$KS" -alias "$KS_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
+		-storepass "$KS_PASS" -keypass "$KS_PASS" \
+		-dname "CN=FNF Mobile, OU=Personal, O=Personal, C=BR" >/dev/null 2>&1 || {
+		echo "ERRO: keytool falhou"; return 1; }
+	keytool -list -keystore "$KS" -storepass "$KS_PASS" 2>&1 | tail -3
+}
+
+typecheck() {
+	cp Project.xml /tmp/Project.xml.orig
+	sed -i 's|</project>|\t<haxeflag name="--no-output" />\n</project>|' Project.xml
+	grep -n "no-output" Project.xml
+	set +e
+	haxelib run lime build android
+	local rc=$?
+	set -e
+	cp /tmp/Project.xml.orig Project.xml
+	return $rc
+}
+
+build_apk() {
+	haxelib run lime build android
+}
+
+find_apk() {
+	APK_SRC="$(find export/release/android -name "*.apk" -type f 2>/dev/null | head -1)"
+	if [ -z "$APK_SRC" ] || [ ! -f "$APK_SRC" ]; then
+		echo "ERRO: nenhum APK gerado em export/release/android"
+		find export -name "*.apk" 2>/dev/null | head
+		return 1
+	fi
+	echo "APK bruto: $APK_SRC"
+	echo "$APK_SRC" > "$ROOT/.apk-src"
+}
+
+package_apk() {
+	local src out
+	src="$(cat "$ROOT/.apk-src")"
+	mkdir -p "$ROOT/dist"
+	out="$ROOT/dist/$APK_NAME"
+
+	"$BUILD_TOOLS/zipalign" -f -p 4 "$src" /tmp/aligned.apk || {
+		echo "ERRO: zipalign falhou"; return 1; }
+
+	"$BUILD_TOOLS/apksigner" sign --ks "$KS" --ks-key-alias "$KS_ALIAS" \
+		--ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS" \
+		--v1-signing-enabled true --v2-signing-enabled true \
+		--out "$out" /tmp/aligned.apk || { echo "ERRO: apksigner falhou"; return 1; }
+
+	"$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$out" || { echo "ERRO: verificação da assinatura falhou"; return 1; }
+
+	echo ""
+	echo "==> APK final: $out"
+	ls -la "$out"
+	echo "sha256: $(sha256sum "$out" | cut -d' ' -f1)"
+	echo ""
+	echo "==> Conteúdo (resumo):"
+	unzip -l "$out" | tail -3
+	echo "assets no APK: $(unzip -l "$out" | grep -c 'assets/')"
+	echo "libs nativas:"
+	unzip -l "$out" | grep -E "lib/(arm64-v8a|armeabi-v7a)/" | sed 's/^/    /'
+	echo ""
+	echo "==> Assets empacotados (topo):"
+	unzip -l "$out" | awk '{print $4}' | grep -E "^assets/" | cut -d/ -f1-3 | sort -u | head -30
+
+	echo "$out" > "$ROOT/.apk-final"
+}
+
+main() {
+	run_step dump_env dump_env || exit 1
+	run_step configure_abis configure_abis || exit 1
+	run_step keystore fetch_keystore || exit 1
+	run_step typecheck typecheck || exit 1
+	run_step build_nativo build_apk || exit 1
+	run_step localizar_apk find_apk || exit 1
+	run_step assinar_e_verificar package_apk || exit 1
+
+	echo "OK:$(basename "$(cat "$ROOT/.apk-final" 2>/dev/null)")" > "$STATUS_FILE"
+	log ""
+	log "########## BUILD COMPLETO ##########"
+	log "status: $(cat "$STATUS_FILE")"
+	return 0
+}
+
+main
