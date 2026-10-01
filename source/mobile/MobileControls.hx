@@ -91,7 +91,7 @@ class MobileControls
 
 		for (i in 0...4)
 		{
-			var key:FlxKey = null;
+			var key:Null<FlxKey> = null;
 			try
 			{
 				var binds:Array<FlxKey> = ClientPrefs.keyBinds.get(names[i]);

@@ -101,7 +101,7 @@ class MobileKeys
 		for (i in 0...times) queueTap(key);
 	}
 
-	static function queuePush(key:FlxKey, press:Bool):Void
+	static function queuePush(key:Null<FlxKey>, press:Bool):Void
 	{
 		if (!enabled) return;
 		if (key == null) return;

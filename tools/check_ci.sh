@@ -4,16 +4,23 @@
 set -uo pipefail
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+REPO="$(git remote get-url origin | sed -E 's#.*github.com[:/]([^/]+/[^/.]+)(\.git)?#\1#')"
+
 if [ "${1:-}" != "--no-wait" ]; then
-  rid=$(gh run list --limit 1 --json databaseId,status -q '.[0].databaseId')
-  echo "==> aguardando o run $rid terminar (gh run watch)"
-  gh run watch "$rid" --interval 15 >/dev/null 2>&1 || true
-  gh run view "$rid" --json status,conclusion -q '"run \(.status)/\(.conclusion)"' 2>/dev/null || true
+  rid=$(gh run list --limit 1 --json databaseId -q '.[0].databaseId')
+  echo "==> aguardando o run $rid terminar"
+  for i in $(seq 1 90); do
+    st=$(gh api "repos/$REPO/actions/runs/$rid" -q .status 2>/dev/null || echo "?")
+    echo "   [$i] $st"
+    [ "$st" = "completed" ] && break
+    sleep 20
+  done
+  gh api "repos/$REPO/actions/runs/$rid" -q '.status + "/" + (.conclusion // "-") + " → " + .html_url' 2>/dev/null
 fi
 gh run list --limit 3 | cat
 
 rm -rf /tmp/cirCI
-git clone -q --depth 1 --branch ci-report https://github.com/gabrielainod/Fnf-mobile-project /tmp/cirCI 2>/dev/null || { echo "SEM RELATORIO (branch ci-report não publicado)"; exit 1; }
+git clone -q --depth 1 --branch ci-report "$(git remote get-url origin)" /tmp/cirCI 2>/dev/null || { echo "SEM RELATORIO (branch ci-report não publicado)"; exit 1; }
 echo "=================== RESUMO ==================="
 head -14 /tmp/cirCI/reports/last-build.txt
 echo "=================== ERROS ===================="
