@@ -241,6 +241,34 @@ verify_assets() {
 	echo ""
 	echo "==> Amostra de arquivos de dados (o jogo lê estes no boot):"
 	unzip -l "$out" | grep -E "assets/assets/(data|weeks|music)/" | head -25
+
+	# O Lime só entrega um asset se ele estiver no manifesto (assets/manifest/*.json).
+	# Estar dentro do APK não basta: é aqui que se prova que o jogo acha o arquivo.
+	echo ""
+	echo "==> Manifesto de assets (o que o jogo consegue carregar):"
+	local tmpm
+	tmpm="$(mktemp -d)"
+	unzip -q -o "$out" 'assets/manifest/*' -d "$tmpm" 2>/dev/null || true
+	local manifest_files
+	manifest_files="$(ls "$tmpm/assets/manifest/" 2>/dev/null | tr '\n' ' ')"
+	echo "    manifestos: $manifest_files"
+	for item in \
+		"assets/images/logoBumpin.xml" \
+		"assets/images/logoBumpin.png" \
+		"assets/images/titleEnter.xml" \
+		"assets/images/gfDanceTitle.json" \
+		"assets/images/gfDanceTitle.png" \
+		"assets/data/introText.txt" \
+		"assets/weeks/weekList.txt" \
+		"assets/music/freakyMenu.ogg"
+	do
+		if grep -q -- "$item" "$tmpm"/assets/manifest/*.json 2>/dev/null; then
+			echo "    NO MANIFESTO  $item"
+		else
+			echo "    FORA DO MANIFESTO  $item"
+		fi
+	done
+	rm -rf "$tmpm"
 }
 
 main() {

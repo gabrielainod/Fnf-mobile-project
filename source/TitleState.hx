@@ -4,6 +4,9 @@ package;
 import Discord.DiscordClient;
 import sys.thread.Thread;
 #end
+#if mobile
+import mobile.MobilePlatform;
+#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -284,7 +287,18 @@ class TitleState extends MusicBeatState
 		add(bg);
 
 		logoBl = new FlxSprite(titleJSON.titlex, titleJSON.titley);
+		#if mobile
+		try
+		{
+			logoBl.frames = Paths.getSparrowAtlas('logoBumpin');
+		}
+		catch (e:Dynamic)
+		{
+			MobilePlatform.log('AVISO: nao consegui carregar o logo do titulo: ' + Std.string(e));
+		}
+		#else
 		logoBl.frames = Paths.getSparrowAtlas('logoBumpin');
+		#end
 
 		logoBl.antialiasing = ClientPrefs.globalAntialiasing;
 		logoBl.animation.addByPrefix('bump', 'logo bumpin', 24, false);
@@ -331,9 +345,25 @@ class TitleState extends MusicBeatState
 		gfDance.antialiasing = ClientPrefs.globalAntialiasing;
 
 		add(gfDance);
-		gfDance.shader = swagShader.shader;
 		add(logoBl);
+
+		#if mobile
+		// O shader de cor (ColorSwap) é o único efeito de GPU do título. Em alguns
+		// aparelhos o driver recusa o shader e o desenho da tela inteira morre
+		// junto. Aqui ele é opcional: se falhar, o título aparece sem o efeito.
+		try
+		{
+			gfDance.shader = swagShader.shader;
+			logoBl.shader = swagShader.shader;
+		}
+		catch (e:Dynamic)
+		{
+			MobilePlatform.log('AVISO: shader do titulo desativado neste aparelho: ' + Std.string(e));
+		}
+		#else
+		gfDance.shader = swagShader.shader;
 		logoBl.shader = swagShader.shader;
+		#end
 
 		titleText = new FlxSprite(titleJSON.startx, titleJSON.starty);
 		#if (desktop && MODS_ALLOWED)

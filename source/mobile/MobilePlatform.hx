@@ -228,6 +228,12 @@ class MobilePlatform
 		logLines.push(line);
 		while (logLines.length > 200) logLines.shift();
 
+		// erro em tempo real aparece na tela (print = diagnostico sem PC)
+		if (message.indexOf('ERRO') != -1 || message.indexOf('FATAL') != -1 || message.indexOf('CRASH') != -1)
+		{
+			MobileDebugOverlay.showError('FNF Mobile - algo deu errado', message);
+		}
+
 		#if sys
 		var content:String = logLines.join('\n') + '\n';
 		for (folder in logFolders)
@@ -314,6 +320,9 @@ class MobilePlatform
 
 		stateTrail.push(stateName);
 		log('estado: ' + stateName);
+
+		// se o jogo avancou de tela, o problema (se havia) passou: tira o aviso
+		MobileDebugOverlay.hide();
 
 		if (!bootOk && (stateName.indexOf('Title') != -1 || stateName.indexOf('MainMenu') != -1))
 		{

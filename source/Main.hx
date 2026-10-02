@@ -142,6 +142,28 @@ class Main extends Sprite
 			throw e;
 		}
 
+		// marcadores: provam que o laco de jogo (update/draw) esta rodando.
+		// Se o app fica preto e o log nao tem 'primeiro draw', o problema e no
+		// laco/renderizacao, nao numa tela especifica.
+		try
+		{
+			var firstUpdate:Bool = false;
+			var firstDraw:Bool = false;
+			FlxG.signals.postUpdate.add(function()
+			{
+				if (firstUpdate) return;
+				firstUpdate = true;
+				MobilePlatform.log('primeiro update OK');
+			});
+			FlxG.signals.postDraw.add(function()
+			{
+				if (firstDraw) return;
+				firstDraw = true;
+				MobilePlatform.log('primeiro draw OK (a tela esta desenhando)');
+			});
+		}
+		catch (e:Dynamic) { }
+
 		// tudo daqui pra baixo é opcional: se algo falhar, o jogo tem que abrir
 		try
 		{

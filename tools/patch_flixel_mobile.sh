@@ -67,6 +67,18 @@ helper = '''
 
 		try { trace("FNF-ERRO " + msg); } catch (x:Dynamic) { }
 
+		// mostra na tela, por cima de tudo (via OpenFL, nao pelo Flixel: o
+		// caminho do desenho pode estar quebrado justo quando da erro)
+		try
+		{
+			var cls = Type.resolveClass("mobile.MobileDebugOverlay");
+			if (cls != null)
+			{
+				Reflect.callMethod(cls, Reflect.field(cls, "showError"), ["FNF Mobile - erro em " + where, msg]);
+			}
+		}
+		catch (x:Dynamic) { }
+
 		#if sys
 		var dirs:Array<String> = [];
 		try { dirs.push(lime.system.System.applicationStorageDirectory + "/log"); } catch (x:Dynamic) { }
