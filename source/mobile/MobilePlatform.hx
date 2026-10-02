@@ -208,6 +208,38 @@ class MobilePlatform
 		#end
 	}
 
+	/**
+	 * Últimas linhas do log, para mostrar dentro do jogo (útil quando o jogador
+	 * não tem como acessar arquivo no celular). Se a memória estiver vazia,
+	 * tenta ler o arquivo.
+	 */
+	public static function logTail(maxLines:Int = 30):String
+	{
+		var lines:Array<String> = logLines;
+		if (lines == null || lines.length == 0)
+		{
+			#if sys
+			try
+			{
+				var path:String = logPath;
+				if (path == null) path = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
+				if (FileSystem.exists(path)) lines = File.getContent(path).split('\n');
+			}
+			catch (e:Dynamic) { lines = []; }
+			#end
+		}
+		if (lines == null || lines.length == 0) return '(sem mensagens ainda)';
+
+		var start:Int = lines.length - maxLines;
+		if (start < 0) start = 0;
+		var out:String = '';
+		for (i in start...lines.length)
+		{
+			if (lines[i] != null && lines[i].length > 0) out += lines[i] + '\n';
+		}
+		return out;
+	}
+
 	public static function ensureDir(path:String):Bool
 	{
 		#if sys

@@ -248,9 +248,10 @@ class WeekData {
 		Paths.currentModDirectory = '';
 		
 		#if MODS_ALLOWED
-		if (FileSystem.exists("modsList.txt"))
+		var listPath:String = #if mobile MobilePlatform.modsFolder + '/modsList.txt' #else 'modsList.txt' #end;
+		if (FileSystem.exists(listPath))
 		{
-			var list:Array<String> = CoolUtil.listFromString(File.getContent("modsList.txt"));
+			var list:Array<String> = CoolUtil.listFromString(File.getContent(listPath));
 			var foundTheTop = false;
 			for (i in list)
 			{

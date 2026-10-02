@@ -96,14 +96,50 @@ class Main extends Sprite
 		//  gestos de menu e ciclo de vida do app)
 		// ------------------------------------------------------------------
 		MobilePlatform.init();
-		ClientPrefs.loadPrefs();
-		ClientPrefs.applyMobileDefaults();
+
+		// O save precisa estar ligado ANTES de ler/escrever FlxG.save.data:
+		// o Psych só chama FlxG.save.bind() lá dentro do TitleState, e escrever
+		// em FlxG.save.data antes disso derruba o app no Android.
+		var saveOk:Bool = false;
+		try
+		{
+			saveOk = FlxG.save.bind('funkin', 'ninjamuffin99');
+		}
+		catch (e:Dynamic)
+		{
+			MobilePlatform.log('AVISO: nao consegui abrir o save: ' + Std.string(e));
+		}
+		MobilePlatform.log('save ligado: ' + saveOk);
+
+		if (saveOk && FlxG.save.data != null)
+		{
+			try
+			{
+				ClientPrefs.loadPrefs();
+				ClientPrefs.applyMobileDefaults();
+			}
+			catch (e:Dynamic)
+			{
+				MobilePlatform.log('ERRO ao carregar preferencias: ' + Std.string(e));
+			}
+		}
+
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
-		MobilePerf.applyPreferences();
-		MobileKeys.init();
-		MobileGestures.init();
-		MobileApp.init();
-		MobileBack.init();
+
+		// tudo daqui pra baixo é opcional: se algo falhar, o jogo tem que abrir
+		try
+		{
+			MobilePerf.applyPreferences();
+			MobileKeys.init();
+			MobileGestures.init();
+			MobileApp.init();
+			MobileBack.init();
+			MobilePlatform.log('camada mobile inicializada');
+		}
+		catch (e:Dynamic)
+		{
+			MobilePlatform.log('ERRO na camada mobile: ' + Std.string(e));
+		}
 		#else
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 		#end

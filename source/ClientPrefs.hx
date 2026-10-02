@@ -78,6 +78,8 @@ class ClientPrefs {
 	public static var mobileSimplifyBackground:Bool = true;
 	/** Modo aparelho fraco: desliga antialiasing, shaders, splashes e efeitos. */
 	public static var lowEndMode:Bool = false;
+	/** Mostra o log do app na tela de opções (diagnóstico; não é salvo). */
+	public static var mobileLogViewer:Bool = false;
 	#end
 
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];
@@ -348,6 +350,14 @@ class ClientPrefs {
 	 */
 	public static function applyMobileDefaults():Void
 	{
+		// sem save ligado não dá para gravar nada (e escrever em FlxG.save.data
+		// nulo derruba o app): nesse caso só define os padrões em memória
+		if (FlxG.save.data == null)
+		{
+			MobilePlatform.log('AVISO: save indisponivel, defaults mobile so em memoria');
+			applyMobileValues(0);
+			return;
+		}
 		if (FlxG.save.data.fnfMobileDefaultsDone == true) return;
 
 		var ramMB:Float = 0;
@@ -360,6 +370,26 @@ class ClientPrefs {
 			ramMB = 0;
 		}
 
+		applyMobileValues(ramMB);
+		FlxG.save.data.fnfMobileDefaultsDone = true;
+
+		try
+		{
+			saveSettings();
+		}
+		catch (e:Dynamic)
+		{
+			MobilePlatform.log('AVISO: falha ao gravar preferencias: ' + Std.string(e));
+		}
+		FlxG.log.add('FNF Mobile: defaults aplicados (RAM: ' + Math.round(ramMB) + ' MB)');
+	}
+
+	/**
+	 * Padrões por aparelho: até 2,9 GB de RAM liga o modo aparelho fraco e 30 FPS;
+	 * até 4,2 GB só simplifica o fundo. Nunca mexe em escolha já salva pelo jogador.
+	 */
+	static function applyMobileValues(ramMB:Float):Void
+	{
 		if (ramMB > 0 && ramMB <= 2900)
 		{
 			lowEndMode = true;
@@ -370,12 +400,6 @@ class ClientPrefs {
 		{
 			mobileSimplifyBackground = true;
 		}
-
-		// teclado virtual: os binds de teclado continuam valendo, mas em aparelho
-		// sem gamepad o toque é o controle principal
-		FlxG.save.data.fnfMobileDefaultsDone = true;
-		saveSettings();
-		FlxG.log.add('FNF Mobile: defaults aplicados (RAM: ' + Math.round(ramMB) + ' MB)');
 	}
 	#end
 

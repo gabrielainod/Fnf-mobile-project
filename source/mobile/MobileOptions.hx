@@ -79,7 +79,27 @@ class MobileOptions extends BaseOptionsMenu
 			'Vibra de leve no toque das setas (usa o vibrador do aparelho).',
 			'mobileVibration', 'bool', true));
 
+		// ------------------------------------------------- diagnóstico
+		var logOpt = new Option('Ver log do jogo',
+			'Mostra aqui do lado as últimas mensagens do app. Se algo der errado, é isto que ajuda a descobrir a causa (pode tirar print).',
+			'mobileLogViewer', 'bool', false);
+		logOpt.onChange = function() { toggleLogPanel(); };
+		addOption(logOpt);
+
 		super();
+
+		// ------------------------------------------------- painel de log
+		logPanel = new FlxSprite(24, FlxG.height * 0.52);
+		logPanel.makeGraphic(FlxG.width - 48, Std.int(FlxG.height * 0.44), 0xCC000000);
+		logPanel.scrollFactor.set(0, 0);
+		logPanel.visible = false;
+		add(logPanel);
+
+		logText = new FlxText(36, logPanel.y + 12, FlxG.width - 72, '', 13);
+		logText.setFormat(Paths.font('vcr.ttf'), 13, 0xFFB9FFB9, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		logText.scrollFactor.set(0, 0);
+		logText.visible = false;
+		add(logText);
 
 		// ------------------------------------------------- pasta de mods
 		var info:FlxText = new FlxText(75, 92, FlxG.width - 150, '', 16);
@@ -88,6 +108,34 @@ class MobileOptions extends BaseOptionsMenu
 		info.alpha = 0.75;
 		info.borderSize = 1.6;
 		add(info);
+	}
+
+	var logPanel:FlxSprite = null;
+	var logText:FlxText = null;
+
+	/**
+	 * Liga/desliga o painel com as últimas mensagens do app. É o canal de
+	 * diagnóstico do jogador: sem PC e sem adb, dá para ler na tela o que
+	 * aconteceu (e mandar um print).
+	 */
+	function toggleLogPanel():Void
+	{
+		if (logPanel == null || logText == null) return;
+
+		var show:Bool = ClientPrefs.mobileLogViewer;
+		logPanel.visible = show;
+		logText.visible = show;
+
+		if (show)
+		{
+			logText.text = 'Log do app (últimas mensagens)\n'
+				+ '----------------------------------------\n'
+				+ MobilePlatform.deviceInfo() + '\n'
+				+ 'RAM: ' + Math.round(MobilePlatform.totalRamMB) + ' MB\n'
+				+ 'Mods: ' + MobilePlatform.modsFolder + '\n'
+				+ '----------------------------------------\n'
+				+ MobilePlatform.logTail(22);
+		}
 	}
 }
 #end
