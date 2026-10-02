@@ -50,6 +50,11 @@
 	-->
 	<android minimum-sdk-version="21" target-sdk-version="28" install-location="auto" gradle-version="6.7.1" />
 	<config:android gradle-plugin="4.1.3" build-tools-version="30.0.3" />
+	<!-- Assinatura: o keystore é gerado/baixado em signing/ (nunca vai para o Git).
+	     Com ele o Gradle monta a variante release já assinada; sem ele o APK sai
+	     na variante debug (o CI então assina por fora com apksigner). -->
+	<certificate path="signing/fnf-mobile.keystore" password="fnfmobile" alias="fnfmobile" alias-password="fnfmobile" if="android" />
+
 	<android permission="android.permission.VIBRATE" />
 	<android permission="android.permission.WAKE_LOCK" />
 	<android permission="android.permission.INTERNET" />

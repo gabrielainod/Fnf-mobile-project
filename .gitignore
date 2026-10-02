@@ -13,6 +13,9 @@ android-sdk/
 assets/
 example_mods_bkp/
 
+# Keystore de assinatura (fica só no branch ci-report)
+signing/
+
 # Temporários
 *.tmp
 .DS_Store

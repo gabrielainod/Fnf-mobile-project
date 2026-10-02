@@ -42,7 +42,7 @@ class MobileKeys
 
 		// ao trocar de tela, joga fora toques pendentes: senão um toque feito no
 		// menu anterior acertaria um item do menu novo
-		FlxG.signals.stateSwitched.add(clearQueue);
+		FlxG.signals.preStateSwitch.add(clearQueue);
 	}
 
 	/** Quantos passos ainda estão na fila (usado para não afogar o menu). */

@@ -117,17 +117,23 @@ typecheck() {
 }
 
 build_apk() {
-	# -release: código otimizado (importante em aparelho fraco). O APK sai
-	# sem assinatura e é assinado por nós no passo seguinte.
+	# -release: código otimizado (importante em aparelho fraco). Como o
+	# Project.xml declara o keystore, o Gradle monta a variante release e já
+	# assina; se o keystore não estiver disponível, ele gera um APK sem
+	# assinatura que nós assinamos no passo seguinte.
 	haxelib run lime build android -release
 }
 
 find_apk() {
-	# procura em todo o export (o Lime 8 usa export/release/android, mas o layout
-	# já mudou entre versões); pega o APK mais recente
-	APK_SRC="$(find export -name "*.apk" -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
+	# 1) prefere a variante release do Gradle (a que sai assinada e alinhada)
+	# 2) senão pega o APK mais recente que existir no export
+	APK_SRC="$(find export -path '*apk/release*' -name '*.apk' -type f 2>/dev/null | head -1)"
 	if [ -z "$APK_SRC" ] || [ ! -f "$APK_SRC" ]; then
-		echo "ERRO: nenhum APK gerado em export/release/android"
+		echo "nenhum APK release encontrado; usando o mais recente do export"
+		APK_SRC="$(find export -name '*.apk' -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
+	fi
+	if [ -z "$APK_SRC" ] || [ ! -f "$APK_SRC" ]; then
+		echo "ERRO: nenhum APK gerado em export/"
 		find export -name "*.apk" 2>/dev/null | head
 		return 1
 	fi
@@ -141,14 +147,48 @@ package_apk() {
 	mkdir -p "$ROOT/dist"
 	out="$ROOT/dist/$APK_NAME"
 
-	"$BUILD_TOOLS/zipalign" -f -p 4 "$src" /tmp/aligned.apk || { echo "ERRO: zipalign falhou"; return 1; }
+	echo "APK de entrada: $src ($(du -h "$src" | cut -f1))"
+	echo "assinatura atual do APK:"
+	"$BUILD_TOOLS/apksigner" verify --print-certs "$src" 2>&1 | head -6 || true
 
-	"$BUILD_TOOLS/apksigner" sign --ks "$KS" --ks-key-alias "$KS_ALIAS" \
+	# ---------------------------------------------------------- alinhamento
+	# A sintaxe do zipalign mudou entre versões do build-tools: -P 4 (novo),
+	# -p 4 (antigo). Se nenhuma funcionar, seguimos sem alinhar — o APK
+	# continua válido, só perde um pouco de velocidade ao abrir.
+	local aligned="/tmp/fnf-aligned.apk"
+	rm -f "$aligned"
+	local aligned_ok=0
+	if [ -x "$BUILD_TOOLS/zipalign" ]; then
+		if "$BUILD_TOOLS/zipalign" -f -P 4 "$src" "$aligned" 2>&1; then
+			aligned_ok=1
+		elif "$BUILD_TOOLS/zipalign" -f -p 4 "$src" "$aligned" 2>&1; then
+			aligned_ok=1
+		else
+			echo "AVISO: as duas sintaxes do zipalign falharam (veja acima)"
+		fi
+	else
+		echo "AVISO: $BUILD_TOOLS/zipalign não existe"
+	fi
+	if [ "$aligned_ok" != "1" ]; then
+		echo "AVISO: seguindo sem zipalign"
+		cp "$src" "$aligned"
+	fi
+
+	# ------------------------------------------------------------ assinatura
+	echo "==> Assinando com o keystore do projeto"
+	if ! "$BUILD_TOOLS/apksigner" sign --ks "$KS" --ks-key-alias "$KS_ALIAS" \
 		--ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS" \
 		--v1-signing-enabled true --v2-signing-enabled true \
-		--out "$out" /tmp/aligned.apk || { echo "ERRO: apksigner falhou"; return 1; }
+		--out "$out" "$aligned" 2>&1; then
+		echo "ERRO: apksigner falhou"
+		return 1
+	fi
 
-	"$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$out" || { echo "ERRO: verificação falhou"; return 1; }
+	echo "==> Verificando a assinatura final"
+	if ! "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$out" 2>&1; then
+		echo "ERRO: verificação da assinatura falhou"
+		return 1
+	fi
 
 	echo ""
 	echo "==> APK final: $out"
@@ -159,7 +199,7 @@ package_apk() {
 	unzip -l "$out" | tail -3
 	echo "assets no APK: $(unzip -l "$out" | grep -c 'assets/')"
 	echo "libs nativas:"
-	unzip -l "$out" | grep -E "lib/(arm64-v8a|armeabi-v7a)/" || echo "    (nenhuma!)"
+	unzip -l "$out" | grep -E "lib/(arm64-v8a|armeabi-v7a|x86)/" || echo "    (nenhuma!)"
 	echo ""
 	echo "==> Assets empacotados (topo):"
 	unzip -l "$out" | awk '{print $4}' | grep -E "^assets/" | cut -d/ -f1-3 | sort -u | head -40

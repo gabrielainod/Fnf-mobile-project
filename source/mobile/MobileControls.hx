@@ -168,13 +168,25 @@ class MobileControls
 
 	static function laneAtView(viewX:Float, viewY:Float):Int
 	{
+		// quando as áreas se sobrepõem (padrão 30 px de folga), vale a seta mais
+		// próxima do dedo - assim a nota certa é tocada mesmo na divisa
+		var best:Int = -1;
+		var bestDist:Float = Math.POSITIVE_INFINITY;
 		for (i in 0...boxes.length)
 		{
 			var r:FlxRect = boxes[i];
 			if (r == null) continue;
-			if (viewX >= r.x && viewX <= r.right && viewY >= r.y && viewY <= r.bottom) return i;
+			if (viewX < r.x || viewX > r.right || viewY < r.y || viewY > r.bottom) continue;
+			var dx:Float = viewX - (r.x + r.width * 0.5);
+			var dy:Float = viewY - (r.y + r.height * 0.5);
+			var dist:Float = dx * dx + dy * dy;
+			if (dist < bestDist)
+			{
+				bestDist = dist;
+				best = i;
+			}
 		}
-		return -1;
+		return best;
 	}
 
 	/**
@@ -306,6 +318,12 @@ class MobileControls
 			var binds:Array<FlxKey> = ClientPrefs.keyBinds.get('pause');
 			if (binds != null)
 			{
+				// prefere ESC: ENTER é o mesmo botão de aceitar dos menus, e o
+				// toque de pausa não pode virar um "aceitar" sem querer
+				for (b in binds)
+				{
+					if (b == FlxKey.ESCAPE) return b;
+				}
 				for (b in binds)
 				{
 					var id:Int = cast b;
