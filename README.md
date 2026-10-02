@@ -22,7 +22,7 @@ mods.
 Confira o arquivo baixado (opcional):
 
 ```
-sha256: 33090a70881010d3794e9ea78762538f5342a78d577b5fd10dec274636e5fbd8
+sha256: 630022b8ed2023f24737271b4c340996a2c156f800b2f8aa0907d7f02cde1a15
 ```
 
 Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7**
@@ -31,6 +31,15 @@ Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7*
 ---
 
 ### Se algo der errado (diagnóstico no próprio celular)
+
+**Diálogo automático de queda.** Se o app fechar sozinho, na próxima vez que abrir
+aparece uma janela com o motivo da morte (lido do próprio Android: erro nativo, falta
+de memória, travamento…), o trace do erro e as últimas linhas do log — com botão
+**Copiar**. É só colar o texto para reportar.
+
+**Assets que faltam viram quadradinho magenta.** Em vez de fechar o app, um asset
+ausente aparece como um quadrado rosa e o log escreve `FALTA ASSET: <arquivo>`.
+
 
 **0. Painel de status na tela (build de diagnóstico).** Os primeiros 25 segundos
 mostram um painel no canto superior esquerdo com a tela atual, quantos updates e
