@@ -63,11 +63,34 @@ class MobilePlatform
 
 			try
 			{
-				totalRamMB = openfl.system.System.totalMemory / (1024 * 1024);
+				// openfl.system.System.totalMemory é o heap do app, não a RAM do
+				// aparelho; a informação certa está no /proc/meminfo.
+				var memInfo:String = null;
+				#if sys
+				try { memInfo = sys.io.File.getContent('/proc/meminfo'); } catch (e:Dynamic) { memInfo = null; }
+				#end
+
+				if (memInfo != null)
+				{
+					for (linha in memInfo.split('\n'))
+					{
+						if (linha.indexOf('MemTotal:') == 0)
+						{
+							var partes:Array<String> = ~/[ \t]+/.split(StringTools.trim(linha));
+							if (partes.length >= 2) totalRamMB = Std.parseFloat(partes[1]) / 1024;
+							break;
+						}
+					}
+				}
 			}
 			catch (e:Dynamic)
 			{
 				totalRamMB = 0;
+			}
+
+			if (totalRamMB <= 0)
+			{
+				try { totalRamMB = openfl.system.System.totalMemory / (1024 * 1024); } catch (e:Dynamic) { totalRamMB = 0; }
 			}
 
 			modsFolder = pickModsFolder();

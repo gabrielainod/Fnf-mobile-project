@@ -1,7 +1,9 @@
 package com.fnfmobile.game;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.ApplicationExitInfo;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -93,6 +95,10 @@ public class FnfBoot
 		checkPreviousSession ();
 		installCrashHandler ();
 
+		// grava no log do boot como a sessao anterior terminou (aparece no print
+		// do aviso do sistema, sem precisar abrir o dialogo)
+		try { write (exitReasonReport ()); } catch (Throwable t) { }
+
 		try
 		{
 			a.runOnUiThread (new Runnable ()
@@ -138,6 +144,124 @@ public class FnfBoot
 			}, 6000L);
 		}
 		catch (Throwable t) { }
+	}
+
+	/**
+	 * Motivo pelo qual a sessao anterior morreu, lido do proprio Android
+	 * (ApplicationExitInfo, disponivel a partir do Android 11/API 30).
+	 *
+	 * Isso responde de uma vez a pergunta que importa: o app foi fechado por
+	 * erro no codigo (SIGSEGV), por falta de memoria (OOM), por travamento (ANR)
+	 * ou foi o usuario que fechou. Quando o Android tem o "trace" do erro, ele
+	 * vem junto - com o nome da funcao onde o app morreu.
+	 */
+	public static String exitReasonReport ()
+	{
+		StringBuilder sb = new StringBuilder ();
+
+		try
+		{
+			if (Build.VERSION.SDK_INT < 30)
+			{
+				return "motivo da morte: (Android antigo, essa informacao nao existe)\n";
+			}
+
+			ActivityManager am = (ActivityManager) activity.getSystemService (Context.ACTIVITY_SERVICE);
+			java.util.List<ApplicationExitInfo> lista = am.getHistoricalProcessExitInfos ();
+
+			if (lista == null || lista.size () == 0)
+			{
+				return "motivo da morte: (o Android nao tem historico)\n";
+			}
+
+			sb.append ("--- como as sessoes anteriores terminaram ---\n");
+			int mostrados = 0;
+			for (ApplicationExitInfo info : lista)
+			{
+				if (mostrados >= 3) break;
+				if (info == null) continue;
+				mostrados++;
+
+				sb.append ("sessao ").append (mostrados).append (": ")
+					.append (reasonName (info.getReason ()))
+					.append (" / ").append (subReasonName (info.getSubReason ()))
+					.append (info.getTimestamp () > 0 ? (" em " + new SimpleDateFormat ("HH:mm:ss", Locale.US).format (new Date (info.getTimestamp ()))) : "")
+					.append ("\n");
+
+				String desc = info.getDescription ();
+				if (desc != null && desc.length () > 0)
+				{
+					sb.append ("   descricao: ").append (desc).append ("\n");
+				}
+
+				// o "trace" e' o ouro: costuma trazer a funcao exata do erro
+				try
+				{
+					java.io.InputStream in = info.getTraceInputStream ();
+					if (in != null)
+					{
+						java.io.BufferedReader br = new java.io.BufferedReader (new java.io.InputStreamReader (in, "UTF-8"));
+						StringBuilder trace = new StringBuilder ();
+						String linha;
+						while ((linha = br.readLine ()) != null)
+						{
+							trace.append (linha).append ("\n");
+						}
+						br.close ();
+						String t = trace.toString ();
+						if (t.length () > 3000) t = t.substring (0, 3000) + "\n...(cortado)\n";
+						sb.append ("   trace:\n").append (t);
+					}
+				}
+				catch (Throwable t) { }
+			}
+		}
+		catch (Throwable t)
+		{
+			sb.append ("motivo da morte: (falhou ao ler: ").append (t.toString ()).append (")\n");
+		}
+
+		return sb.toString ();
+	}
+
+	private static String reasonName (int reason)
+	{
+		switch (reason)
+		{
+			case ApplicationExitInfo.REASON_CRASH: return "ERRO no codigo Java (REASON_CRASH)";
+			case ApplicationExitInfo.REASON_CRASH_NATIVE: return "ERRO no codigo nativo - SIGSEGV/abort (REASON_CRASH_NATIVE)";
+			case ApplicationExitInfo.REASON_ANR: return "TRAVOU e o Android matou (REASON_ANR)";
+			case ApplicationExitInfo.REASON_LOW_MEMORY: return "SEM MEMORIA - o Android matou (REASON_LOW_MEMORY)";
+			case ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE: return "USO EXCESSIVO de recurso (REASON_EXCESSIVE_RESOURCE_USAGE)";
+			case ApplicationExitInfo.REASON_SIGNALED: return "MORTO por sinal (REASON_SIGNALED)";
+			case ApplicationExitInfo.REASON_EXIT_SELF: return "o app se fechou sozinho (REASON_EXIT_SELF)";
+			case ApplicationExitInfo.REASON_USER_REQUESTED: return "fechado pelo usuario";
+			case ApplicationExitInfo.REASON_USER_STOPPED: return "parado pelo sistema/usuario";
+			case ApplicationExitInfo.REASON_INITIALIZATION_FAILURE: return "falha ao iniciar (REASON_INITIALIZATION_FAILURE)";
+			case ApplicationExitInfo.REASON_DEPENDENCY_DIED: return "dependencia caiu (REASON_DEPENDENCY_DIED)";
+			case ApplicationExitInfo.REASON_OTHER: return "outro motivo (REASON_OTHER)";
+			case 14: return "congelado pelo sistema (REASON_FREEZER)";
+			case 15: return "mudanca de estado do pacote (REASON_PACKAGE_STATE_CHANGE)";
+			case 16: return "app atualizado (REASON_PACKAGE_UPDATED)";
+			default: return "motivo " + reason;
+		}
+	}
+
+	private static String subReasonName (int sub)
+	{
+		switch (sub)
+		{
+			case 0: return "sem detalhe";
+			case ApplicationExitInfo.SUBREASON_UNKNOWN + 0: return "sem detalhe";
+			case ApplicationExitInfo.SUBREASON_CRASH_NATIVE: return "crash nativo";
+			case ApplicationExitInfo.SUBREASON_ANR: return "travamento (ANR)";
+			case ApplicationExitInfo.SUBREASON_INITIALIZATION_FAILURE: return "falha de inicializacao";
+			case ApplicationExitInfo.SUBREASON_LOW_MEMORY: return "memoria baixa";
+			case ApplicationExitInfo.SUBREASON_EXCESSIVE_CPU: return "CPU demais";
+			case ApplicationExitInfo.SUBREASON_EXCESSIVE_MEMORY: return "memoria demais";
+			case ApplicationExitInfo.SUBREASON_OTHER: return "outro";
+			default: return "detalhe " + sub;
+		}
 	}
 
 	/** Resumo do estado da superficie de video (o que o OpenGL usa para aparecer). */
@@ -313,6 +437,7 @@ public class FnfBoot
 		sb.append ("heap max: ").append (Runtime.getRuntime ().maxMemory () / 1048576).append (" MB\n");
 		sb.append ("pasta do log: ").append (logDir != null ? logDir.getAbsolutePath () : "?").append ("\n");
 		try { sb.append ("\n").append (surfaceReport ()); } catch (Throwable t) { }
+		try { sb.append ("\n").append (exitReasonReport ()); } catch (Throwable t) { }
 
 		if (logDir != null)
 		{

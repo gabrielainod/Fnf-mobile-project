@@ -101,7 +101,25 @@ helper = '''
 		#end
 	}
 	// ========================================================================
-
+	/**
+	 * Escreve uma linha no log do jogo (o mesmo arquivo que o MobilePlatform
+	 * mantem). Usado para registrar as trocas de tela: e' assim que se descobre
+	 * qual tela estava sendo criada quando o app fechou sozinho.
+	 */
+	public static function fnfMobileLog(msg:String):Void
+	{
+		try
+		{
+			var cls = Type.resolveClass("mobile.MobilePlatform");
+			if (cls != null)
+			{
+				var fn = Reflect.field(cls, "log");
+				if (fn != null) Reflect.callMethod(cls, fn, [msg]);
+			}
+		}
+		catch (x:Dynamic) { }
+	}
+	// ========================================================================
 '''
 
 marker = "\tpublic function new(GameWidth:Int = 0, GameHeight:Int = 0, ?InitialState:Class<FlxState>,"
@@ -119,6 +137,37 @@ for old, new in replacements:
     if text.count(old) != 1:
         sys.exit("nao achei exatamente uma ocorrencia de: " + old.strip())
     text = text.replace(old, new, 1)
+
+# protege a destruicao da tela antiga: se ela jogar excecao, o processo
+# inteiro morria sem deixar rastro (era uma das causas de "o app fechou")
+destroy_old = "\t\tif (_state != null)\n\t\t\t_state.destroy();"
+if text.count(destroy_old) == 1:
+    destroy_new = ("\t\tif (_state != null)\n"
+                   "\t\t{\n"
+                   "\t\t\ttry { _state.destroy(); } catch (e:Dynamic) { fnfMobileError(\"state.destroy\", e); }\n"
+                   "\t\t}")
+    text = text.replace(destroy_old, destroy_new, 1)
+else:
+    print("AVISO: nao achei o destroy do estado antigo")
+
+# e a limpeza do cache de imagens (mexe em textura: se falhar, derruba o app)
+cache_old = "\t\tFlxG.bitmap.clearCache();"
+if text.count(cache_old) == 1:
+    cache_new = ("\t\ttry { FlxG.bitmap.clearCache(); } catch (e:Dynamic) { fnfMobileError(\"bitmap.clearCache\", e); }")
+    text = text.replace(cache_old, cache_new, 1)
+else:
+    print("AVISO: nao achei o clearCache")
+
+# registra qual tela esta sendo criada: se o app fechar aqui, a ultima linha
+# do log diz exatamente em qual estado ele morreu
+state_old = "\t\t// Finally assign and create the new state\n\t\t_state = _requestedState;"
+if text.count(state_old) == 1:
+    state_new = ("\t\t// Finally assign and create the new state\n"
+                 "\t\ttry { fnfMobileLog(\"trocando de tela para \" + Type.getClassName(Type.getClass(_requestedState))); } catch (x:Dynamic) { }\n"
+                 "\t\t_state = _requestedState;")
+    text = text.replace(state_old, state_new, 1)
+else:
+    print("AVISO: nao achei a troca de estado no FlxGame (segue sem esse log)")
 
 # desenho: draw do estado
 draw_old = "\t\t_state.draw();"

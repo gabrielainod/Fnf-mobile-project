@@ -265,7 +265,25 @@ class Paths
 				return File.getContent(levelPath);
 		}
 		#end
-		return Assets.getText(getPath(key, TEXT));
+
+		var texto:String = null;
+		try
+		{
+			texto = Assets.getText(getPath(key, TEXT));
+		}
+		catch (e:Dynamic) { }
+
+		#if mobile
+		if (texto == null)
+		{
+			// arquivo de dados que não existe (lista de músicas, semana, etc.)
+			// devolvia null e o jogo fechava ao usar o valor.
+			noteMissingAsset('texto ' + key);
+			return '';
+		}
+		#end
+
+		return texto;
 	}
 
 	inline static public function font(key:String)
@@ -295,6 +313,34 @@ class Paths
 
 	inline static public function getSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
+		#if mobile
+		// Mesma proteção: atlas sem imagem ou sem o .xml derrubava o app.
+		try
+		{
+			var imagem:FlxGraphic = returnGraphic(key);
+			var xml:String = null;
+
+			#if MODS_ALLOWED
+			if (FileSystem.exists(modsXml(key)))
+				xml = File.getContent(modsXml(key));
+			#end
+
+			if (xml == null) xml = file('images/$key.xml', library);
+
+			if (imagem == null || xml == null || xml.length < 5)
+			{
+				noteMissingAsset('images/$key.xml (ou .png)');
+				return emergencyFrames();
+			}
+
+			return FlxAtlasFrames.fromSparrow(imagem, xml);
+		}
+		catch (e:Dynamic)
+		{
+			noteMissingAsset('atlas ' + key + ': ' + Std.string(e));
+			return emergencyFrames();
+		}
+		#else
 		#if MODS_ALLOWED
 		var imageLoaded:FlxGraphic = returnGraphic(key);
 		var xmlExists:Bool = false;
@@ -305,6 +351,7 @@ class Paths
 		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library)), (xmlExists ? File.getContent(modsXml(key)) : file('images/$key.xml', library)));
 		#else
 		return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
+		#end
 		#end
 	}
 
@@ -334,6 +381,66 @@ class Paths
 
 	// completely rewritten asset loading? fuck!
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
+	#if mobile
+	/**
+	 * Assets que faltaram nesta sessão (o log mostra o nome exato do arquivo).
+	 *
+	 * No Android, quando um asset não existe, o Psych devolvia `null` e o jogo
+	 * seguia com um sprite "sem imagem". Ao desenhar isso, o código nativo do
+	 * OpenFL acessa memória nula e o app FECHA na hora - sem aviso, sem erro na
+	 * tela (é exatamente o que acontecia ao abrir o Freeplay e o Story Mode).
+	 */
+	public static var missingAssets:Array<String> = [];
+
+	static var emergencyGraphic:FlxGraphic = null;
+
+	/** Avisa uma vez (no log) que um asset não existe. */
+	public static function noteMissingAsset(key:String):Void
+	{
+		if (key == null) key = '?';
+		if (missingAssets.indexOf(key) != -1) return;
+		missingAssets.push(key);
+		try
+		{
+			mobile.MobilePlatform.log('FALTA ASSET: ' + key);
+		}
+		catch (e:Dynamic) { }
+	}
+
+	/**
+	 * Desenho de emergência: um quadradinho magenta.
+	 *
+	 * Substitui qualquer imagem que faltou. Assim o jogo continua rodando (com
+	 * um quadrado rosa no lugar) em vez de fechar, e o log diz qual arquivo
+	 * faltou para a gente consertar de verdade.
+	 */
+	public static function emergency():FlxGraphic
+	{
+		if (emergencyGraphic == null || emergencyGraphic.bitmap == null)
+		{
+			var bmp:BitmapData = new BitmapData(8, 8, true, 0xFFFF00FF);
+			emergencyGraphic = FlxGraphic.fromBitmapData(bmp, false, 'fnfAssetFaltando');
+			emergencyGraphic.persist = true;
+		}
+		return emergencyGraphic;
+	}
+
+	/** Atlas de emergência (uma moldura só, usando o quadrado magenta). */
+	public static function emergencyFrames():FlxAtlasFrames
+	{
+		var xml:String = '<?xml version="1.0" encoding="utf-8"?><TextureAtlas imagePath="placeholder.png">'
+			+ '<SubTexture name="placeholder" x="0" y="0" width="8" height="8"/></TextureAtlas>';
+		try
+		{
+			return FlxAtlasFrames.fromSparrow(emergency(), xml);
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+	#end
+
 	public static function returnGraphic(key:String, ?library:String) {
 		#if MODS_ALLOWED
 		var modKey:String = modsImages(key);
@@ -360,8 +467,15 @@ class Paths
 			localTrackedAssets.push(path);
 			return currentTrackedAssets.get(path);
 		}
+		#if mobile
+		// No celular nunca devolvemos null: sprite sem imagem = app fechando na
+		// hora de desenhar. O log diz qual arquivo faltou.
+		noteMissingAsset('images/' + key + '.png');
+		return emergency();
+		#else
 		trace('oh no its returning null NOOOO');
 		return null;
+		#end
 	}
 
 	public static var currentTrackedSounds:Map<String, Sound> = [];

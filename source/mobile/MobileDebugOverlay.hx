@@ -129,29 +129,6 @@ class MobileDebugOverlay
 		g.lineStyle(3, 0x808080, 1);
 		g.drawRect(0, 0, 716, 80);
 
-		// TELA INTEIRA magenta (grande e chamativo de proposito): e' a prova
-		// visual de que o OpenFL consegue desenhar no aparelho. Se a tela ficar
-		// preta com isso ligado, o problema e' no OpenGL/tela e nao no jogo.
-		try
-		{
-			var sw2:Float = stage.stageWidth;
-			var sh2:Float = stage.stageHeight;
-			if (sw2 <= 0) sw2 = 1280;
-			if (sh2 <= 0) sh2 = 720;
-			if (fundoMagenta == null)
-			{
-				fundoMagenta = new Sprite();
-				fundoMagenta.mouseEnabled = false;
-				fundoMagenta.name = 'fnfFundoDiagnostico';
-				var gf = fundoMagenta.graphics;
-				gf.beginFill(0xFF00FF, 0.92);
-				gf.drawRect(0, 0, sw2, sh2);
-				gf.endFill();
-				stage.addChildAt(fundoMagenta, stage.getChildIndex(panel));
-			}
-		}
-		catch (e:Dynamic) { }
-
 		panel.x = 0;
 		panel.y = 0;
 		stage.addChild(panel);
