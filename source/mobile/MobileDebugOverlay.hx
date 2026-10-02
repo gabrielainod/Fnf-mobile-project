@@ -38,6 +38,7 @@ class MobileDebugOverlay
 	static var panel:Sprite = null;
 	static var panelText:TextField = null;
 	static var panelCreatedAt:Float = 0;
+	static var fundoMagenta:Sprite = null;
 	static var panelClosed:Bool = false;
 	static var extraInfo:String = '';
 	static var lastRendered:String = null;
@@ -79,7 +80,7 @@ class MobileDebugOverlay
 		frame++;
 
 		// tira o painel da frente depois de um tempo, pra nao atrapalhar o jogo
-		if (panelCreatedAt > 0 && (haxe.Timer.stamp() - panelCreatedAt) > 25)
+		if (panelCreatedAt > 0 && (haxe.Timer.stamp() - panelCreatedAt) > 12)
 		{
 			closePanel();
 			return;
@@ -137,14 +138,17 @@ class MobileDebugOverlay
 			var sh2:Float = stage.stageHeight;
 			if (sw2 <= 0) sw2 = 1280;
 			if (sh2 <= 0) sh2 = 720;
-			var fundo = new Sprite();
-			fundo.mouseEnabled = false;
-			fundo.name = 'fnfFundoDiagnostico';
-			var gf = fundo.graphics;
-			gf.beginFill(0xFF00FF, 0.92);
-			gf.drawRect(0, 0, sw2, sh2);
-			gf.endFill();
-			stage.addChildAt(fundo, stage.getChildIndex(panel));
+			if (fundoMagenta == null)
+			{
+				fundoMagenta = new Sprite();
+				fundoMagenta.mouseEnabled = false;
+				fundoMagenta.name = 'fnfFundoDiagnostico';
+				var gf = fundoMagenta.graphics;
+				gf.beginFill(0xFF00FF, 0.92);
+				gf.drawRect(0, 0, sw2, sh2);
+				gf.endFill();
+				stage.addChildAt(fundoMagenta, stage.getChildIndex(panel));
+			}
 		}
 		catch (e:Dynamic) { }
 
@@ -191,6 +195,17 @@ class MobileDebugOverlay
 		{
 			if (panel != null) panel.visible = false;
 			panelClosed = true;
+		}
+		catch (e:Dynamic) { }
+
+		// o fundo magenta e' so' para o teste: sai de cena junto com o painel
+		try
+		{
+			if (fundoMagenta != null && fundoMagenta.parent != null)
+			{
+				fundoMagenta.parent.removeChild(fundoMagenta);
+			}
+			fundoMagenta = null;
 		}
 		catch (e:Dynamic) { }
 	}
