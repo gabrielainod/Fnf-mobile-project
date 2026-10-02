@@ -3,7 +3,6 @@ package com.fnfmobile.game;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.ApplicationExitInfo;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -166,41 +165,58 @@ public class FnfBoot
 				return "motivo da morte: (Android antigo, essa informacao nao existe)\n";
 			}
 
-			ActivityManager am = (ActivityManager) activity.getSystemService (Context.ACTIVITY_SERVICE);
-			java.util.List<ApplicationExitInfo> lista = am.getHistoricalProcessExitInfos ();
-
-			if (lista == null || lista.size () == 0)
+			Object am = activity.getSystemService (Context.ACTIVITY_SERVICE);
+			if (am == null)
 			{
-				return "motivo da morte: (o Android nao tem historico)\n";
+				return "motivo da morte: (sem ActivityManager)\n";
 			}
 
-			sb.append ("--- como as sessoes anteriores terminaram ---\n");
-			int mostrados = 0;
-			for (ApplicationExitInfo info : lista)
+			// Chamada por reflexao de proposito: o projeto e' compilado com o SDK
+			// 28 (por causa do armazenamento dos mods), mas no aparelho - Android
+			// 11 ou mais novo - a funcao existe e devolve o motivo real da morte.
+			java.lang.reflect.Method metodo = am.getClass ().getMethod ("getHistoricalProcessExitInfos");
+			Object resultado = metodo.invoke (am);
+
+			if (!(resultado instanceof java.util.List))
 			{
-				if (mostrados >= 3) break;
-				if (info == null) continue;
+				return "motivo da morte: (o Android nao devolveu historico)\n";
+			}
+
+			java.util.List<?> itens = (java.util.List<?>) resultado;
+			sb.append ("--- como as sessoes anteriores terminaram ---\n");
+
+			int mostrados = 0;
+			for (Object info : itens)
+			{
+				if (info == null || mostrados >= 3) break;
 				mostrados++;
 
-				sb.append ("sessao ").append (mostrados).append (": ")
-					.append (reasonName (info.getReason ()))
-					.append (" / ").append (subReasonName (info.getSubReason ()))
-					.append (info.getTimestamp () > 0 ? (" em " + new SimpleDateFormat ("HH:mm:ss", Locale.US).format (new Date (info.getTimestamp ()))) : "")
-					.append ("\n");
+				int motivo = intField (info, "getReason");
+				int detalhe = intField (info, "getSubReason");
+				long quando = longField (info, "getTimestamp");
+				String descricao = strField (info, "getDescription");
 
-				String desc = info.getDescription ();
-				if (desc != null && desc.length () > 0)
+				sb.append ("sessao ").append (mostrados).append (": ").append (reasonName (motivo))
+					.append (" / detalhe ").append (detalhe);
+				if (quando > 0)
 				{
-					sb.append ("   descricao: ").append (desc).append ("\n");
+					sb.append (" em ").append (new SimpleDateFormat ("HH:mm:ss", Locale.US).format (new Date (quando)));
+				}
+				sb.append ("\n");
+
+				if (descricao != null && descricao.length () > 0)
+				{
+					sb.append ("   descricao: ").append (descricao).append ("\n");
 				}
 
-				// o "trace" e' o ouro: costuma trazer a funcao exata do erro
+				// o "trace" costuma trazer a funcao exata onde o app morreu
 				try
 				{
-					java.io.InputStream in = info.getTraceInputStream ();
-					if (in != null)
+					java.lang.reflect.Method tm = info.getClass ().getMethod ("getTraceInputStream");
+					Object in = tm.invoke (info);
+					if (in instanceof java.io.InputStream)
 					{
-						java.io.BufferedReader br = new java.io.BufferedReader (new java.io.InputStreamReader (in, "UTF-8"));
+						java.io.BufferedReader br = new java.io.BufferedReader (new java.io.InputStreamReader ((java.io.InputStream) in, "UTF-8"));
 						StringBuilder trace = new StringBuilder ();
 						String linha;
 						while ((linha = br.readLine ()) != null)
@@ -224,43 +240,68 @@ public class FnfBoot
 		return sb.toString ();
 	}
 
+	private static int intField (Object obj, String metodo)
+	{
+		try
+		{
+			Object v = obj.getClass ().getMethod (metodo).invoke (obj);
+			return (v instanceof Integer) ? ((Integer) v).intValue () : 0;
+		}
+		catch (Throwable t)
+		{
+			return 0;
+		}
+	}
+
+	private static long longField (Object obj, String metodo)
+	{
+		try
+		{
+			Object v = obj.getClass ().getMethod (metodo).invoke (obj);
+			return (v instanceof Long) ? ((Long) v).longValue () : 0L;
+		}
+		catch (Throwable t)
+		{
+			return 0L;
+		}
+	}
+
+	private static String strField (Object obj, String metodo)
+	{
+		try
+		{
+			Object v = obj.getClass ().getMethod (metodo).invoke (obj);
+			return (v != null) ? v.toString () : null;
+		}
+		catch (Throwable t)
+		{
+			return null;
+		}
+	}
+
+	/** Nome do motivo (numeros fixos da API do Android 11+). */
 	private static String reasonName (int reason)
 	{
 		switch (reason)
 		{
-			case ApplicationExitInfo.REASON_CRASH: return "ERRO no codigo Java (REASON_CRASH)";
-			case ApplicationExitInfo.REASON_CRASH_NATIVE: return "ERRO no codigo nativo - SIGSEGV/abort (REASON_CRASH_NATIVE)";
-			case ApplicationExitInfo.REASON_ANR: return "TRAVOU e o Android matou (REASON_ANR)";
-			case ApplicationExitInfo.REASON_LOW_MEMORY: return "SEM MEMORIA - o Android matou (REASON_LOW_MEMORY)";
-			case ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE: return "USO EXCESSIVO de recurso (REASON_EXCESSIVE_RESOURCE_USAGE)";
-			case ApplicationExitInfo.REASON_SIGNALED: return "MORTO por sinal (REASON_SIGNALED)";
-			case ApplicationExitInfo.REASON_EXIT_SELF: return "o app se fechou sozinho (REASON_EXIT_SELF)";
-			case ApplicationExitInfo.REASON_USER_REQUESTED: return "fechado pelo usuario";
-			case ApplicationExitInfo.REASON_USER_STOPPED: return "parado pelo sistema/usuario";
-			case ApplicationExitInfo.REASON_INITIALIZATION_FAILURE: return "falha ao iniciar (REASON_INITIALIZATION_FAILURE)";
-			case ApplicationExitInfo.REASON_DEPENDENCY_DIED: return "dependencia caiu (REASON_DEPENDENCY_DIED)";
-			case ApplicationExitInfo.REASON_OTHER: return "outro motivo (REASON_OTHER)";
-			case 14: return "congelado pelo sistema (REASON_FREEZER)";
-			case 15: return "mudanca de estado do pacote (REASON_PACKAGE_STATE_CHANGE)";
-			case 16: return "app atualizado (REASON_PACKAGE_UPDATED)";
+			case 0: return "motivo desconhecido";
+			case 1: return "o app se fechou sozinho";
+			case 2: return "MORTO POR SINAL do sistema";
+			case 3: return "SEM MEMORIA - o Android matou (OOM)";
+			case 4: return "ERRO no codigo Java";
+			case 5: return "ERRO no codigo nativo (SIGSEGV/abort)";
+			case 6: return "TRAVOU e o Android matou (ANR)";
+			case 7: return "falha ao iniciar";
+			case 8: return "mudanca de permissao";
+			case 9: return "uso excessivo de recurso";
+			case 10: return "fechado pelo usuario";
+			case 11: return "parado pelo sistema/usuario";
+			case 12: return "dependencia caiu";
+			case 13: return "outro motivo";
+			case 14: return "congelado pelo sistema";
+			case 15: return "mudanca de estado do pacote";
+			case 16: return "app foi atualizado";
 			default: return "motivo " + reason;
-		}
-	}
-
-	private static String subReasonName (int sub)
-	{
-		switch (sub)
-		{
-			case 0: return "sem detalhe";
-			case ApplicationExitInfo.SUBREASON_UNKNOWN + 0: return "sem detalhe";
-			case ApplicationExitInfo.SUBREASON_CRASH_NATIVE: return "crash nativo";
-			case ApplicationExitInfo.SUBREASON_ANR: return "travamento (ANR)";
-			case ApplicationExitInfo.SUBREASON_INITIALIZATION_FAILURE: return "falha de inicializacao";
-			case ApplicationExitInfo.SUBREASON_LOW_MEMORY: return "memoria baixa";
-			case ApplicationExitInfo.SUBREASON_EXCESSIVE_CPU: return "CPU demais";
-			case ApplicationExitInfo.SUBREASON_EXCESSIVE_MEMORY: return "memoria demais";
-			case ApplicationExitInfo.SUBREASON_OTHER: return "outro";
-			default: return "detalhe " + sub;
 		}
 	}
 
