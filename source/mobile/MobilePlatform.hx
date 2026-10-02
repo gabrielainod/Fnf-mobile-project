@@ -323,11 +323,133 @@ class MobilePlatform
 
 		// se o jogo avancou de tela, o problema (se havia) passou: tira o aviso
 		MobileDebugOverlay.hide();
+		MobileDebugOverlay.setStatus('');
 
 		if (!bootOk && (stateName.indexOf('Title') != -1 || stateName.indexOf('MainMenu') != -1))
 		{
 			bootOk = true;
 			log('BOOT-OK: menu inicial carregado');
+		}
+	}
+
+	/**
+	 * Tamanho da janela e da tela do Flixel. Se isso chega pequeno/zerado, o
+	 * jogo roda (a musica toca) mas nao aparece nada: e o caso classico de tela
+	 * preta no Android. Fica no log pra dar pra conferir sem PC.
+	 */
+	public static function windowInfo():String
+	{
+		var txt:String = '';
+		try
+		{
+			var st = openfl.Lib.current.stage;
+			txt = 'janela do sistema: ' + Std.int(st.stageWidth) + 'x' + Std.int(st.stageHeight);
+		}
+		catch (e:Dynamic)
+		{
+			txt = 'janela do sistema: ?';
+		}
+
+		try
+		{
+			txt += ' | tela do Flixel: ' + flixel.FlxG.width + 'x' + flixel.FlxG.height;
+		}
+		catch (e:Dynamic) { }
+
+		try
+		{
+			txt += ' | camera: ' + flixel.FlxG.camera.width + 'x' + flixel.FlxG.camera.height;
+		}
+		catch (e:Dynamic) { }
+
+		return txt;
+	}
+
+	/** Nome da tela atual (usado pelo painel de diagnostico). */
+	public static function currentStateName():String
+		return (lastState != null) ? lastState : 'iniciando';
+
+	/**
+	 * Confere de verdade se um shader GLSL compilou/ligou NESTE aparelho.
+	 *
+	 * Alguns drivers de celular recusam shaders customizados (o ColorSwap do
+	 * titulo e o unico efeito de GPU do menu). Quando isso acontece o jogo
+	 * continua rodando - a musica toca - mas o desenho da tela morre e fica
+	 * tudo preto. Aqui a gente forca a compilacao na hora e so devolve true se
+	 * tiver CERTEZA que o programa ligou; qualquer duvida = efeito desligado
+	 * (o titulo fica sem o efeito de cor, mas aparece).
+	 */
+	public static function shaderCompiledOk(shader:Dynamic):Bool
+	{
+		if (shader == null) return false;
+
+		var prog:Dynamic = null;
+		var gl:Dynamic = null;
+
+		try
+		{
+			// o OpenFL so compila no primeiro desenho: forca agora
+			try
+			{
+				var init = Reflect.field(shader, '__initGL');
+				if (init != null) Reflect.callMethod(shader, init, []);
+			}
+			catch (e:Dynamic) { }
+
+			try { prog = Reflect.field(shader, 'glProgram'); } catch (e:Dynamic) { }
+			try { gl = Reflect.field(Reflect.field(shader, '__context'), 'gl'); } catch (e:Dynamic) { }
+		}
+		catch (e:Dynamic) { }
+
+		if (prog == null)
+		{
+			log('AVISO: shader do titulo nao compilou (sem programa) - efeito desligado');
+			return false;
+		}
+
+		if (gl == null)
+		{
+			log('AVISO: nao consegui conferir o shader pelo OpenGL - efeito desligado por seguranca');
+			return false;
+		}
+
+		try
+		{
+			var ini = Reflect.field(gl, 'getProgramParameter');
+			if (ini == null)
+			{
+				log('AVISO: OpenGL sem getProgramParameter - efeito desligado por seguranca');
+				return false;
+			}
+
+			// 0x8B82 = GL_LINK_STATUS (mesmo valor no OpenGL e no OpenGL ES)
+			var ok:Dynamic = Reflect.callMethod(gl, ini, [prog, 0x8B82]);
+			if (ok == null)
+			{
+				log('AVISO: OpenGL nao respondeu sobre o shader - efeito desligado por seguranca');
+				return false;
+			}
+
+			if (ok == 0)
+			{
+				var info:String = '';
+				try
+				{
+					var lg = Reflect.field(gl, 'getProgramInfoLog');
+					if (lg != null) info = Std.string(Reflect.callMethod(gl, lg, [prog]));
+				}
+				catch (e:Dynamic) { }
+				log('AVISO: driver recusou o shader do titulo: ' + info);
+				return false;
+			}
+
+			log('shader do titulo compilou OK neste aparelho');
+			return true;
+		}
+		catch (e:Dynamic)
+		{
+			log('AVISO: erro conferindo o shader: ' + Std.string(e));
+			return false;
 		}
 	}
 

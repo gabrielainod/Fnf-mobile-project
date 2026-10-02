@@ -15,6 +15,7 @@ import mobile.MobileBack;
 import mobile.MobileGestures;
 import mobile.MobileKeys;
 import mobile.MobilePerf;
+import mobile.MobileDebugOverlay;
 import mobile.MobilePlatform;
 
 //crash handler stuff
@@ -151,15 +152,18 @@ class Main extends Sprite
 			var firstDraw:Bool = false;
 			FlxG.signals.postUpdate.add(function()
 			{
+				MobileDebugOverlay.noteUpdate();
+				MobileDebugOverlay.tick();
 				if (firstUpdate) return;
 				firstUpdate = true;
-				MobilePlatform.log('primeiro update OK');
+				MobilePlatform.log('primeiro update OK - ' + MobilePlatform.windowInfo());
 			});
 			FlxG.signals.postDraw.add(function()
 			{
+				MobileDebugOverlay.noteDraw();
 				if (firstDraw) return;
 				firstDraw = true;
-				MobilePlatform.log('primeiro draw OK (a tela esta desenhando)');
+				MobilePlatform.log('primeiro draw OK (a tela esta desenhando) - ' + MobilePlatform.windowInfo());
 			});
 		}
 		catch (e:Dynamic) { }

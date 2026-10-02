@@ -5,6 +5,7 @@ import Discord.DiscordClient;
 import sys.thread.Thread;
 #end
 #if mobile
+import mobile.MobileDebugOverlay;
 import mobile.MobilePlatform;
 #end
 import flixel.FlxG;
@@ -348,17 +349,28 @@ class TitleState extends MusicBeatState
 		add(logoBl);
 
 		#if mobile
-		// O shader de cor (ColorSwap) é o único efeito de GPU do título. Em alguns
-		// aparelhos o driver recusa o shader e o desenho da tela inteira morre
-		// junto. Aqui ele é opcional: se falhar, o título aparece sem o efeito.
+		// O shader de cor (ColorSwap) é o único efeito de GPU do título. Em vários
+		// celulares o driver recusa o shader e o desenho da TELA INTEIRA morre
+		// junto (a música continua tocando e a tela fica preta). Então aqui ele
+		// só entra se o OpenGL confirmar que o programa compilou e linkou de
+		// verdade neste aparelho - senão o título aparece sem o efeito.
 		try
 		{
-			gfDance.shader = swagShader.shader;
-			logoBl.shader = swagShader.shader;
+			if (MobilePlatform.shaderCompiledOk(swagShader.shader))
+			{
+				gfDance.shader = swagShader.shader;
+				logoBl.shader = swagShader.shader;
+			}
+			else
+			{
+				MobilePlatform.log('titulo sem o efeito de cor (shader nao confirmado)');
+				MobileDebugOverlay.setStatus('shader do titulo desligado');
+			}
 		}
 		catch (e:Dynamic)
 		{
 			MobilePlatform.log('AVISO: shader do titulo desativado neste aparelho: ' + Std.string(e));
+			MobileDebugOverlay.setStatus('shader do titulo desligado');
 		}
 		#else
 		gfDance.shader = swagShader.shader;

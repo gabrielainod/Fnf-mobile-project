@@ -2,26 +2,236 @@ package mobile;
 
 import openfl.Lib;
 import openfl.display.Sprite;
+import openfl.events.MouseEvent;
+import openfl.events.TouchEvent;
+import flixel.FlxG;
 import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFormat;
 
 /**
- * Mostra um erro DIRETO NA TELA, por cima de tudo.
+ * Desenha informacao DIRETO NA TELA, por cima de tudo, usando o OpenFL puro.
  *
- * Por que não usar FlxText: quando o problema é no desenho ou na criação do
- * estado, o caminho do Flixel pode estar quebrado justamente quando o erro
- * acontece. Aqui o texto é desenhado pelo próprio OpenFL (um TextField comum
- * no palco), então continua aparecendo mesmo com o Flixel travado.
+ * Dois elementos independentes:
  *
- * Serve para o jogador conseguir reportar o problema sem PC: aparece a
- * mensagem, o estado atual e as últimas linhas do log - é só tirar print.
+ * 1. PAINEL DE STATUS (canto superior esquerdo, sempre visivel no inicio):
+ *    mostra a tela atual, quantos updates e quantos draws o Flixel ja fez e o
+ *    estado do shader. Serve para separar dois problemas que parecem iguais:
+ *       - se o texto aparece mas o jogo nao: o OpenGL esta bom, o defeito esta
+ *         dentro do Flixel (alguma tela desenhando errado);
+ *       - se nem o texto aparece: o problema e no proprio OpenGL/janela.
+ *
+ * 2. CAIXA DE ERRO (tela inteira): aparece quando o jogo captura uma excecao.
+ *
+ * Por que nao usar FlxText: quando o defeito e no desenho, o caminho do Flixel
+ * pode estar quebrado justamente na hora do erro. Aqui o texto e um TextField
+ * comum no palco do OpenFL, entao continua aparecendo mesmo com o Flixel morto.
+ *
+ * Nunca lanca excecao: se qualquer coisa falhar aqui, o jogo segue normal.
  */
 class MobileDebugOverlay
 {
 	static var box:Sprite = null;
 	static var text:TextField = null;
 	static var visibleNow:Bool = false;
+
+	static var panel:Sprite = null;
+	static var panelText:TextField = null;
+	static var panelCreatedAt:Float = 0;
+	static var panelClosed:Bool = false;
+	static var extraInfo:String = '';
+	static var lastRendered:String = null;
+	static var lastBorder:Int = -1;
+	static var frame:Int = 0;
+
+	/** Quantos updates o laco do Flixel ja rodou (contador de diagnostico). */
+	public static var updates:Int = 0;
+	/** Quantos draws o Flixel ja completou. Se fica em 0, a tela nao desenha. */
+	public static var draws:Int = 0;
+
+	// ------------------------------------------------------------------ status
+
+	/** Chamado a cada update do jogo. */
+	public static function noteUpdate():Void
+	{
+		updates++;
+	}
+
+	/** Chamado a cada draw concluido do jogo. */
+	public static function noteDraw():Void
+	{
+		draws++;
+	}
+
+	/** Texto extra no painel (ex.: "shader desligado"). */
+	public static function setStatus(info:String):Void
+	{
+		extraInfo = (info == null) ? '' : info;
+		lastRendered = null;
+		if (panelClosed) reopenPanel();
+	}
+
+	/** Atualiza o painel; chamar uma vez por frame (barato: so redesenha se mudou). */
+	public static function tick():Void
+	{
+		if (panelClosed) return;
+
+		frame++;
+
+		// tira o painel da frente depois de um tempo, pra nao atrapalhar o jogo
+		if (panelCreatedAt > 0 && (haxe.Timer.stamp() - panelCreatedAt) > 25)
+		{
+			closePanel();
+			return;
+		}
+
+		if (frame % 10 != 0) return; // nao mexe no texto todo frame (custo no celular)
+		refreshPanel();
+	}
+
+	static function buildPanel():Void
+	{
+		var stage = (Lib.current != null) ? Lib.current.stage : null;
+		if (stage == null) return;
+
+		panel = new Sprite();
+		panel.mouseEnabled = false;
+
+		panelText = new TextField();
+		panelText.multiline = true;
+		panelText.selectable = false;
+		panelText.mouseEnabled = false;
+		panelText.autoSize = TextFieldAutoSize.NONE;
+		panelText.defaultTextFormat = new TextFormat('_sans', 12, 0xFFFFFF, true);
+		panelText.width = 700;
+		panelText.height = 68;
+		panelText.x = 8;
+		panelText.y = 6;
+		panel.addChild(panelText);
+
+		var g = panel.graphics;
+		g.clear();
+		g.beginFill(0x101018, 0.78);
+		g.drawRect(0, 0, 716, 80);
+		g.endFill();
+		// borda colorida: serve de sinal mesmo se a fonte nao desenhar nada
+		g.lineStyle(3, 0x808080, 1);
+		g.drawRect(0, 0, 716, 80);
+
+		panel.x = 6;
+		panel.y = 6;
+		stage.addChild(panel);
+		if (panel.parent == stage) stage.setChildIndex(panel, stage.numChildren - 1);
+
+		panelCreatedAt = haxe.Timer.stamp();
+
+		// o jogador pode tocar na tela pra fechar o painel
+		try
+		{
+			stage.addEventListener(MouseEvent.CLICK, function(_) closePanel());
+			stage.addEventListener(TouchEvent.TOUCH_BEGIN, function(_) closePanel());
+		}
+		catch (e:Dynamic) { }
+	}
+
+	static function reopenPanel():Void
+	{
+		try
+		{
+			if (panel == null)
+			{
+				buildPanel();
+			}
+			else
+			{
+				panel.visible = true;
+				if (panel.parent != Lib.current.stage) Lib.current.stage.addChild(panel);
+				panelCreatedAt = haxe.Timer.stamp();
+			}
+			panelClosed = false;
+			lastRendered = null;
+			refreshPanel();
+		}
+		catch (e:Dynamic) { }
+	}
+
+	static function closePanel():Void
+	{
+		try
+		{
+			if (panel != null) panel.visible = false;
+			panelClosed = true;
+		}
+		catch (e:Dynamic) { }
+	}
+
+	static function refreshPanel():Void
+	{
+		try
+		{
+			if (panel == null) buildPanel();
+			if (panel == null) return;
+			if (panel.parent == null && Lib.current != null) Lib.current.stage.addChild(panel);
+
+			var estado:String = 'iniciando';
+			try
+			{
+				estado = MobilePlatform.currentStateName();
+			}
+			catch (e:Dynamic) { }
+
+			var linha1:String = 'FNF-Mobile (diagnostico)  |  tela: ' + estado;
+			var linha2:String = 'update: ' + updates + '   desenho: ' + draws;
+			if (draws == 0 && updates > 60) linha2 += '   <== A TELA NAO ESTA DESENHANDO';
+			if (extraInfo != '') linha2 += '   | ' + extraInfo;
+
+			var linha3:String = '';
+			try
+			{
+				linha3 = 'janela: ' + Std.int(Lib.current.stage.stageWidth) + 'x' + Std.int(Lib.current.stage.stageHeight);
+				linha3 += '   |   objetos no palco: ' + Lib.current.stage.numChildren;
+				linha3 += '   |   flixel visivel: ' + (FlxG.game != null ? Std.string(FlxG.game.visible) : '?');
+			}
+			catch (e:Dynamic) { }
+
+			var total:String = linha1 + '\n' + linha2 + (linha3 != '' ? '\n' + linha3 : '');
+
+			// borda: cinza = normal, vermelha = tela sem desenho, verde = shader ok
+			try
+			{
+				var cor:Int = 0x808080;
+				if (draws == 0 && updates > 60) cor = 0xFF3030;
+				else if (extraInfo == '' && draws > 0 && updates > 60) cor = 0x30FF60;
+				if (cor != lastBorder)
+				{
+					lastBorder = cor;
+					var g = panel.graphics;
+					g.clear();
+					g.beginFill(0x101018, 0.78);
+					g.drawRect(0, 0, 716, 80);
+					g.endFill();
+					g.lineStyle(3, cor, 1);
+					g.drawRect(0, 0, 716, 80);
+				}
+			}
+			catch (e:Dynamic) { }
+			if (total != lastRendered)
+			{
+				lastRendered = total;
+				panelText.text = total;
+			}
+
+			// garante que fica por cima do jogo
+			if (Lib.current != null && panel.parent == Lib.current.stage)
+				Lib.current.stage.setChildIndex(panel, Lib.current.stage.numChildren - 1);
+		}
+		catch (e:Dynamic) { }
+	}
+
+	public static function isPanelVisible():Bool
+		return panel != null && panel.visible;
+
+	// ------------------------------------------------------------------- erro
 
 	/** Mostra (ou atualiza) a caixa de erro. Nunca derruba o jogo. */
 	public static function showError(title:String, details:String):Void
