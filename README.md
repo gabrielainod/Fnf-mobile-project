@@ -10,14 +10,23 @@ mods.
 
 ## 1. Como instalar o APK
 
-1. Abra a página de **Releases** do repositório.
-2. Baixe `FNF-Mobile-1.0.0.apk` (release `v1.0.0-mobile`).
-3. No celular, toque no arquivo baixado e permita "instalar apps de fontes desconhecidas"
+**Download:** https://github.com/gabrielainod/Fnf-mobile-project/releases/tag/v1.0.0-mobile
+(arquivo `FNF-Mobile-1.0.0.apk`, 110 MB)
+
+1. Abra o link acima **no celular** e baixe o APK.
+2. Toque no arquivo baixado e permita "instalar apps de fontes desconhecidas"
    (o Android pede isso para qualquer APK fora da Play Store).
-4. Abra o jogo. Na primeira vez ele escolhe automaticamente as opções ideais
+3. Abra o jogo. Na primeira vez ele escolhe automaticamente as opções ideais
    para o seu aparelho (veja a seção de desempenho).
 
-Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou armv7.
+Confira o arquivo baixado (opcional):
+
+```
+sha256: 0c64507df9ff866b62cfa0cd5801a1f1ee109f5facc8d5edf3fa57618b359c97
+```
+
+Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7**
+(o APK traz as duas ABIs compiladas, então roda em celular antigo de 32 bits).
 
 ---
 
