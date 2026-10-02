@@ -92,6 +92,7 @@ class MobileDebugOverlay
 			var estado:String = '?';
 			try { estado = MobilePlatform.currentStateName(); } catch (e:Dynamic) { }
 			MobilePlatform.log('batimento: tela ' + estado + ' | update ' + updates + ' | desenho ' + draws);
+			MobilePlatform.log('   ' + MobileGfx.report());
 		}
 
 		if (frame % 10 != 0) return; // nao mexe no texto todo frame (custo no celular)
@@ -111,11 +112,11 @@ class MobileDebugOverlay
 		panelText.selectable = false;
 		panelText.mouseEnabled = false;
 		panelText.autoSize = TextFieldAutoSize.NONE;
-		panelText.defaultTextFormat = new TextFormat('_sans', 12, 0xFFFFFF, true);
-		panelText.width = 700;
-		panelText.height = 68;
-		panelText.x = 8;
-		panelText.y = 6;
+		panelText.defaultTextFormat = new TextFormat('_sans', 22, 0x000000, true);
+		panelText.width = 1400;
+		panelText.height = 300;
+		panelText.x = 24;
+		panelText.y = 24;
 		panel.addChild(panelText);
 
 		var g = panel.graphics;
@@ -127,8 +128,28 @@ class MobileDebugOverlay
 		g.lineStyle(3, 0x808080, 1);
 		g.drawRect(0, 0, 716, 80);
 
-		panel.x = 6;
-		panel.y = 6;
+		// TELA INTEIRA magenta (grande e chamativo de proposito): e' a prova
+		// visual de que o OpenFL consegue desenhar no aparelho. Se a tela ficar
+		// preta com isso ligado, o problema e' no OpenGL/tela e nao no jogo.
+		try
+		{
+			var sw2:Float = stage.stageWidth;
+			var sh2:Float = stage.stageHeight;
+			if (sw2 <= 0) sw2 = 1280;
+			if (sh2 <= 0) sh2 = 720;
+			var fundo = new Sprite();
+			fundo.mouseEnabled = false;
+			fundo.name = 'fnfFundoDiagnostico';
+			var gf = fundo.graphics;
+			gf.beginFill(0xFF00FF, 0.92);
+			gf.drawRect(0, 0, sw2, sh2);
+			gf.endFill();
+			stage.addChildAt(fundo, stage.getChildIndex(panel));
+		}
+		catch (e:Dynamic) { }
+
+		panel.x = 0;
+		panel.y = 0;
 		stage.addChild(panel);
 		if (panel.parent == stage) stage.setChildIndex(panel, stage.numChildren - 1);
 
@@ -203,7 +224,10 @@ class MobileDebugOverlay
 			}
 			catch (e:Dynamic) { }
 
-			var total:String = linha1 + '\n' + linha2 + (linha3 != '' ? '\n' + linha3 : '');
+			var linha4:String = '';
+			try { linha4 = MobileGfx.report(); } catch (e:Dynamic) { }
+
+			var total:String = linha1 + '\n' + linha2 + (linha3 != '' ? '\n' + linha3 : '') + (linha4 != '' ? '\n' + linha4 : '');
 
 			// borda: cinza = normal, vermelha = tela sem desenho, verde = shader ok
 			try

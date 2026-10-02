@@ -123,6 +123,15 @@ if [ -f "$MANIFEST" ]; then
 	# evita que o .so seja comprimido dentro do APK (abre mais rápido em aparelho fraco)
 	grep -q 'android:extractNativeLibs' "$MANIFEST" || \
 		sed -i 's/android:largeHeap="true"/android:largeHeap="true" android:extractNativeLibs="true"/' "$MANIFEST"
+
+	# TELA PRETA em Android 11/12 (API 30+): o Android passou a usar
+	# "tagged pointers" no heap nativo, o que quebra a renderização de vários
+	# jogos feitos com Lime/OpenFL - o jogo roda, o som toca e a tela fica
+	# preta. Este atributo desliga o recurso para o nosso app (é o workaround
+	# documentado pela própria OpenFL). Custo: nenhum para o jogador.
+	grep -q 'allowNativeHeapPointerTagging' "$MANIFEST" || \
+		sed -i 's/android:extractNativeLibs="true"/android:extractNativeLibs="true" android:allowNativeHeapPointerTagging="false"/' "$MANIFEST"
+	grep -n '<application' "$MANIFEST" | head -3
 fi
 
 echo "==> Registrando SDK/NDK/JDK no Lime"

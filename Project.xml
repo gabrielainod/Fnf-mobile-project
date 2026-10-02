@@ -70,6 +70,11 @@
 	<!-- Mods habilitados também no Android: as pastas ficam no armazenamento do
 	     aparelho (ver mobile/MobilePlatform.hx). É o mesmo sistema de mods do Psych. -->
 	<define name="MODS_ALLOWED" if="desktop || mobile" />
+
+	<!-- No mobile o OpenFL tenta economizar desenho quando "nada mudou" no palco.
+	     Em jogo isso não faz sentido (o jogo muda todo quadro) e já causou tela
+	     preta em aparelhos Android: aqui o desenho é forçado todo quadro. -->
+	<define name="openfl_always_render" if="mobile" />
 	<define name="LUA_ALLOWED" if="desktop || mobile" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="VIDEOS_ALLOWED" if="web || windows" unless="32bits"/>

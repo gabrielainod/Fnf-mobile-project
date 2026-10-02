@@ -16,6 +16,7 @@ import mobile.MobileGestures;
 import mobile.MobileKeys;
 import mobile.MobilePerf;
 import mobile.MobileDebugOverlay;
+import mobile.MobileGfx;
 import mobile.MobileNative;
 import mobile.MobilePlatform;
 
@@ -233,6 +234,7 @@ class Main extends Sprite
 		MobilePlatform.init();
 		MobilePlatform.log('boot: setupGame inicio');
 		MobileNative.init();
+		MobileGfx.init();
 		MobilePlatform.log('aviso na tela (toast): ' + MobileNative.isAvailable());
 
 		// O save precisa estar ligado ANTES de ler/escrever FlxG.save.data:

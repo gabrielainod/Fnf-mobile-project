@@ -12,6 +12,12 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.graphics.Rect;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -117,6 +123,114 @@ public class FnfBoot
 		catch (Throwable t) { }
 
 		startHeartbeat ();
+
+		// Aos 6 segundos inspeciona a superficie de video do Android: e' ela que
+		// recebe o que o OpenGL desenha. Se ela estiver invalida/zerada, a tela
+		// fica preta mesmo com o jogo rodando.
+		try
+		{
+			new Handler (Looper.getMainLooper ()).postDelayed (new Runnable ()
+			{
+				public void run ()
+				{
+					try { write (surfaceReport ()); } catch (Throwable t) { }
+				}
+			}, 6000L);
+		}
+		catch (Throwable t) { }
+	}
+
+	/** Resumo do estado da superficie de video (o que o OpenGL usa para aparecer). */
+	public static String surfaceReport ()
+	{
+		StringBuilder sb = new StringBuilder ();
+
+		sb.append ("=== superficie de video (6s) ===\n");
+
+		try
+		{
+			android.view.WindowManager wm = (android.view.WindowManager) activity.getSystemService (Context.WINDOW_SERVICE);
+			android.util.DisplayMetrics dm = new android.util.DisplayMetrics ();
+			wm.getDefaultDisplay ().getMetrics (dm);
+			sb.append ("tela: ").append (dm.widthPixels).append ("x").append (dm.heightPixels)
+				.append (" densidade ").append (dm.densityDpi).append ("dpi refresh ")
+				.append (wm.getDefaultDisplay ().getRefreshRate ()).append ("Hz\n");
+		}
+		catch (Throwable t) { }
+
+		try
+		{
+			sb.append ("flags da janela: 0x").append (Integer.toHexString (activity.getWindow ().getAttributes ().flags)).append ("\n");
+		}
+		catch (Throwable t) { }
+
+		try
+		{
+			View decor = activity.getWindow ().getDecorView ();
+			sb.append ("decor: ").append (decor.getWidth ()).append ("x").append (decor.getHeight ())
+				.append (" visivel=").append (decor.getVisibility ()).append (" naTela=").append (decor.isShown ()).append ("\n");
+		}
+		catch (Throwable t) { }
+
+		try
+		{
+			View conteudo = activity.findViewById (android.R.id.content);
+			if (conteudo != null)
+			{
+				sb.append ("arvore de views (ate 3 niveis):\n");
+				descreverView (conteudo, sb, 0, 3);
+			}
+		}
+		catch (Throwable t) { }
+
+		return sb.toString () + "================================\n";
+	}
+
+	private static void describir (StringBuilder sb, int nivel)
+	{
+		for (int i = 0; i < nivel; i++) sb.append ("   ");
+	}
+
+	private static void descreverView (View v, StringBuilder sb, int nivel, int maxNivel)
+	{
+		try
+		{
+			describir (sb, nivel);
+			sb.append (v.getClass ().getName ())
+				.append (" ").append (v.getWidth ()).append ("x").append (v.getHeight ())
+				.append (" vis=").append (v.getVisibility ())
+				.append (" naTela=").append (v.isShown ());
+
+			if (v instanceof SurfaceView)
+			{
+				SurfaceView sv = (SurfaceView) v;
+				SurfaceHolder h = sv.getHolder ();
+				Surface sup = (h != null) ? h.getSurface () : null;
+				sb.append (" SUPERFICIE=");
+				if (sup == null) sb.append ("nula");
+				else if (!sup.isValid ()) sb.append ("INVALIDA");
+				else sb.append ("ok");
+				try
+				{
+					Rect r = new Rect ();
+					sv.getGlobalVisibleRect (r);
+					sb.append (" areaVisivel=").append (r.width ()).append ("x").append (r.height ());
+				}
+				catch (Throwable t) { }
+			}
+
+			sb.append ("\n");
+
+			if (v instanceof ViewGroup && nivel < maxNivel)
+			{
+				ViewGroup g = (ViewGroup) v;
+				for (int i = 0; i < g.getChildCount (); i++)
+				{
+					descreverView (g.getChildAt (i), sb, nivel + 1, maxNivel);
+				}
+			}
+		}
+		catch (Throwable t) { }
 	}
 
 	/**
@@ -198,6 +312,7 @@ public class FnfBoot
 		sb.append ("abis: ").append (joinAbis ()).append ("\n");
 		sb.append ("heap max: ").append (Runtime.getRuntime ().maxMemory () / 1048576).append (" MB\n");
 		sb.append ("pasta do log: ").append (logDir != null ? logDir.getAbsolutePath () : "?").append ("\n");
+		try { sb.append ("\n").append (surfaceReport ()); } catch (Throwable t) { }
 
 		if (logDir != null)
 		{
