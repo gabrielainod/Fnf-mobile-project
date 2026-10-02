@@ -4,6 +4,7 @@ package;
 import sys.io.File;
 import sys.FileSystem;
 #end
+import mobile.MobilePlatform;
 import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
 import haxe.Json;

@@ -5,6 +5,9 @@ import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+#if mobile
+import mobile.MobilePlatform;
+#end
 
 class ClientPrefs {
 	public static var downScroll:Bool = false;

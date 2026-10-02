@@ -2,6 +2,7 @@ package mobile;
 
 #if mobile
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import options.BaseOptionsMenu;
