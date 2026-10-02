@@ -22,11 +22,25 @@ mods.
 Confira o arquivo baixado (opcional):
 
 ```
-sha256: 0c64507df9ff866b62cfa0cd5801a1f1ee109f5facc8d5edf3fa57618b359c97
+sha256: 695148fa3f15e18ee53956d381f3fb83fbe42f530ed10b84b442006cd5cb6a7b
 ```
 
 Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7**
 (o APK traz as duas ABIs compiladas, então roda em celular antigo de 32 bits).
+
+---
+
+### Se algo der errado
+
+O jogo grava um log de tudo que acontece no boot em **dois lugares**:
+
+```
+/sdcard/FNF-Mobile/fnf-mobile.log                     (visível em qualquer gerenciador de arquivos)
+Android/data/com.fnfmobile.game/files/fnf-mobile.log  (pasta privada do app)
+```
+
+E, com o jogo aberto, tem o painel **Options → Mobile → Ver log do jogo**, que
+mostra as últimas mensagens na tela (dá para tirar print).
 
 ---
 
