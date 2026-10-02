@@ -1,8 +1,8 @@
 # Relatórios de build (automático)
 
-Última atualização: 2026-10-02 16:51 UTC
-Status: OK:FNF-Mobile-1.0.0.apk
-Run: https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/37034142966
+Última atualização: 2026-10-02 16:52 UTC
+Status: OK:typecheck
+Run: https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/37036782395
 
 Arquivos:
 - reports/last-build.txt — resumo do último build
