@@ -29,8 +29,11 @@
 	<!--Desktop-specific-->
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
 
-	<!--Mobile-specific: tela cheia, paisagem, vsync desligado (permite limitar FPS pelo jogo)-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false" vsync="false"/>
+	<!--Mobile-specific: tela cheia, paisagem, vsync desligado (permite limitar FPS pelo jogo).
+	     OBS: com width/height em 0 o Android pode criar uma janela sem tamanho nenhum - o jogo
+	     roda, a musica toca, e a tela fica preta (nada e' desenhado numa area 0x0). Por isso
+	     aqui vao valores reais: em tela cheia o sistema usa o tamanho da tela do aparelho. -->
+	<window if="mobile" orientation="landscape" fullscreen="true" width="1280" height="720" resizable="false" vsync="false"/>
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 

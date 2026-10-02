@@ -48,6 +48,62 @@ class Main extends Sprite
 	/** Quantos quadros já esperamos a janela informar um tamanho. */
 	var windowTries:Int = 0;
 
+	/**
+	 * A janela nasceu sem tamanho (é a causa clássica da tela preta: o jogo
+	 * roda, a música toca, e nada é desenhado porque a área de desenho é 0x0).
+	 *
+	 * Aqui a gente pergunta ao sistema o tamanho real da tela do aparelho e
+	 * manda a janela se redimensionar para ele. Tudo vai para o log.
+	 */
+	function tentaArrumarJanela():Void
+	{
+		try
+		{
+			var janela:Dynamic = null;
+			try { janela = Lib.application.window; } catch (e:Dynamic) { }
+
+			if (janela == null)
+			{
+				MobilePlatform.log('AVISO: nao consegui acessar a janela do sistema');
+				return;
+			}
+
+			var larguraReal:Int = 0;
+			var alturaReal:Int = 0;
+			try
+			{
+				var modo:Dynamic = janela.display.currentMode;
+				if (modo != null)
+				{
+					larguraReal = modo.width;
+					alturaReal = modo.height;
+				}
+			}
+			catch (e:Dynamic) { }
+
+			MobilePlatform.log('tela do aparelho: ' + larguraReal + 'x' + alturaReal
+				+ ' | janela: ' + janela.width + 'x' + janela.height
+				+ ' | tela cheia: ' + janela.fullscreen);
+
+			if (larguraReal >= 64 && alturaReal >= 64)
+			{
+				MobilePlatform.log('tentando redimensionar a janela para ' + larguraReal + 'x' + alturaReal);
+				janela.resize(larguraReal, alturaReal);
+				MobileNative.toastCritico('FNF: janela sem tamanho; redimensionando para ' + larguraReal + 'x' + alturaReal);
+			}
+			else
+			{
+				MobileNative.toastCritico('FNF: a janela ficou sem tamanho (' + Std.int(stage.stageWidth) + 'x' + Std.int(stage.stageHeight) + ')');
+			}
+		}
+		catch (e:Dynamic)
+		{
+			MobilePlatform.log('AVISO: falhou ao tentar arrumar a janela: ' + Std.string(e));
+		}
+	}
+
+	/** Reagenda a criação do jogo até a janela ter tamanho (ver setupGame). */
+
 	/** Reagenda a criação do jogo até a janela ter tamanho (ver setupGame). */
 	function tentaDeNovo(_:Event):Void
 	{
@@ -123,6 +179,14 @@ class Main extends Sprite
 			{
 				MobilePlatform.log('AVISO: a janela ainda nao tem tamanho (' + stageWidth + 'x' + stageHeight + ')');
 				MobileNative.toast('FNF: janela sem tamanho (' + stageWidth + 'x' + stageHeight + '). Esperando...');
+			}
+
+			// Uma vez so: mostra o que o sistema diz sobre a tela e tenta
+			// redimensionar a janela pelo tamanho real do aparelho. E' o
+			// conserto da tela preta quando a janela nasce sem tamanho.
+			if (windowTries == 30)
+			{
+				tentaArrumarJanela();
 			}
 
 			if (windowTries <= 900) // ~15 segundos
