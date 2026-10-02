@@ -22,7 +22,7 @@ mods.
 Confira o arquivo baixado (opcional):
 
 ```
-sha256: 695148fa3f15e18ee53956d381f3fb83fbe42f530ed10b84b442006cd5cb6a7b
+sha256: 411fa085883b431ba658b9a00c55405938621aae75c69ba56e7d8474ca85a294
 ```
 
 Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7**
@@ -30,17 +30,25 @@ Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7*
 
 ---
 
-### Se algo der errado
+### Se algo der errado (diagnóstico no próprio celular)
 
-O jogo grava um log de tudo que acontece no boot em **dois lugares**:
+**1. Tela de erro automática.** Se o app travar, na *próxima vez* que você abrir
+ele mostra uma janela com o erro completo (e a última tela em que estava). É só
+tirar print e mandar — não precisa de PC, cabo nem nada.
+
+**2. Arquivos de log** (abra em qualquer gerenciador de arquivos):
 
 ```
-/sdcard/FNF-Mobile/fnf-mobile.log                     (visível em qualquer gerenciador de arquivos)
-Android/data/com.fnfmobile.game/files/fnf-mobile.log  (pasta privada do app)
+/sdcard/FNF-Mobile/fnf-mobile.log            log do jogo (se você aceitar a permissão de armazenamento)
+/sdcard/Android/media/com.fnfmobile.game/    mesma coisa, SEM precisar de permissão:
+    fnf-mobile.log      log do jogo (marcadores de boot + telas visitadas)
+    fnf-boot.log        log do lado Android (aparelho, versão, ABI, crashes)
+    fnf-erro.txt        erro dentro do motor gráfico (com a pilha)
+    ultimo-erro.txt     erro do Android (se a "tela de erro" já foi mostrada)
 ```
 
-E, com o jogo aberto, tem o painel **Options → Mobile → Ver log do jogo**, que
-mostra as últimas mensagens na tela (dá para tirar print).
+**3. Dentro do jogo:** `Options → Mobile → Ver log do jogo` mostra as últimas
+mensagens na tela (print).
 
 ---
 
