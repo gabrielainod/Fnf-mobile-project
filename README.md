@@ -22,7 +22,7 @@ mods.
 Confira o arquivo baixado (opcional):
 
 ```
-sha256: 411fa085883b431ba658b9a00c55405938621aae75c69ba56e7d8474ca85a294
+sha256: 22952105339cb569bd6d3285271a37b88918ee7d03d23f054424a64cf7f329fd
 ```
 
 Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7**
@@ -31,6 +31,15 @@ Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7*
 ---
 
 ### Se algo der errado (diagnóstico no próprio celular)
+
+**0. Painel de status na tela (build de diagnóstico).** Os primeiros 25 segundos
+mostram um painel no canto superior esquerdo com a tela atual, quantos updates e
+quantos desenhos o jogo já fez, o tamanho da janela e o estado do shader. A cor
+da borda já diz muito: **verde** = está desenhando, **vermelho** = o `update`
+roda mas o `desenho` fica em 0 (o desenho nunca acontece), **cinza** = ainda
+começando. Se nem o painel aparecer com a tela preta, o defeito está no
+OpenGL/janela (nada do OpenFL desenha). Toque na tela para fechar o painel.
+
 
 **1. Tela de erro automática.** Se o app travar, na *próxima vez* que você abrir
 ele mostra uma janela com o erro completo (e a última tela em que estava). É só
