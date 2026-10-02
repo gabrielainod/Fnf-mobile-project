@@ -1,12 +1,26 @@
 FNF Mobile — relatório de build
 ================================
-status    : PENDING
-run       : #19
-run url   : https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/36948795487
-commit    : 05c74c1 — fix: APK que fechava no boot (save ligado antes do uso) + painel de log no jogo; build completo arm64+armv7
-data      : 2026-10-02 01:06:08 UTC
+status    : OK:FNF-Mobile-1.0.0.apk
+run       : #20
+run url   : https://github.com/gabrielainod/Fnf-mobile-project/actions/runs/36949287061
+commit    : bcfd447 — diag: log tambem na pasta publica (/sdcard/FNF-Mobile) + marcadores de boot (descobrir onde para sem PC)
+data      : 2026-10-02 01:25:49 UTC
 
-APK       : (nenhum APK gerado)
+APK       : FNF-Mobile-1.0.0.apk
+tamanho   : 110M (115013293 bytes)
+sha256    : 695148fa3f15e18ee53956d381f3fb83fbe42f530ed10b84b442006cd5cb6a7b
+
+-- libs nativas no APK --
+  8084004  1981-01-01 01:01   lib/armeabi-v7a/liblime.so
+ 21280844  1981-01-01 01:01   lib/armeabi-v7a/libApplicationMain.so
+ 23259960  1981-01-01 01:01   lib/arm64-v8a/libApplicationMain.so
+ 10620520  1981-01-01 01:01   lib/arm64-v8a/liblime.so
+
+-- verificação de assinatura --
+Signer #1 certificate DN: CN=FNF Mobile, OU=Personal, O=Personal, C=BR
+Signer #1 certificate SHA-256 digest: 558fd9ce4401bb24ddb00ab7e6815025493accfc395d7f8f3d90b622ae492543
+Signer #1 certificate SHA-1 digest: 4082ac18ad20cdc6a510d9d633d86eca7d0b453c
+Signer #1 certificate MD5 digest: c2bfb38156f52a34ff2ceedaf37f5b37
 
 -- marcos do log --
 ########## STEP: dump_env ##########
@@ -16,8 +30,13 @@ APK       : (nenhum APK gerado)
 ########## STEP: keystore ##########
 ########## OK: keystore (1s) ##########
 ########## STEP: typecheck ##########
-########## OK: typecheck (7s) ##########
+########## OK: typecheck (8s) ##########
 ########## STEP: build_nativo ##########
+########## OK: build_nativo (1048s) ##########
+########## STEP: localizar_apk ##########
+########## OK: localizar_apk (0s) ##########
+########## STEP: assinar_e_verificar ##########
+########## OK: assinar_e_verificar (7s) ##########
 
 -- erros encontrados no log --
 131:    13:		abortOnError false
@@ -30,6 +49,57 @@ APK       : (nenhum APK gerado)
 660: - src/openfl/events/IOErrorEvent.cpp  [haxe,release]
 699: - src/haxe/io/Error.cpp 
 742: - src/openfl/errors/IOError.cpp  [haxe,release]
+785: - src/openfl/errors/IllegalOperationError.cpp  [haxe,release]
+793: - src/lime/utils/TAError.cpp 
+797: - src/openfl/errors/TypeError.cpp  [haxe,release]
+821: - src/sys/thread/NoEventLoopException.cpp 
+823: - src/haxe/exceptions/PosException.cpp 
+842: - src/openfl/errors/ArgumentError.cpp  [haxe,release]
+920: - src/openfl/errors/EOFError.cpp  [haxe,release]
+964: - src/openfl/events/UncaughtErrorEvents.cpp  [haxe,release]
+1041: - src/openfl/errors/RangeError.cpp  [haxe,release]
+1164: - src/openfl/events/UncaughtErrorEvent.cpp  [haxe,release]
+1213: - src/openfl/events/SecurityErrorEvent.cpp  [haxe,release]
+1226: - src/haxe/ValueException.cpp 
+1271: - src/haxe/Exception.cpp 
+1440: - src/haxe/exceptions/NotImplementedException.cpp 
+1460: - src/haxe/xml/XmlParserException.cpp 
+1515:clang++ -Iinclude -DHX_DECLARE_MAIN -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/linc_luajit/git//linc/ --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,main,static]
+1519:clang++ --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe]
+1595:clang++ -D_CRT_SECURE_NO_DEPRECATE -DHX_UNDEFINE_H --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe]
+1652:clang++ -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/project/thirdparty/pcre2-10.42/src --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,static]
+1656:clang++ -DPCRE2_CODE_UNIT_WIDTH=8 -DSUPPORT_PCRE2_8 -DHAVE_CONFIG_H -DPCRE2_STATIC -DSUPPORT_UNICODE -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/project/thirdparty/pcre2-10.42/src --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,static]
+1682: - /home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/project/thirdparty/pcre2-10.42/src/pcre2_error.c 
+1686:clang++ -DPCRE2_CODE_UNIT_WIDTH=16 -DSUPPORT_PCRE2_16 -DHAVE_CONFIG_H -DPCRE2_STATIC -DSUPPORT_UNICODE -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/project/thirdparty/pcre2-10.42/src --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,static]
+1712: - /home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/project/thirdparty/pcre2-10.42/src/pcre2_error.c 
+1716:clang++ --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,static]
+1736:"-z" "noexecstack" "-EL" "--warn-shared-textrel" "-z" "now" "-z" "relro" "-X" "--hash-style=both" "--enable-new-dtags" "--eh-frame-hdr" "-m" "armelf_linux_eabi" "-shared" "-o" "libApplicationMain-v7.so" "/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi/16/crtbegin_so.o" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/9.0.9/lib/linux/arm" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../lib/gcc/arm-linux-androideabi/4.9.x" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../lib/gcc/arm-linux-androideabi/4.9.x/../../../../arm-linux-androideabi/lib/../lib" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi/16" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/../lib" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi/../../lib" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../lib/gcc/arm-linux-androideabi/4.9.x/../../../../arm-linux-androideabi/lib" "-L/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib" "obj/android64-v7/ac3758ad_Context3DElementType.obj" "obj/android64-v7/349a2a66_FlxSteamControllerMetadata.obj" "obj/android64-v7/01b5b567_Stdout.obj" "obj/android64-v7/84138d4c_TextEventInfo.obj" "obj/android64-v7/7dcd4714_Pointer.obj" "obj/android64-v7/349a2a66_FlxSteamUpdater.obj" "obj/android64-v7/33d73994_SecurityDomain.obj" "obj/android64-v7/b642d8f3_ALC.obj" "obj/android64-v7/f4be18aa_LinearPath.obj" "obj/android64-v7/ab87b140_FlxPool_flixel_effects_FlxFlicker.obj" "obj/android64-v7/541d37d7_DOMRenderer.obj" "obj/android64-v7/9ea19870_ThreadPoolMessage.obj" "obj/android64-v7/20c19269_FileOutput.obj" "obj/android64-v7/82ddbf07_GradientType_Impl_.obj" "obj/android64-v7/101a27b5___ASSET__flixel_fonts_nokiafc22_ttf.obj" "obj/android64-v7/6f858d00_ShapeCache.obj" "obj/android64-v7/7c4d1c08_HBGlyphPosition.obj" "obj/android64-v7/e511cff0_NextEventTime.obj" "obj/android64-v7/101a27b5_Section.obj" "obj/android64-v7/101a27b5_AttachedSprite.obj" "obj/android64-v7/4c85aea4_MobileApp.obj" "obj/android64-v7/d5bd1443_UnicodeBuffer_Impl_.obj" "obj/android64-v7/101a27b5_WeekData.obj" "obj/android64-v7/541d37d7_Stage3D.obj" "obj/android64-v7/e575f664_BaseCode.obj" "obj/android64-v7/75dcdff2_PSVitaMapping.obj" "obj/android64-v7/440b6167_OES_surfaceless_context.obj" "obj/android64-v7/355827b7_FlxState.obj" "obj/android64-v7/33de38a8_FlxAnalogToDigitalMode.obj" "obj/android64-v7/04d28a06_CairoFontFace_Impl_.obj" "obj/android64-v7/3157fc8b_GraphicInteractive.obj" "obj/android64-v7/541d37d7_Tileset.obj" "obj/android64-v7/174e7f89__Event_lime_graphics_RenderContext_Void.obj" "obj/android64-v7/937d5479_TrackerProfile.obj" "obj/android64-v7/101a27b5___boot__.obj" "obj/android64-v7/faadb060_FlxMouseControl.obj" "obj/android64-v7/541d37d7_ShaderParameter_Float.obj" "obj/android64-v7/23db8540_HaxeThread.obj" "obj/android64-v7/37858dd3_CURLMultiMessage.obj" "obj/android64-v7/101a27b5_PhillyGlowGradient.obj" "obj/android64-v7/cfb590ee_IFlxUIState.obj" "obj/android64-v7/ac3758ad_Context3DDisplayObject.obj" "obj/android64-v7/ac3758ad_CanvasTextField.obj" "obj/android64-v7/bd71ec54_InterpolationMethod_Impl_.obj" "obj/android64-v7/7737947e_OpenGLES3RenderContext_Impl_.obj" "obj/android64-v7/361420f1_URLRequestDefaults.obj" "obj/android64-v7/8c314384_WebAudioContext.obj" "obj/android64-v7/b0a4fe4d_WebGL2RenderContext_Impl_.obj" "obj/android64-v7/969d992b_OverrideBlendModeView_Impl_.obj" "obj/android64-v7/963eec72_StageAlign_Impl_.obj" "obj/android64-v7/16202ed0_Lua_helper.obj" "obj/android64-v7/25644932_SwitchJoyconLeftID.obj" "obj/android64-v7/c2a979fb_GlyphMetrics.obj" "obj/android64-v7/0dc2d2db_FlxActionManager.obj" "obj/android64-v7/f640a933_MenuCharacterEditorState.obj" "obj/android64-v7/cd0f6c38_IEventDispatcher.obj" "obj/android64-v7/8c314384_FlashAudioContext.obj" "obj/android64-v7/e23c57ca_FlxKeyboard.obj" "obj/android64-v7/b52f139a_ButtonLabelStyle.obj" "obj/android64-v7/0dc2d2db_FlxInputDeviceObject.obj" "obj/android64-v7/541d37d7_ITileContainer.obj" "obj/android64-v7/ae5d25cd_BMP.obj" "obj/android64-v7/569d3b5e_Input.obj" "obj/android64-v7/101a27b5_DialogueBoxPsych.obj" "obj/android64-v7/b52f139a_FlxUIText.obj" "obj/android64-v7/355827b7_IFlxBasic.obj" "obj/android64-v7/b642d8f3_AL.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalGamepad.obj" "obj/android64-v7/440b6167_OES_texture_half_float_linear.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_hilight_png.obj" "obj/android64-v7/ef5a174d_Int8Array_Impl_.obj" "obj/android64-v7/937d5479_Watch.obj" "obj/android64-v7/1dffb9e4_LibrarySymbol.obj" "obj/android64-v7/c5a56de2_FlxWaveDirection.obj" "obj/android64-v7/541d37d7_DisplayObjectRenderer.obj" "obj/android64-v7/101a27b5_Prompt.obj" "obj/android64-v7/174e7f89__Event_lime_ui_GamepadButton_Void.obj" "obj/android64-v7/f439ec33_JNIMethod.obj" "obj/android64-v7/8c314384_AudioManager.obj" "obj/android64-v7/bc3b2102_SourceRegister.obj" "obj/android64-v7/541d37d7_GraphicsShaderFill.obj" "obj/android64-v7/25644932_OUYAID.obj" "obj/android64-v7/ae5d25cd_PNG.obj" "obj/android64-v7/b52f139a_AnchorPoint.obj" "obj/android64-v7/cfb590ee_IFlxUIButton.obj" "obj/android64-v7/75dcdff2_FlxGamepadMapping.obj" "obj/android64-v7/88d5751f_ListNode.obj" "obj/android64-v7/361420f1_NetStream.obj" "obj/android64-v7/135885ef_Log.obj" "obj/android64-v7/2f83846b_FlxTypedSignal_Impl_.obj" "obj/android64-v7/101a27b5_DialogueCharacter.obj" "obj/android64-v7/174e7f89__Event_Float_Float_lime_ui_MouseButton_Void.obj" "obj/android64-v7/3de7ff0a_LogFrontEnd.obj" "obj/android64-v7/969d992b_LineGradientStyleView_Impl_.obj" "obj/android64-v7/174e7f89_Promise_String.obj" "obj/android64-v7/569d3b5e_Path.obj" "obj/android64-v7/174e7f89_IModule.obj" "obj/android64-v7/01b5b567_Stdin.obj" "obj/android64-v7/359015c5__HTTPRequest_lime_utils_Bytes.obj" "obj/android64-v7/440b6167_ANGLE_framebuffer_blit.obj" "obj/android64-v7/3157fc8b_GraphicArrowRight.obj" "obj/android64-v7/75dcdff2_Manufacturer.obj" "obj/android64-v7/10a2a354_IFlxInput.obj" "obj/android64-v7/541d37d7_SimpleButton.obj" "obj/android64-v7/cf5865cb_FlxText.obj" "obj/android64-v7/ae5d25cd_JPEG.obj" "obj/android64-v7/ab87b140_FlxBitmapDataUtil.obj" "obj/android64-v7/101a27b5_FlxUIDropDownMenuCustom.obj" "obj/android64-v7/440b6167_NV_texture_compression_s3tc_update.obj" "obj/android64-v7/de3a957a_Accelerometer.obj" "obj/android64-v7/101a27b5_CutsceneHandler.obj" "obj/android64-v7/4a8ff0c4_VisualsUISubState.obj" "obj/android64-v7/ac3758ad_PerlinNoise.obj" "obj/android64-v7/440b6167_OES_depth24.obj" "obj/android64-v7/ab87b140_FlxPool_flixel_math_FlxRect.obj" "obj/android64-v7/3c2fc733_FlxQuadTree.obj" "obj/android64-v7/969d992b_BeginShaderFillView_Impl_.obj" "obj/android64-v7/6eb57d49_ALBuffer_Impl_.obj" "obj/android64-v7/663379ac_FlxRandom.obj" "obj/android64-v7/541d37d7_GraphicsStroke.obj" "obj/android64-v7/94440bc8_FlxBarFillDirection.obj" "obj/android64-v7/541d37d7_OpenGLRenderer.obj" "obj/android64-v7/16202ed0_LuaException.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_xml_default_loading_screen_xml.obj" "obj/android64-v7/541d37d7_GraphicsBitmapFill.obj" "obj/android64-v7/440b6167_EXT_occlusion_query_boolean.obj" "obj/android64-v7/ea697420_Huffman.obj" "obj/android64-v7/2f83846b_FlxSignalHandler.obj" "obj/android64-v7/ac3758ad_Context3DBuffer.obj" "obj/android64-v7/ab87b140_FlxPool_flixel_math_FlxPoint.obj" "obj/android64-v7/569d3b5e_Encoding.obj" "obj/android64-v7/37fbc433_FlxFrameCollectionType.obj" "obj/android64-v7/969d992b_DrawRoundRectView_Impl_.obj" "obj/android64-v7/541d37d7_Tile.obj" "obj/android64-v7/f439ec33_CFFI.obj" "obj/android64-v7/440b6167_AMD_performance_monitor.obj" "obj/android64-v7/5e27b824_FlxBitmapDataPoolNode.obj" "obj/android64-v7/3de7ff0a_BitmapFrontEnd.obj" "obj/android64-v7/cf5865cb_FlxTextFormatMarkerPair.obj" "obj/android64-v7/c6c7d3ac_FlxTypedSpriteGroup.obj" "obj/android64-v7/ab87b140_LabelValuePair.obj" "obj/android64-v7/101a27b5_NoteSplash.obj" "obj/android64-v7/8e7e4cc0_FlxTransitionableState.obj" "obj/android64-v7/440b6167_EXT_sRGB.obj" "obj/android64-v7/174e7f89_Event.obj" "obj/android64-v7/e1dd5ac9_FlxAtlas.obj" "obj/android64-v7/a444e1f4_FlxMacroUtil.obj" "obj/android64-v7/101a27b5_CoolUtil.obj" "obj/android64-v7/51910811_BlurFilter.obj" "obj/android64-v7/11305129_FlxFlicker.obj" "obj/android64-v7/b52f139a_FlxUIRadioGroup.obj" "obj/android64-v7/541d37d7_Loader.obj" "obj/android64-v7/e511cff0_EventLoop.obj" "obj/android64-v7/84138d4c_GamepadEventInfo.obj" "obj/android64-v7/b52f139a_XY.obj" "obj/android64-v7/37858dd3_CURLMulti.obj" "obj/android64-v7/3157fc8b_GraphicWatch.obj" "obj/android64-v7/0dc2d2db_FlxActionDigital.obj" "obj/android64-v7/49b687ff_Vector2.obj" "obj/android64-v7/ff501c31_ByteArray_Impl_.obj" "obj/android64-v7/25644932_MFiID.obj" "obj/android64-v7/541d37d7_DisplayObjectShader.obj" "obj/android64-v7/135885ef_BytePointerData.obj" "obj/android64-v7/abf93eba_VarTween.obj" "obj/android64-v7/101a27b5_AttachedText.obj" "obj/android64-v7/440b6167_QCOM_perfmon_global_mode.obj" "obj/android64-v7/101a27b5_Highscore.obj" "obj/android64-v7/3960533f_SharedObjectFlushStatus_Impl_.obj" "obj/android64-v7/47133087_CairoPattern_Impl_.obj" "obj/android64-v7/5f85271f_ErrorDef.obj" "obj/android64-v7/8fa032a2_FlxRuntimeShader.obj" "obj/android64-v7/e6484e7d_Matrix3D.obj" "obj/android64-v7/ac3758ad_CanvasDisplayObject.obj" "obj/android64-v7/33d73994_ApplicationDomain.obj" "obj/android64-v7/4c85aea4_MobileKeys.obj" "obj/android64-v7/204a830b_KeyModifier_Impl_.obj" "obj/android64-v7/4d0a8f31_FlxTrailArea.obj" "obj/android64-v7/359015c5__HTTPRequest_String.obj" "obj/android64-v7/9aae95be_FlxTilemapAutoTiling.obj" "obj/android64-v7/cd0f6c38_KeyboardEvent.obj" "obj/android64-v7/facb7ae3_FlashRenderContext_Impl_.obj" "obj/android64-v7/3c2fc733_VirtualInputData.obj" "obj/android64-v7/ab87b140_FlxVerticalAlign.obj" "obj/android64-v7/ac3758ad_Context3DGraphics.obj" "obj/android64-v7/7dcd4714_Transform.obj" "obj/android64-v7/101a27b5_WiggleShader.obj" "obj/android64-v7/101a27b5_ManifestResources.obj" "obj/android64-v7/541d37d7_IGraphicsData.obj" "obj/android64-v7/8475cbcb_StringMap.obj" "obj/android64-v7/101a27b5___ASSET__OPENFL__flixel_fonts_nokiafc22_ttf.obj" "obj/android64-v7/cd0f6c38_MouseEvent.obj" "obj/android64-v7/440b6167_NVX_gpu_memory_info.obj" "obj/android64-v7/d4966d58_OpCode.obj" "obj/android64-v7/174e7f89__Event_Array_String__Void.obj" "obj/android64-v7/541d37d7_FrameScript.obj" "obj/android64-v7/3c2fc733_GraphicVirtualInput.obj" "obj/android64-v7/135885ef_CompressionAlgorithm.obj" "obj/android64-v7/2f83846b_FlxSignal0.obj" "obj/android64-v7/101a27b5_MusicBeatSubstate.obj" "obj/android64-v7/541d37d7_DisplayObjectContainer.obj" "obj/android64-v7/101a27b5_MusicBeatState.obj" "obj/android64-v7/361420f1_IDynamicPropertyWriter.obj" "obj/android64-v7/ab87b140_FlxSaveStatus.obj" "obj/android64-v7/6f858d00_CacheMeasurement.obj" "obj/android64-v7/b1f95496_Uniform.obj" "obj/android64-v7/86f12d2f_MapKeyValueIterator.obj" "obj/android64-v7/e511cff0_Mutex.obj" "obj/android64-v7/440b6167_NV_coverage_sample.obj" "obj/android64-v7/bb5f3575_GLObject.obj" "obj/android64-v7/d2d52c9a_FlxGamepadAnalogList.obj" "obj/android64-v7/440b6167_EXT_discard_framebuffer.obj" "obj/android64-v7/174e7f89__Event_Float_Float_Void.obj" "obj/android64-v7/84138d4c_ClipboardEventInfo.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_tab_png.obj" "obj/android64-v7/5fa8cb84_Timer.obj" "obj/android64-v7/355827b7_FlxCamera.obj" "obj/android64-v7/541d37d7_LoaderInfo.obj" "obj/android64-v7/d947759d_ImageChannel.obj" "obj/android64-v7/440b6167_QCOM_extended_get.obj" "obj/android64-v7/663379ac_FlxMatrix.obj" "obj/android64-v7/16202ed0_Convert.obj" "obj/android64-v7/37fbc433_FlxTileFrames.obj" "obj/android64-v7/980d317e_CubeTexture.obj" "obj/android64-v7/663379ac_FlxAngle.obj" "obj/android64-v7/ab87b140_FlxGradient.obj" "obj/android64-v7/10a2a354_FlxInput.obj" "obj/android64-v7/f640a933_ChartingState.obj" "obj/android64-v7/101a27b5_Alphabet.obj" "obj/android64-v7/ac3758ad_DrawCommandBuffer.obj" "obj/android64-v7/440b6167_EXT_read_format_bgra.obj" "obj/android64-v7/9aae95be_FlxBaseTilemap.obj" "obj/android64-v7/48bf43e9_FlxEase.obj" "obj/android64-v7/abaaaf13_HBBlob_Impl_.obj" "obj/android64-v7/3de7ff0a_ConsoleFrontEnd.obj" "obj/android64-v7/ac3758ad_CanvasTilemap.obj" "obj/android64-v7/541d37d7_GraphicsSolidFill.obj" "obj/android64-v7/b52f139a_FlxUITooltip.obj" "obj/android64-v7/8c314384_AudioSource.obj" "obj/android64-v7/174e7f89__Event_Int_Void.obj" "obj/android64-v7/569d3b5e_FPHelper.obj" "obj/android64-v7/174e7f89_Application.obj" "obj/android64-v7/f439ec33_System.obj" "obj/android64-v7/51910811_GlowFilter.obj" "obj/android64-v7/2c29b222_WebGLRenderContext_Impl_.obj" "obj/android64-v7/541d37d7_FrameLabel.obj" "obj/android64-v7/b52f139a_CheckStyle.obj" "obj/android64-v7/440b6167_AMD_compressed_3DC_texture.obj" "obj/android64-v7/5f74c28d_AbstractHTTPRequest.obj" "obj/android64-v7/e24bf4df_InvertAlphaShader.obj" "obj/android64-v7/174e7f89__Event_Int_Float_Void.obj" "obj/android64-v7/c63173cb_DefaultFontSet.obj" "obj/android64-v7/b52f139a_FlxUISprite.obj" "obj/android64-v7/d947759d_ImageFileFormat.obj" "obj/android64-v7/89c62067_GLSampler_Impl_.obj" "obj/android64-v7/b52f139a_FlxUINumericStepper.obj" "obj/android64-v7/440b6167_EXT_texture_storage.obj" "obj/android64-v7/f439ec33_BackgroundWorker.obj" "obj/android64-v7/440b6167_OES_required_internalformat.obj" "obj/android64-v7/f6a72108_FlxColor_Impl_.obj" "obj/android64-v7/af3d1b59_ColorMatrix_Impl_.obj" "obj/android64-v7/ce6a1a98_SoundChannel.obj" "obj/android64-v7/39304c3e_DispatchIterator.obj" "obj/android64-v7/135885ef_AssetCache.obj" "obj/android64-v7/e23c57ca_FlxKeyList.obj" "obj/android64-v7/0dc2d2db_FlxInputDeviceID.obj" "obj/android64-v7/d1d46166_GraphicTransformCursorScaleY.obj" "obj/android64-v7/969d992b_DrawRectView_Impl_.obj" "obj/android64-v7/ac3758ad_DrawCommandReader.obj" "obj/android64-v7/82c0c089_HBFace_Impl_.obj" "obj/android64-v7/3c2fc733_FlxBGSprite.obj" "obj/android64-v7/88129302_ShaderParameterType_Impl_.obj" "obj/android64-v7/c5a56de2_FlxWaveEffect.obj" "obj/android64-v7/361420f1_URLLoader.obj" "obj/android64-v7/440b6167_ANGLE_texture_usage.obj" "obj/android64-v7/361420f1_FileReference.obj" "obj/android64-v7/bc3b2102_RegisterMapEntry.obj" "obj/android64-v7/7a48e3d2_GLTransformFeedback_Impl_.obj" "obj/android64-v7/fff78735_ByteArrayData.obj" "obj/android64-v7/1089b189_Context3DCompareMode_Impl_.obj" "obj/android64-v7/359015c5_HTTPRequest.obj" "obj/android64-v7/8475cbcb_IntMap.obj" "obj/android64-v7/b1f95496_Context3D.obj" "obj/android64-v7/e575f664_Adler32.obj" "obj/android64-v7/440b6167_OES_texture_3D.obj" "obj/android64-v7/f640a933_CharacterEditorState.obj" "obj/android64-v7/101a27b5_MenuCharacter.obj" "obj/android64-v7/16202ed0_Macro.obj" "obj/android64-v7/b52f139a_FlxUIMouse.obj" "obj/android64-v7/e24bf4df_CombineShader.obj" "obj/android64-v7/440b6167_OES_vertex_array_object.obj" "obj/android64-v7/7dcd4714_Tool.obj" "obj/android64-v7/45402938_GridFitType_Impl_.obj" "obj/android64-v7/569d3b5e_BytesInput.obj" "obj/android64-v7/d2d52c9a_FlxGamepadAnalogStateList.obj" "obj/android64-v7/9e20f446_ObjectEncoding_Impl_.obj" "obj/android64-v7/ac3758ad_CairoTilemap.obj" "obj/android64-v7/440b6167_AMD_program_binary_Z400.obj" "obj/android64-v7/ea697420_HuffTools.obj" "obj/android64-v7/440b6167_EXT_texture_compression_s3tc.obj" "obj/android64-v7/b52f139a_U.obj" "obj/android64-v7/87948c01_MultitouchInputMode_Impl_.obj" "obj/android64-v7/359015c5__HTTPRequest_lime_media_AudioBuffer.obj" "obj/android64-v7/8e7e4cc0_TransitionFade.obj" "obj/android64-v7/ede6c6ec_FlxTouch.obj" "obj/android64-v7/101a27b5_IntIterator.obj" "obj/android64-v7/541d37d7_Shader.obj" "obj/android64-v7/90239e3a_FlxParticle.obj" "obj/android64-v7/86f12d2f_ArrayIterator.obj" "obj/android64-v7/101a27b5_PlayerSettings.obj" "obj/android64-v7/ab87b140_FlxBitmapDataPool.obj" "obj/android64-v7/937d5479_Tracker.obj" "obj/android64-v7/1437cf35_GraphicLogoLight.obj" "obj/android64-v7/969d992b_LineStyleView_Impl_.obj" "obj/android64-v7/ab87b140_FlxStringUtil.obj" "obj/android64-v7/0dc2d2db_ResetPolicy.obj" "obj/android64-v7/174e7f89__Event_Dynamic_Void.obj" "obj/android64-v7/b52f139a_FlxButtonPlus.obj" "obj/android64-v7/361420f1_SharedObject.obj" "obj/android64-v7/5f85271f_ExprDef.obj" "obj/android64-v7/b52f139a_FlxUITabMenu.obj" "obj/android64-v7/101a27b5_Type.obj" "obj/android64-v7/8fd9a771_ObjectVector.obj" "obj/android64-v7/c5a56de2_FlxEffectSprite.obj" "obj/android64-v7/b52f139a_FontFixer.obj" "obj/android64-v7/ac3758ad_DOMTilemap.obj" "obj/android64-v7/f439ec33_DisplayMode.obj" "obj/android64-v7/ae81f71d_JsonPrinter.obj" "obj/android64-v7/7f977e19_FlxTextFormatRange.obj" "obj/android64-v7/cf5865cb_FlxTextBorderStyle.obj" "obj/android64-v7/f51de39a_Error.obj" "obj/android64-v7/15946e1c_ALAuxiliaryEffectSlot_Impl_.obj" "obj/android64-v7/ab87b140_FlxUnicodeUtil.obj" "obj/android64-v7/31bef593_FlxRangeBounds.obj" "obj/android64-v7/7c4d1c08_HB.obj" "obj/android64-v7/440b6167_EXT_multi_draw_arrays.obj" "obj/android64-v7/8fd9a771_FunctionVector.obj" "obj/android64-v7/3222016f_ALContext_Impl_.obj" "obj/android64-v7/cfb590ee_IFlxUIClickable.obj" "obj/android64-v7/440b6167_OES_vertex_half_float.obj" "obj/android64-v7/33f49044_GraphicDrawDebug.obj" "obj/android64-v7/cfb590ee_ICursorPointable.obj" "obj/android64-v7/ce6a1a98_SoundTransform.obj" "obj/android64-v7/25644932_XInputID.obj" "obj/android64-v7/33de38a8_FlxGamepadAnalogStick.obj" "obj/android64-v7/440b6167_NV_fence.obj" "obj/android64-v7/2ae9c3cc_AssetsMacro.obj" "obj/android64-v7/11d00751_FlxDirection_Impl_.obj" "obj/android64-v7/d55ec3da_CompressionAlgorithm_Impl_.obj" "obj/android64-v7/75dcdff2_SwitchJoyconLeftMapping.obj" "obj/android64-v7/cf5865cb_FlxTextFormat.obj" "obj/android64-v7/541d37d7_IGraphicsStroke.obj" "obj/android64-v7/440b6167_QCOM_binning_control.obj" "obj/android64-v7/3c8a742f_GLBuffer_Impl_.obj" "obj/android64-v7/8fd9a771_BoolVector.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_check_mark_png.obj" "obj/android64-v7/77652faa_CompletionListScrollBar.obj" "obj/android64-v7/b52f139a_FlxUIList.obj" "obj/android64-v7/6ad328ce_GamepadAxis_Impl_.obj" "obj/android64-v7/9ea19870_ThreadPoolMessageType.obj" "obj/android64-v7/440b6167_DMP_shader_binary.obj" "obj/android64-v7/101a27b5_Std.obj" "obj/android64-v7/440b6167_EXT_shader_texture_lod.obj" "obj/android64-v7/b52f139a_SortMethod.obj" "obj/android64-v7/135885ef_Preloader.obj" "obj/android64-v7/5f85271f_Error.obj" "obj/android64-v7/101a27b5_Note.obj" "obj/android64-v7/4a8ff0c4_NoteOffsetState.obj" "obj/android64-v7/b52f139a_FlxInputText.obj" "obj/android64-v7/969d992b_WindingNonZeroView_Impl_.obj" "obj/android64-v7/5fa8cb84_NativeStackTrace.obj" "obj/android64-v7/101a27b5_LoadingState.obj" "obj/android64-v7/b52f139a_FlxUIDropDownMenuDropDirection.obj" "obj/android64-v7/0d98c369_RegularEvent.obj" "obj/android64-v7/abf93eba_AngleTween.obj" "obj/android64-v7/101a27b5_ValueType.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_check_box_png.obj" "obj/android64-v7/101a27b5_Paths.obj" "obj/android64-v7/8e3cf601_BGRA_Impl_.obj" "obj/android64-v7/440b6167_QCOM_writeonly_rendering.obj" "obj/android64-v7/7b175447_StackBlur.obj" "obj/android64-v7/0dc2d2db_FlxActionInputAnalogMouseMotion.obj" "obj/android64-v7/84138d4c_RenderEventInfo.obj" "obj/android64-v7/b52f139a_Rounding.obj" "obj/android64-v7/f439ec33_JNIStaticField.obj" "obj/android64-v7/b52f139a_FlxSlider.obj" "obj/android64-v7/fc0fb5da_VorbisFile.obj" "obj/android64-v7/3157fc8b_TooltipOverlay.obj" "obj/android64-v7/33d73994_System.obj" "obj/android64-v7/969d992b_BeginGradientFillView_Impl_.obj" "obj/android64-v7/3c2fc733_FlxSound.obj" "obj/android64-v7/9825b0d5_FlxDrawTrianglesItem.obj" "obj/android64-v7/8e7e4cc0_GraphicTransTileSquare.obj" "obj/android64-v7/0554f49d_ALFilter_Impl_.obj" "obj/android64-v7/3de7ff0a_SignalFrontEnd.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_chrome_flat_png.obj" "obj/android64-v7/8475cbcb_EnumValueMap.obj" "obj/android64-v7/101a27b5_DialogueBox.obj" "obj/android64-v7/440b6167_ANGLE_texture_compression_dxt5.obj" "obj/android64-v7/ede6c6ec_FlxTouchManager.obj" "obj/android64-v7/355827b7_IFlxSprite.obj" "obj/android64-v7/d99b846a_Stop.obj" "obj/android64-v7/569d3b5e_Eof.obj" "obj/android64-v7/b52f139a_FlxUI.obj" "obj/android64-v7/9b8cf524_Bytes_Impl_.obj" "obj/android64-v7/440b6167_EXT_multisampled_render_to_texture.obj" "obj/android64-v7/541d37d7_CairoRenderer.obj" "obj/android64-v7/440b6167_EXT_texture_type_2_10_10_10_REV.obj" "obj/android64-v7/6f858d00_HTMLParser.obj" "obj/android64-v7/359015c5__HTTPRequest_lime_graphics_Image.obj" "obj/android64-v7/440b6167_ARM_rgba8.obj" "obj/android64-v7/3c2fc733_FlxPreloader.obj" "obj/android64-v7/3157fc8b_FlxDebuggerLayout.obj" "obj/android64-v7/6f858d00_TextFormatRange.obj" "obj/android64-v7/220e4d24_UInt32Array_Impl_.obj" "obj/android64-v7/980d317e_TextureBase.obj" "obj/android64-v7/33de38a8_FlxGamepadButton.obj" "obj/android64-v7/f640a933_MasterEditorMenu.obj" "obj/android64-v7/9a85db67_OpenGLRenderContext_Impl_.obj" "obj/android64-v7/969d992b_LineToView_Impl_.obj" "obj/android64-v7/101a27b5___ASSET__assets_fonts_pixel_otf.obj" "obj/android64-v7/85e22e0c_Resource_Impl_.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalSteam.obj" "obj/android64-v7/0dc2d2db_FlxInputType.obj" "obj/android64-v7/361420f1_URLRequestHeader.obj" "obj/android64-v7/cd0f6c38_FocusEvent.obj" "obj/android64-v7/feeec513_GLTexture_Impl_.obj" "obj/android64-v7/541d37d7_Graphics.obj" "obj/android64-v7/31bef593_FlxBounds.obj" "obj/android64-v7/e6484e7d_Vector3D.obj" "obj/android64-v7/440b6167_ANGLE_instanced_arrays.obj" "obj/android64-v7/cd0f6c38_HTTPStatusEvent.obj" "obj/android64-v7/fff78735_AssetLibrary.obj" "obj/android64-v7/abf93eba_NumTween.obj" "obj/android64-v7/baf880cf_Interp.obj" "obj/android64-v7/541d37d7_GraphicsQuadPath.obj" "obj/android64-v7/969d992b_LineBitmapStyleView_Impl_.obj" "obj/android64-v7/440b6167_OES_rgb8_rgba8.obj" "obj/android64-v7/459e8ccf_Dictionary_Impl_.obj" "obj/android64-v7/fc0fb5da_VorbisComment.obj" "obj/android64-v7/8c314384_AudioBuffer.obj" "obj/android64-v7/101a27b5_TankmenBG.obj" "obj/android64-v7/101a27b5_HealthIcon.obj" "obj/android64-v7/5451789b_JointStyle_Impl_.obj" "obj/android64-v7/b52f139a_FlxUI9SliceSprite.obj" "obj/android64-v7/663379ac_FlxPoint.obj" "obj/android64-v7/5fa8cb84_IMap.obj" "obj/android64-v7/459e8ccf_ClassMap.obj" "obj/android64-v7/5fa8cb84_Resource.obj" "obj/android64-v7/7dcd4714_Mover.obj" "obj/android64-v7/b52f139a_FlxUIBar.obj" "obj/android64-v7/0dc2d2db_FlxActionSet.obj" "obj/android64-v7/20c19269_File.obj" "obj/android64-v7/174e7f89__Event_String_Void.obj" "obj/android64-v7/3157fc8b_FlxDebugger.obj" "obj/android64-v7/174e7f89_Promise_lime_media_AudioBuffer.obj" "obj/android64-v7/101a27b5_DocumentClass.obj" "obj/android64-v7/1de9a2b4_Float64Array_Impl_.obj" "obj/android64-v7/84138d4c_JoystickEventInfo.obj" "obj/android64-v7/77652faa_CompletionListEntry.obj" "obj/android64-v7/101a27b5_Lambda.obj" "obj/android64-v7/8c314384_AudioContext.obj" "obj/android64-v7/cd0f6c38_ErrorEvent.obj" "obj/android64-v7/440b6167_OES_element_index_uint.obj" "obj/android64-v7/3c3663f3_GLFramebuffer_Impl_.obj" "obj/android64-v7/101a27b5_CustomFadeTransition.obj" "obj/android64-v7/ace70845_Keyboard.obj" "obj/android64-v7/cd0f6c38_IOErrorEvent.obj" "obj/android64-v7/135885ef_Assets.obj" "obj/android64-v7/f6577418_GLRenderbuffer_Impl_.obj" "obj/android64-v7/440b6167_ANGLE_framebuffer_multisample.obj" "obj/android64-v7/75dcdff2_PS4Mapping.obj" "obj/android64-v7/0dc2d2db_FlxActionInputAnalogGamepad.obj" "obj/android64-v7/ab87b140_FlxSave.obj" "obj/android64-v7/656c24f8_HBFont_Impl_.obj" "obj/android64-v7/ac3758ad_CanvasBitmap.obj" "obj/android64-v7/4c85aea4_MobileGestures.obj" "obj/android64-v7/4c85aea4_MobileControls.obj" "obj/android64-v7/3c085fd4_StageDisplayState_Impl_.obj" "obj/android64-v7/45225506_FlxGamepadInputID_Impl_.obj" "obj/android64-v7/c7f4cd79_ActionSetRegister.obj" "obj/android64-v7/d1d46166_GraphicTransformCursorDefault.obj" "obj/android64-v7/39304c3e_Listener.obj" "obj/android64-v7/541d37d7_JPEGEncoderOptions.obj" "obj/android64-v7/349a2a66_DigitalActionData.obj" "obj/android64-v7/5f85271f_Token.obj" "obj/android64-v7/75dcdff2_WiiRemoteMapping.obj" "obj/android64-v7/541d37d7_Tilemap.obj" "obj/android64-v7/541d37d7_Stage.obj" "obj/android64-v7/424e4851_UInt8Array_Impl_.obj" "obj/android64-v7/518c5f45_Glyph_Impl_.obj" "obj/android64-v7/8475cbcb_ArraySort.obj" "obj/android64-v7/10a2a354_IFlxInputManager.obj" "obj/android64-v7/b52f139a_FlxBaseMultiInput.obj" "obj/android64-v7/541d37d7_ShaderInput_openfl_display_BitmapData.obj" "obj/android64-v7/9aae95be_FlxTileblock.obj" "obj/android64-v7/f640a933_EditorLua.obj" "obj/android64-v7/ac3758ad_Context3DSimpleButton.obj" "obj/android64-v7/101a27b5___resources__.obj" "obj/android64-v7/440b6167_EXT_multiview_draw_buffers.obj" "obj/android64-v7/174e7f89__Event_Void_Void.obj" "obj/android64-v7/a2a0648d_NullResolver.obj" "obj/android64-v7/d2d52c9a_FlxGamepadAnalogValueList.obj" "obj/android64-v7/101a27b5_GameplayChangersSubstate.obj" "obj/android64-v7/c6c7d3ac_FlxTypedGroup.obj" "obj/android64-v7/cd0f6c38_AccelerometerEvent.obj" "obj/android64-v7/569d3b5e_Error.obj" "obj/android64-v7/3157fc8b_GraphicBitmapLog.obj" "obj/android64-v7/ac3758ad_Context3DVideo.obj" "obj/android64-v7/ea697420_Reader.obj" "obj/android64-v7/90239e3a_FlxTypedEmitter.obj" "obj/android64-v7/6f858d00_GlyphPosition.obj" "obj/android64-v7/980d317e_Texture.obj" "obj/android64-v7/ac3758ad_CanvasDisplayObjectContainer.obj" "obj/android64-v7/135885ef_ArrayBufferIO.obj" "obj/android64-v7/b52f139a_Anchor.obj" "obj/android64-v7/440b6167_OES_compressed_paletted_texture.obj" "obj/android64-v7/174e7f89__Event_lime_utils_Resource_Void.obj" "obj/android64-v7/e6484e7d_Rectangle.obj" "obj/android64-v7/101a27b5_FlashingState.obj" "obj/android64-v7/6e63533c_PixelSnapping_Impl_.obj" "obj/android64-v7/101a27b5_Boyfriend.obj" "obj/android64-v7/97c75f17_GamepadButton_Impl_.obj" "obj/android64-v7/663379ac_FlxCallbackPoint.obj" "obj/android64-v7/541d37d7_BitmapData.obj" "obj/android64-v7/101a27b5_ClientPrefs.obj" "obj/android64-v7/541d37d7_DisplayObject.obj" "obj/android64-v7/174e7f89__Event_Int_Float_Float_Void.obj" "obj/android64-v7/174e7f89_Promise_openfl_display_MovieClip.obj" "obj/android64-v7/355827b7_FlxObject.obj" "obj/android64-v7/969d992b_BeginBitmapFillView_Impl_.obj" "obj/android64-v7/440b6167_QCOM_extended_get2.obj" "obj/android64-v7/8bb8a515_PostProcess.obj" "obj/android64-v7/9004967d_Joystick.obj" "obj/android64-v7/11289dce_Interaction.obj" "obj/android64-v7/541d37d7_TileContainer.obj" "obj/android64-v7/440b6167_OES_packed_depth_stencil.obj" "obj/android64-v7/5fa8cb84_Serializer.obj" "obj/android64-v7/abf93eba_ColorTween.obj" "obj/android64-v7/101a27b5_Conductor.obj" "obj/android64-v7/bc3b2102_ProgramType.obj" "obj/android64-v7/9004967d_Window.obj" "obj/android64-v7/101a27b5_ModchartText.obj" "obj/android64-v7/bb5f3575_GL.obj" "obj/android64-v7/8fd9a771_Vector_Impl_.obj" "obj/android64-v7/3157fc8b_Tooltip.obj" "obj/android64-v7/3c2fc733_FlxBasePreloader.obj" "obj/android64-v7/1f7ef721_RatioScaleMode.obj" "obj/android64-v7/101a27b5_Achievements.obj" "obj/android64-v7/f51de39a_IOError.obj" "obj/android64-v7/7c4d1c08_HBSegmentProperties.obj" "obj/android64-v7/b52f139a_FlxUIState.obj" "obj/android64-v7/ab87b140_IFlxPooled.obj" "obj/android64-v7/3de7ff0a_PluginFrontEnd.obj" "obj/android64-v7/84138d4c_DropEventInfo.obj" "obj/android64-v7/49b687ff_Matrix3.obj" "obj/android64-v7/101a27b5___ASSET__assets_fonts_vcr_ttf.obj" "obj/android64-v7/6f0a2992_TextDirection_Impl_.obj" "obj/android64-v7/1bafdd8b_CapsStyle_Impl_.obj" "obj/android64-v7/c5a56de2_IFlxEffect.obj" "obj/android64-v7/2f83846b_FlxSignal1.obj" "obj/android64-v7/ac3758ad_CanvasBitmapData.obj" "obj/android64-v7/8fa032a2_FlxGridOverlay.obj" "obj/android64-v7/541d37d7_GraphicsGradientFill.obj" "obj/android64-v7/6476cdd7_Canvas2DRenderContext_Impl_.obj" "obj/android64-v7/ae81f71d_JsonParser.obj" "obj/android64-v7/9825b0d5_FlxGraphicsShader.obj" "obj/android64-v7/2a09f8db_Context3DProgramType_Impl_.obj" "obj/android64-v7/d8e7412f_GraphicCursor.obj" "obj/android64-v7/ca3221fb_MouseCursor_Impl_.obj" "obj/android64-v7/94440bc8_FlxTypedButton_flixel_FlxSprite.obj" "obj/android64-v7/440b6167_EXT_shader_framebuffer_fetch.obj" "obj/android64-v7/77652faa_CompletionList.obj" "obj/android64-v7/23db8540_Thread_Impl_.obj" "obj/android64-v7/56c697d8_CodeValuePair.obj" "obj/android64-v7/b52f139a_GamepadAutoConnectPreference.obj" "obj/android64-v7/25644932_PS4ID.obj" "obj/android64-v7/1497eeba_FlxTypeText.obj" "obj/android64-v7/8475cbcb_ObjectMap.obj" "obj/android64-v7/69cd9696_FlxGraphic.obj" "obj/android64-v7/101a27b5_StringTools.obj" "obj/android64-v7/ac3758ad_Context3DTextField.obj" "obj/android64-v7/359015c5__HTTPRequest_lime_text_Font.obj" "obj/android64-v7/56c697d8_MouseRecord.obj" "obj/android64-v7/4a8ff0c4_GraphicsSettingsSubState.obj" "obj/android64-v7/8fd9a771_IVector.obj" "obj/android64-v7/e511cff0_Deque.obj" "obj/android64-v7/b1f95496_Program3D.obj" "obj/android64-v7/541d37d7_Preloader.obj" "obj/android64-v7/d2d52c9a_FlxBaseGamepadList.obj" "obj/android64-v7/e49fe0af_Context3DTriangleFace_Impl_.obj" "obj/android64-v7/e511cff0_Lock.obj" "obj/android64-v7/f51de39a_IllegalOperationError.obj" "obj/android64-v7/969d992b_BeginFillView_Impl_.obj" "obj/android64-v7/440b6167_ANGLE_translated_shader_source.obj" "obj/android64-v7/4d0a8f31_FlxTrail.obj" "obj/android64-v7/ac3758ad_DOMDisplayObjectContainer.obj" "obj/android64-v7/440b6167_NV_draw_buffers.obj" "obj/android64-v7/2879f8d4_CairoFTFontFace_Impl_.obj" "obj/android64-v7/ac3758ad_DrawCommandType.obj" "obj/android64-v7/135885ef_TAError.obj" "obj/android64-v7/440b6167_KHR_texture_compression_astc_ldr.obj" "obj/android64-v7/969d992b_EndFillView_Impl_.obj" "obj/android64-v7/440b6167_EXT_shadow_samplers.obj" "obj/android64-v7/f51de39a_TypeError.obj" "obj/android64-v7/541d37d7_DefaultPreloader.obj" "obj/android64-v7/33d73994_LoaderContext.obj" "obj/android64-v7/75f2cc85_Context3DVertexBufferFormat_Impl_.obj" "obj/android64-v7/541d37d7_PNGEncoderOptions.obj" "obj/android64-v7/2cac2221_FlxAndroidKey_Impl_.obj" "obj/android64-v7/ac3758ad_Context3DMaskShader.obj" "obj/android64-v7/541d37d7_GraphicsPath.obj" "obj/android64-v7/ae5d25cd_BMPType.obj" "obj/android64-v7/cfb590ee_IFireTongue.obj" "obj/android64-v7/101a27b5_FlxUIDropDownHeader.obj" "obj/android64-v7/663379ac_FlxVelocity.obj" "obj/android64-v7/101a27b5_GameplayOption.obj" "obj/android64-v7/440b6167_QCOM_driver_control.obj" "obj/android64-v7/0c09a2c5_GraphicMoverTool.obj" "obj/android64-v7/b52f139a_FlxUITooltipManager.obj" "obj/android64-v7/3de7ff0a_BitmapLogFrontEnd.obj" "obj/android64-v7/d947759d_ImageType.obj" "obj/android64-v7/10a2a354_FlxAccelerometer.obj" "obj/android64-v7/101a27b5_ModsMenuState.obj" "obj/android64-v7/b52f139a_FlxUIDropDownHeader.obj" "obj/android64-v7/ac3758ad_CanvasSimpleButton.obj" "obj/android64-v7/174e7f89_Promise_lime_utils_AssetLibrary.obj" "obj/android64-v7/7b175447_ImageCanvasUtil.obj" "obj/android64-v7/e511cff0_NoEventLoopException.obj" "obj/android64-v7/174e7f89_Promise_openfl_media_Sound.obj" "obj/android64-v7/668a30dd_PosException.obj" "obj/android64-v7/3157fc8b_Window.obj" "obj/android64-v7/3157fc8b_GraphicArrowLeft.obj" "obj/android64-v7/8e7e4cc0_TransitionEffect.obj" "obj/android64-v7/ac3758ad_Context3DBitmap.obj" "obj/android64-v7/440b6167_NV_texture_npot_2D_mipmap.obj" "obj/android64-v7/440b6167_EXT_separate_shader_objects.obj" "obj/android64-v7/541d37d7_Timeline.obj" "obj/android64-v7/f439ec33_JNIMemberField.obj" "obj/android64-v7/3157fc8b_GraphicLog.obj" "obj/android64-v7/101a27b5_ApplicationMain.obj" "obj/android64-v7/969d992b_DrawCircleView_Impl_.obj" "obj/android64-v7/440b6167_ANGLE_texture_compression_dxt3.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_tooltip_arrow_png.obj" "obj/android64-v7/440b6167_APPLE_copy_texture_levels.obj" "obj/android64-v7/3de7ff0a_VCRFrontEnd.obj" "obj/android64-v7/84138d4c_NativeWindow.obj" "obj/android64-v7/ab87b140_FlxColorTransformUtil.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_xml_default_popup_xml.obj" "obj/android64-v7/f51de39a_ArgumentError.obj" "obj/android64-v7/d2d52c9a_FlxGamepadPointerValueList.obj" "obj/android64-v7/101a27b5___ASSET__flixel_images_ui_button_png.obj" "obj/android64-v7/101a27b5_WiggleEffect.obj" "obj/android64-v7/84080672_FontStyle_Impl_.obj" "obj/android64-v7/ae5d25cd_Zlib.obj" "obj/android64-v7/75dcdff2_XInputMapping.obj" "obj/android64-v7/440b6167_ARM_mali_program_binary.obj" "obj/android64-v7/b52f139a_BorderDef.obj" "obj/android64-v7/5fa8cb84_Log.obj" "obj/android64-v7/1497eeba_TypeSound.obj" "obj/android64-v7/361420f1_FileFilter.obj" "obj/android64-v7/ae5d25cd_Base64.obj" "obj/android64-v7/ace70845_GameInput.obj" "obj/android64-v7/355827b7_FlxG.obj" "obj/android64-v7/f7136796_NodeAccess_Impl_.obj" "obj/android64-v7/da6969f6_CallStack_Impl_.obj" "obj/android64-v7/efca5094_GLVertexArrayObject_Impl_.obj" "obj/android64-v7/ae5d25cd_GZip.obj" "obj/android64-v7/f439ec33_Display.obj" "obj/android64-v7/8e7e4cc0_TransitionData.obj" "obj/android64-v7/35455f6c_Context3DTextureFilter_Impl_.obj" "obj/android64-v7/b52f139a_FlxUISpriteButton.obj" "obj/android64-v7/f439ec33_Sensor.obj" "obj/android64-v7/ab87b140_FlxDestroyUtil.obj" "obj/android64-v7/663379ac_FlxMath.obj" "obj/android64-v7/d475158a_FlxPrerotatedAnimation.obj" "obj/android64-v7/b52f139a_FlxUITileTest.obj" "obj/android64-v7/21f23194_AGALConverter.obj" "obj/android64-v7/ab36da2c_Context3DStencilAction_Impl_.obj" "obj/android64-v7/f68ef88a_Context3DRenderMode_Impl_.obj" "obj/android64-v7/174e7f89__Event_Float_Float_lime_ui_MouseWheelMode_Void.obj" "obj/android64-v7/5f85271f_Const.obj" "obj/android64-v7/94440bc8_FlxTypedButton_flixel_text_FlxText.obj" "obj/android64-v7/cd0f6c38_ProgressEvent.obj" "obj/android64-v7/f4be18aa_CircularMotion.obj" "obj/android64-v7/d586afef_EventType_Impl_.obj" "obj/android64-v7/29650cc2_Prime.obj" "obj/android64-v7/75dcdff2_SwitchJoyconRightMapping.obj" "obj/android64-v7/2b337bd3_CairoFontOptions_Impl_.obj" "obj/android64-v7/ab87b140_FlxCollision.obj" "obj/android64-v7/75dcdff2_MFiMapping.obj" "obj/android64-v7/ab87b140_IFlxSignal.obj" "obj/android64-v7/25644932_MayflashWiiRemoteID.obj" "obj/android64-v7/b52f139a_FlxUICheckBox.obj" "obj/android64-v7/663379ac_FlxRect.obj" "obj/android64-v7/4cb5f7cb_FileSystem.obj" "obj/android64-v7/440b6167_EXT_debug_marker.obj" "obj/android64-v7/7dcd4714_GraphicCursorCross.obj" "obj/android64-v7/ac3758ad_Context3DTilemap.obj" "obj/android64-v7/92788f69_FutureWork.obj" "obj/android64-v7/101a27b5_BackgroundGirls.obj" "obj/android64-v7/cd0f6c38_ActivityEvent.obj" "obj/android64-v7/cd0f6c38_Event.obj" "obj/android64-v7/6dc4511d_Context3DTextureFormat_Impl_.obj" "obj/android64-v7/541d37d7_GraphicsEndFill.obj" "obj/android64-v7/84138d4c_MouseEventInfo.obj" "obj/android64-v7/101a27b5_HScript.obj" "obj/android64-v7/75dcdff2_SwitchProMapping.obj" "obj/android64-v7/3c2fc733_FlxVersion.obj" "obj/android64-v7/ae5d25cd_LZMA.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalIFlxInput.obj" "obj/android64-v7/101a27b5_TitleState.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_arrow_up_png.obj" "obj/android64-v7/3c2fc733_FlxAssets.obj" "obj/android64-v7/0dc2d2db_FlxInputDevice.obj" "obj/android64-v7/440b6167_APPLE_texture_format_BGRA8888.obj" "obj/android64-v7/17c4a2ad_FlxAndroidKeyList.obj" "obj/android64-v7/ce6a1a98_SoundMixer.obj" "obj/android64-v7/440b6167_OES_standard_derivatives.obj" "obj/android64-v7/d4966d58_Sampler.obj" "obj/android64-v7/969d992b_OverrideMatrixView_Impl_.obj" "obj/android64-v7/94440bc8_FlxButton.obj" "obj/android64-v7/b52f139a_FlxMultiGamepadAnalogStick.obj" "obj/android64-v7/10a2a354_FlxPointer.obj" "obj/android64-v7/440b6167_APPLE_texture_max_level.obj" "obj/android64-v7/135885ef_AssetManifest.obj" "obj/android64-v7/56cd624d_FlxMouseButton.obj" "obj/android64-v7/f51de39a_EOFError.obj" "obj/android64-v7/bc3b2102_RegisterUsage.obj" "obj/android64-v7/94440bc8_FlxSpriteButton.obj" "obj/android64-v7/51910811_ShaderFilter.obj" "obj/android64-v7/440b6167_OES_mapbuffer.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_radio_dot_png.obj" "obj/android64-v7/101a27b5___ASSET__flixel_sounds_flixel_ogg.obj" "obj/android64-v7/0c92a768_TextFormatAlign_Impl_.obj" "obj/android64-v7/f154e218_Context3DProgramFormat_Impl_.obj" "obj/android64-v7/541d37d7_ShaderParameter.obj" "obj/android64-v7/8276eeee_ALEffect_Impl_.obj" "obj/android64-v7/101a27b5_PlayState.obj" "obj/android64-v7/440b6167_EXT_debug_label.obj" "obj/android64-v7/0dc2d2db_FlxActionAnalog.obj" "obj/android64-v7/355827b7_FlxCameraFollowStyle.obj" "obj/android64-v7/0194c7ee_TextLineMetrics.obj" "obj/android64-v7/b1f95496_UniformMap.obj" "obj/android64-v7/c6518cb2_Context3DWrapMode_Impl_.obj" "obj/android64-v7/706eea2b_ScanCode_Impl_.obj" "obj/android64-v7/fc506230_Lib.obj" "obj/android64-v7/31bef593_FlxPointRangeBounds.obj" "obj/android64-v7/75dcdff2_OUYAMapping.obj" "obj/android64-v7/101a27b5_Alignment.obj" "obj/android64-v7/f4be18aa_QuadPath.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_swatch_png.obj" "obj/android64-v7/541d37d7_ShaderParameter_Int.obj" "obj/android64-v7/5f85271f_Interp.obj" "obj/android64-v7/3157fc8b_GraphicStats.obj" "obj/android64-v7/6149b86b_ALDevice_Impl_.obj" "obj/android64-v7/ab87b140_FlxTimer.obj" "obj/android64-v7/9004967d_Gamepad.obj" "obj/android64-v7/f439ec33_JNISafetyTools.obj" "obj/android64-v7/ab87b140_FlxPool.obj" "obj/android64-v7/355827b7_FlxRenderMethod.obj" "obj/android64-v7/2a59752f_SymbolType_Impl_.obj" "obj/android64-v7/4c85aea4_MobileBack.obj" "obj/android64-v7/33de38a8_FlxGamepadManager.obj" "obj/android64-v7/cd0f6c38_GameInputEvent.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_minus_mark_png.obj" "obj/android64-v7/212bac43_Context3DBlendFactor_Impl_.obj" "obj/android64-v7/d947759d_RenderContext.obj" "obj/android64-v7/ab87b140_FlxSpriteUtil.obj" "obj/android64-v7/fff78735_IDataOutput.obj" "obj/android64-v7/b52f139a_FlxUIInputText.obj" "obj/android64-v7/cd0f6c38_UncaughtErrorEvents.obj" "obj/android64-v7/9004967d_FileDialog.obj" "obj/android64-v7/101a27b5_MenuItem.obj" "obj/android64-v7/440b6167_NV_read_depth.obj" "obj/android64-v7/bcf5b958_Float32Array_Impl_.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_tab_back_png.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalAndroid.obj" "obj/android64-v7/8e7e4cc0_GraphicTransTileCircle.obj" "obj/android64-v7/101a27b5_ColorSwapShader.obj" "obj/android64-v7/ab87b140_FlxSort.obj" "obj/android64-v7/bfa35241_SpriteMovieClip.obj" "obj/android64-v7/33de38a8_FlxGamepad.obj" "obj/android64-v7/14e0ac1f_AtlasFrameMaker.obj" "obj/android64-v7/101a27b5_Song.obj" "obj/android64-v7/ac3758ad_CairoBitmapData.obj" "obj/android64-v7/0a07f7ea_StageQuality_Impl_.obj" "obj/android64-v7/e874568b_Object_Impl_.obj" "obj/android64-v7/541d37d7_ShaderInput.obj" "obj/android64-v7/94440bc8_FlxBar.obj" "obj/android64-v7/ab87b140_IFlxDestroyable.obj" "obj/android64-v7/440b6167_EXT_unpack_subimage.obj" "obj/android64-v7/440b6167_EXT_texture_compression_dxt1.obj" "obj/android64-v7/541d37d7_Scene.obj" "obj/android64-v7/ff44c630_BlendMode_Impl_.obj" "obj/android64-v7/8e1e11ea_GraphicMaximizeButton.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_radio_png.obj" "obj/android64-v7/a61ff9ac_Parser.obj" "obj/android64-v7/20c19269_FileInput.obj" "obj/android64-v7/273ba1e7_FontType_Impl_.obj" "obj/android64-v7/20c19269_Process.obj" "obj/android64-v7/d4966d58_Register.obj" "obj/android64-v7/101a27b5_KeyboardScheme.obj" "obj/android64-v7/3de7ff0a_InputFrontEnd.obj" "obj/android64-v7/db071f2f_MobileKeysPlugin.obj" "obj/android64-v7/b52f139a_FlxUIButton.obj" "obj/android64-v7/bfa35241_SpriteSymbol.obj" "obj/android64-v7/3157fc8b_GraphicCloseButton.obj" "obj/android64-v7/ddd8ab20_GLQuery_Impl_.obj" "obj/android64-v7/25644932_PSVitaID.obj" "obj/android64-v7/ce6a1a98_Video.obj" "obj/android64-v7/440b6167_NV_fbo_color_attachments.obj" "obj/android64-v7/101a27b5_Main.obj" "obj/android64-v7/94440bc8_FlxTypedButton.obj" "obj/android64-v7/541d37d7_GraphicsShader.obj" "obj/android64-v7/440b6167_APPLE_framebuffer_multisample.obj" "obj/android64-v7/174e7f89__Event_lime_ui_Joystick_Void.obj" "obj/android64-v7/75dcdff2_MayflashWiiRemoteMapping.obj" "obj/android64-v7/4c85aea4_MobilePlatform.obj" "obj/android64-v7/10a2a354_FlxBaseKeyList.obj" "obj/android64-v7/90239e3a_IFlxParticle.obj" "obj/android64-v7/2f83846b_Macro.obj" "obj/android64-v7/4a8ff0c4_GameplaySettingsSubState.obj" "obj/android64-v7/174e7f89__Event_lime_ui_Gamepad_Void.obj" "obj/android64-v7/5f85271f_Tools.obj" "obj/android64-v7/ac3758ad_DOMShape.obj" "obj/android64-v7/101a27b5___ASSET__flixel_fonts_monsterrat_ttf.obj" "obj/android64-v7/40c8150d_JoystickHatPosition_Impl_.obj" "obj/android64-v7/76a88fd2_TriangleCulling_Impl_.obj" "obj/android64-v7/440b6167_EXT_blend_minmax.obj" "obj/android64-v7/d947759d_ImageBuffer.obj" "obj/android64-v7/bc3b2102_DestRegister.obj" "obj/android64-v7/969d992b_MoveToView_Impl_.obj" "obj/android64-v7/9004967d_MouseCursor.obj" "obj/android64-v7/f640a933_AttachedFlxText.obj" "obj/android64-v7/101a27b5_FreeplayState.obj" "obj/android64-v7/101a27b5_Rating.obj" "obj/android64-v7/054bc946_LogLevel_Impl_.obj" "obj/android64-v7/37fbc433_FlxFramesCollection.obj" "obj/android64-v7/541d37d7_Bitmap.obj" "obj/android64-v7/ac3758ad_CairoBitmap.obj" "obj/android64-v7/0194c7ee_StyleSheet.obj" "obj/android64-v7/ac3758ad_CairoDisplayObjectContainer.obj" "obj/android64-v7/b7155a9c_StageScaleMode_Impl_.obj" "obj/android64-v7/5263f8aa_OpenGLES2RenderContext_Impl_.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_toggle_png.obj" "obj/android64-v7/101a27b5_Xml.obj" "obj/android64-v7/eef6d463_ALSource_Impl_.obj" "obj/android64-v7/f51de39a_RangeError.obj" "obj/android64-v7/7b175447_BlurStack.obj" "obj/android64-v7/ab87b140_FlxPool_flixel_util_LabelValuePair.obj" "obj/android64-v7/569d3b5e_Output.obj" "obj/android64-v7/f4be18aa_Motion.obj" "obj/android64-v7/980d317e_VideoTexture.obj" "obj/android64-v7/8e7e4cc0_Transition.obj" "obj/android64-v7/ab87b140_FlxPath.obj" "obj/android64-v7/2f83846b_FlxSignal4.obj" "obj/android64-v7/48bf43e9_FlxTweenManager.obj" "obj/android64-v7/101a27b5_StrumNote.obj" "obj/android64-v7/cd0f6c38_TextEvent.obj" "obj/android64-v7/440b6167_IMG_multisampled_render_to_texture.obj" "obj/android64-v7/174e7f89__Event_ofEvents_T_Void.obj" "obj/android64-v7/174e7f89_Promise_openfl_text_Font.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_dropdown_mark_png.obj" "obj/android64-v7/2f83846b_FlxBaseSignal.obj" "obj/android64-v7/8faf9241_LogStyle.obj" "obj/android64-v7/bf903207_Int16Array_Impl_.obj" "obj/android64-v7/10dc3f35_TextFieldType_Impl_.obj" "obj/android64-v7/25644932_SwitchProID.obj" "obj/android64-v7/ace70845_Mouse.obj" "obj/android64-v7/8e7e4cc0_GraphicTransTileDiamond.obj" "obj/android64-v7/5f85271f_ModuleDecl.obj" "obj/android64-v7/cf67c3e3_FlxButtonEvent.obj" "obj/android64-v7/21f23194_RegisterMap.obj" "obj/android64-v7/9825b0d5_FlxDrawItemType.obj" "obj/android64-v7/5f85271f_Parser.obj" "obj/android64-v7/e24bf4df_CombineKnockoutShader.obj" "obj/android64-v7/84138d4c_NativeAudioSource.obj" "obj/android64-v7/101a27b5_SongMetadata.obj" "obj/android64-v7/a61ff9ac_Printer.obj" "obj/android64-v7/b52f139a_FlxUISubState.obj" "obj/android64-v7/359015c5__HTTPRequest_Bytes.obj" "obj/android64-v7/101a27b5_StageData.obj" "obj/android64-v7/174e7f89_Module.obj" "obj/android64-v7/b52f139a_FlxMultiGamepad.obj" "obj/android64-v7/101a27b5_BackgroundDancer.obj" "obj/android64-v7/c8272fef_XmlType_Impl_.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_chrome_png.obj" "obj/android64-v7/355827b7_FlxBasic.obj" "obj/android64-v7/fc0fb5da_VorbisInfo.obj" "obj/android64-v7/cd0f6c38_EventDispatcher.obj" "obj/android64-v7/135885ef_ArrayBufferView.obj" "obj/android64-v7/ab87b140_FlxTimerManager.obj" "obj/android64-v7/b52f139a_FlxMultiKey.obj" "obj/android64-v7/277fcc15_Context3DProfile_Impl_.obj" "obj/android64-v7/ab87b140_FlxArrayUtil.obj" "obj/android64-v7/c2a979fb_Font.obj" "obj/android64-v7/ce6a1a98_ID3Info.obj" "obj/android64-v7/ac3758ad_CanvasVideo.obj" "obj/android64-v7/174e7f89__Event_Int_Int_Void.obj" "obj/android64-v7/0dc2d2db_FlxActionInputAnalogClickAndDragMouseMotion.obj" "obj/android64-v7/101a27b5_InputFormatter.obj" "obj/android64-v7/ab87b140_FlxAxes.obj" "obj/android64-v7/425daecb_Iterator.obj" "obj/android64-v7/440b6167_IMG_program_binary.obj" "obj/android64-v7/3de7ff0a_CameraFrontEnd.obj" "obj/android64-v7/fff78735_AssetCache.obj" "obj/android64-v7/8fd9a771_FloatVector.obj" "obj/android64-v7/dfcfdd7c_KeyCode_Impl_.obj" "obj/android64-v7/f7136796_HasAttribAccess_Impl_.obj" "obj/android64-v7/569d3b5e_BytesBuffer.obj" "obj/android64-v7/3de7ff0a_SoundFrontEnd.obj" "obj/android64-v7/3157fc8b_GraphicConsole.obj" "obj/android64-v7/3157fc8b_DebuggerUtil.obj" "obj/android64-v7/4a8ff0c4_NotesSubState.obj" "obj/android64-v7/361420f1_IDynamicPropertyOutput.obj" "obj/android64-v7/84138d4c_KeyEventInfo.obj" "obj/android64-v7/c6a0c760_FlxSystemButton.obj" "obj/android64-v7/fff78735_Assets.obj" "obj/android64-v7/cfb590ee_IHasParams.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_box_png.obj" "obj/android64-v7/101a27b5_CustomSubstate.obj" "obj/android64-v7/2f83846b_FlxSignal2.obj" "obj/android64-v7/359015c5__IHTTPRequest.obj" "obj/android64-v7/440b6167_APPLE_rgb_422.obj" "obj/android64-v7/440b6167_NV_read_stencil.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalMouse.obj" "obj/android64-v7/fff78735_IDataInput.obj" "obj/android64-v7/4c85aea4_MobileOptions.obj" "obj/android64-v7/7f977e19_FlxTextAlign_Impl_.obj" "obj/android64-v7/c2b960df_FlxKey_Impl_.obj" "obj/android64-v7/440b6167_EXT_color_buffer_half_float.obj" "obj/android64-v7/56cd624d_FlxMouse.obj" "obj/android64-v7/101a27b5_OutdatedState.obj" "obj/android64-v7/e6484e7d_Transform.obj" "obj/android64-v7/ae5d25cd_Deflate.obj" "obj/android64-v7/101a27b5_WiggleEffectType.obj" "obj/android64-v7/440b6167_EXT_robustness.obj" "obj/android64-v7/440b6167_ARM_mali_shader_binary.obj" "obj/android64-v7/174e7f89__Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void.obj" "obj/android64-v7/101a27b5_Device.obj" "obj/android64-v7/89a585ba_TextFieldAutoSize_Impl_.obj" "obj/android64-v7/d2d52c9a_FlxGamepadButtonList.obj" "obj/android64-v7/37fbc433_FlxFrame.obj" "obj/android64-v7/174e7f89__Event_String_Int_Int_Void.obj" "obj/android64-v7/f439ec33_JNISafety.obj" "obj/android64-v7/101a27b5___ASSET__OPENFL__assets_fonts_pixel_otf.obj" "obj/android64-v7/ab87b140_IFlxPool.obj" "obj/android64-v7/a3141327_CairoRenderContext_Impl_.obj" "obj/android64-v7/d475158a_FlxBaseAnimation.obj" "obj/android64-v7/440b6167_IMG_read_format.obj" "obj/android64-v7/84138d4c_SensorEventInfo.obj" "obj/android64-v7/9e10a31b_GraphicEraserTool.obj" "obj/android64-v7/ea697420_ExtraField.obj" "obj/android64-v7/541d37d7_Window.obj" "obj/android64-v7/e29d6b22_DataPointer_Impl_.obj" "obj/android64-v7/86a15256_linc_lua.obj" "obj/android64-v7/ac3758ad_DOMDisplayObject.obj" "obj/android64-v7/9004967d_Haptic.obj" "obj/android64-v7/5f85271f_FieldAccess.obj" "obj/android64-v7/25644932_WiiRemoteID.obj" "obj/android64-v7/6f858d00_TextEngine.obj" "obj/android64-v7/29650cc2_Lib.obj" "obj/android64-v7/ac3758ad_SamplerState.obj" "obj/android64-v7/440b6167_QCOM_tiled_rendering.obj" "obj/android64-v7/0dc2d2db_FlxSteamController.obj" "obj/android64-v7/541d37d7_Application.obj" "obj/android64-v7/cd0f6c38_UncaughtErrorEvent.obj" "obj/android64-v7/16202ed0_LuaCallback.obj" "obj/android64-v7/0dc2d2db_FlxAction.obj" "obj/android64-v7/101a27b5_FunkinLua.obj" "obj/android64-v7/101a27b5_AchievementObject.obj" "obj/android64-v7/2cedbeed_RGBA_Impl_.obj" "obj/android64-v7/fff78735_IAssetCache.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_arrow_right_png.obj" "obj/android64-v7/174e7f89_Future.obj" "obj/android64-v7/e24bf4df_InnerCombineKnockoutShader.obj" "obj/android64-v7/9004967d_Touch.obj" "obj/android64-v7/7dcd4714_Eraser.obj" "obj/android64-v7/0194c7ee_TextFormat.obj" "obj/android64-v7/d492ac43_BlurShader.obj" "obj/android64-v7/261d3453_ArrayBuffer_Impl_.obj" "obj/android64-v7/0194c7ee_Font.obj" "obj/android64-v7/440b6167_OES_texture_float_linear.obj" "obj/android64-v7/88d5751f_ListIterator.obj" "obj/android64-v7/84138d4c_NativeHTTPRequest.obj" "obj/android64-v7/bb0f8b4b_GraphicsPathWinding_Impl_.obj" "obj/android64-v7/a2a0648d_DefaultResolver.obj" "obj/android64-v7/0a157bed_UInt8ClampedArray_Impl_.obj" "obj/android64-v7/703139b2_Context3DMipFilter_Impl_.obj" "obj/android64-v7/440b6167_OES_texture_half_float.obj" "obj/android64-v7/c6a0c760_FlxSoundTray.obj" "obj/android64-v7/b1f95496_VertexBuffer3D.obj" "obj/android64-v7/e6484e7d_Point.obj" "obj/android64-v7/359015c5__HTTPRequest_openfl_utils_ByteArray.obj" "obj/android64-v7/b1f95496_IndexBuffer3D.obj" "obj/android64-v7/ace70845_Multitouch.obj" "obj/android64-v7/969d992b_CubicCurveToView_Impl_.obj" "obj/android64-v7/ac3758ad_Context3DBitmapData.obj" "obj/android64-v7/c4f24517_ConsoleUtil.obj" "obj/android64-v7/541d37d7_IGraphicsFill.obj" "obj/android64-v7/1c4eddf7_HBLanguage_Impl_.obj" "obj/android64-v7/440b6167_OES_stencil4.obj" "obj/android64-v7/101a27b5_AchievementsMenuState.obj" "obj/android64-v7/541d37d7_GraphicsTrianglePath.obj" "obj/android64-v7/440b6167_APPLE_sync.obj" "obj/android64-v7/8fa032a2_FlxMouseSpring.obj" "obj/android64-v7/101a27b5_FlxUIDropDownMenuDropDirection.obj" "obj/android64-v7/51910811_BitmapFilterShader.obj" "obj/android64-v7/5aee3633_Context3DBufferUsage_Impl_.obj" "obj/android64-v7/4a8ff0c4_BaseOptionsMenu.obj" "obj/android64-v7/31bef593_FlxRange.obj" "obj/android64-v7/101a27b5_AttachedAchievement.obj" "obj/android64-v7/bc3b2102_SamplerRegister.obj" "obj/android64-v7/10a2a354_FlxKeyManager.obj" "obj/android64-v7/6f858d00_TextLayout.obj" "obj/android64-v7/cd0f6c38_SecurityErrorEvent.obj" "obj/android64-v7/7c4d1c08_HBGlyphInfo.obj" "obj/android64-v7/541d37d7_InteractiveObject.obj" "obj/android64-v7/f439ec33_SensorType.obj" "obj/android64-v7/d1d46166_GraphicTransformTool.obj" "obj/android64-v7/b52f139a_FlxUICursor.obj" "obj/android64-v7/49b687ff_Rectangle.obj" "obj/android64-v7/174e7f89__Event_lime_ui_Window_Void.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigital.obj" "obj/android64-v7/ac3758ad_FlashTilemap.obj" "obj/android64-v7/361420f1_NetConnection.obj" "obj/android64-v7/59d66d0b_Int32Array_Impl_.obj" "obj/android64-v7/cb123f98_UnicodeString_Impl_.obj" "obj/android64-v7/5fa8cb84_ValueException.obj" "obj/android64-v7/21f23194_ATFReader.obj" "obj/android64-v7/355827b7_FlxGame.obj" "obj/android64-v7/ac3758ad_CairoTextField.obj" "obj/android64-v7/84138d4c_WindowEventInfo.obj" "obj/android64-v7/5fa8cb84_StackItem.obj" "obj/android64-v7/ce6a1a98_SoundLoaderContext.obj" "obj/android64-v7/174e7f89_Promise.obj" "obj/android64-v7/25644932_SwitchJoyconRightID.obj" "obj/android64-v7/b52f139a_FlxUIAssets.obj" "obj/android64-v7/6a0ab396_Matrix4_Impl_.obj" "obj/android64-v7/d1d46166_GraphicTransformCursorRotate.obj" "obj/android64-v7/ac3758ad_DOMBitmap.obj" "obj/android64-v7/440b6167_EXT_texture_format_BGRA8888.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_png.obj" "obj/android64-v7/b52f139a_FlxUIRegion.obj" "obj/android64-v7/ac3758ad_Context3DDisplayObjectContainer.obj" "obj/android64-v7/101a27b5_TypedAlphabet.obj" "obj/android64-v7/425daecb_Iterable.obj" "obj/android64-v7/10a2a354_FlxSwipe.obj" "obj/android64-v7/9825b0d5_FlxDrawBaseItem.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_arrow_down_png.obj" "obj/android64-v7/f4be18aa_CubicMotion.obj" "obj/android64-v7/2a59752f_LoopMode_Impl_.obj" "obj/android64-v7/440b6167_OES_depth_texture.obj" "obj/android64-v7/101a27b5_Control.obj" "obj/android64-v7/101a27b5_BGSprite.obj" "obj/android64-v7/440b6167_EXT_color_buffer_float.obj" "obj/android64-v7/8475cbcb_TreeNode.obj" "obj/android64-v7/f640a933_WeekEditorFreeplayState.obj" "obj/android64-v7/101a27b5_AlphaCharacter.obj" "obj/android64-v7/5f85271f_CType.obj" "obj/android64-v7/48bf43e9_FlxTween.obj" "obj/android64-v7/d947759d_Image.obj" "obj/android64-v7/4c85aea4_MobilePerf.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_finger_small_png.obj" "obj/android64-v7/101a27b5_Controls.obj" "obj/android64-v7/ac3758ad_CanvasGraphics.obj" "obj/android64-v7/3c2fc733_FlxSplash.obj" "obj/android64-v7/ace70845_GameInputDevice.obj" "obj/android64-v7/8475cbcb_BalancedTree.obj" "obj/android64-v7/d1d46166_GraphicTransformCursorScaleXY.obj" "obj/android64-v7/9825b0d5_FlxDrawQuadsItem.obj" "obj/android64-v7/84138d4c_NativeCFFI.obj" "obj/android64-v7/49b687ff_Vector4.obj" "obj/android64-v7/5fa8cb84_Exception.obj" "obj/android64-v7/440b6167_VIV_shader_binary.obj" "obj/android64-v7/440b6167_OES_compressed_ETC1_RGB8_texture.obj" "obj/android64-v7/dd32f16c_CFFIPointer_Impl_.obj" "obj/android64-v7/f4be18aa_LinearMotion.obj" "obj/android64-v7/6f858d00_TextLayoutGroup.obj" "obj/android64-v7/440b6167_OES_depth32.obj" "obj/android64-v7/4a8ff0c4_Option.obj" "obj/android64-v7/0194c7ee_TextField.obj" "obj/android64-v7/174e7f89__Event_Int_lime_ui_JoystickHatPosition_Void.obj" "obj/android64-v7/101a27b5___ASSET__OPENFL__flixel_fonts_monsterrat_ttf.obj" "obj/android64-v7/440b6167_EXT_texture_filter_anisotropic.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_chrome_light_png.obj" "obj/android64-v7/101a27b5_Date.obj" "obj/android64-v7/8c314384_OpenALAudioContext.obj" "obj/android64-v7/f640a933_DialogueEditorState.obj" "obj/android64-v7/174e7f89__Event_lime_ui_GamepadAxis_Float_Void.obj" "obj/android64-v7/472d8797_FlxUITooltipEntry.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalMouseWheel.obj" "obj/android64-v7/4a8ff0c4_OptionsState.obj" "obj/android64-v7/440b6167_OES_EGL_image_external.obj" "obj/android64-v7/8fd9a771_IntVector.obj" "obj/android64-v7/33f49044_GraphicFlixel.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_finger_big_png.obj" "obj/android64-v7/cfb590ee_IEventGetter.obj" "obj/android64-v7/980d317e_RectangleTexture.obj" "obj/android64-v7/b52f139a_FlxUIDropDownMenu.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_invis_png.obj" "obj/android64-v7/5fa8cb84_Unserializer.obj" "obj/android64-v7/c5a56de2_FlxWaveMode.obj" "obj/android64-v7/21f23194_Context3DState.obj" "obj/android64-v7/bfa35241_SpriteAnimationLibrary.obj" "obj/android64-v7/969d992b_CurveToView_Impl_.obj" "obj/android64-v7/1437cf35_GraphicLogoCorners.obj" "obj/android64-v7/1f7ef721_BaseScaleMode.obj" "obj/android64-v7/f640a933_DialogueCharacterEditorState.obj" "obj/android64-v7/8475cbcb_List.obj" "obj/android64-v7/e24bf4df_BlurAlphaShader.obj" "obj/android64-v7/cd0f6c38_TouchEvent.obj" "obj/android64-v7/ac3758ad_DOMVideo.obj" "obj/android64-v7/ac3758ad_DOMSimpleButton.obj" "obj/android64-v7/75dcdff2_LogitechMapping.obj" "obj/android64-v7/12712761_CairoGlyph.obj" "obj/android64-v7/e6484e7d_ColorTransform.obj" "obj/android64-v7/101a27b5_Character.obj" "obj/android64-v7/34359d69_HBBuffer_Impl_.obj" "obj/android64-v7/f640a933_EditorPlayState.obj" "obj/android64-v7/9004967d_FileDialogType.obj" "obj/android64-v7/7eb2274c_HBFTFont_Impl_.obj" "obj/android64-v7/f640a933_WeekEditorState.obj" "obj/android64-v7/fc4754d9_UInt16Array_Impl_.obj" "obj/android64-v7/541d37d7_CanvasRenderer.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_plus_mark_png.obj" "obj/android64-v7/541d37d7_Sprite.obj" "obj/android64-v7/440b6167_NV_read_buffer_front.obj" "obj/android64-v7/8e1e11ea_GraphicMinimizeButton.obj" "obj/android64-v7/b52f139a_LineAxis.obj" "obj/android64-v7/135885ef_ObjectPool.obj" "obj/android64-v7/ea697420_InflateImpl.obj" "obj/android64-v7/7d818ace_LineScaleMode_Impl_.obj" "obj/android64-v7/2a9a622a_ImageDataView.obj" "obj/android64-v7/0dc2d2db_FlxActionInput.obj" "obj/android64-v7/f4e530c4_GLProgram_Impl_.obj" "obj/android64-v7/d1d46166_GraphicTransformCursorScaleX.obj" "obj/android64-v7/12712761_Cairo.obj" "obj/android64-v7/4b97272b_GraphicWindowHandle.obj" "obj/android64-v7/8e7e4cc0_TransitionTiles.obj" "obj/android64-v7/84138d4c_ApplicationEventInfo.obj" "obj/android64-v7/b52f139a_FlxUILine.obj" "obj/android64-v7/3de7ff0a_WatchFrontEnd.obj" "obj/android64-v7/bc698ca4_Endian_Impl_.obj" "obj/android64-v7/c6c7d3ac_FlxTypedGroupIterator.obj" "obj/android64-v7/969d992b_DrawTrianglesView_Impl_.obj" "obj/android64-v7/440b6167_NV_read_buffer.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_xml_defaults_xml.obj" "obj/android64-v7/e24bf4df_InnerCombineShader.obj" "obj/android64-v7/440b6167_QCOM_alpha_test.obj" "obj/android64-v7/30a1b058_CairoImageSurface_Impl_.obj" "obj/android64-v7/e575f664_Base64.obj" "obj/android64-v7/75d37fd6_TouchData.obj" "obj/android64-v7/361420f1_URLRequest.obj" "obj/android64-v7/cfb590ee_ILabeled.obj" "obj/android64-v7/ac3758ad_Context3DShape.obj" "obj/android64-v7/b52f139a_FlxUIPopup.obj" "obj/android64-v7/101a27b5___ASSET__flixel_images_logo_default_png.obj" "obj/android64-v7/174e7f89__Event_lime_ui_Touch_Void.obj" "obj/android64-v7/101a27b5_ModchartSprite.obj" "obj/android64-v7/ac3758ad_CairoDisplayObject.obj" "obj/android64-v7/b52f139a_FlxUITypedButton.obj" "obj/android64-v7/440b6167_EXT_packed_depth_stencil.obj" "obj/android64-v7/569d3b5e_Bytes.obj" "obj/android64-v7/440b6167_ANGLE_pack_reverse_row_order.obj" "obj/android64-v7/101a27b5_ResetScoreSubState.obj" "obj/android64-v7/f7136796_NodeListAccess_Impl_.obj" "obj/android64-v7/90239e3a_FlxEmitterMode.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_chrome_inset_png.obj" "obj/android64-v7/9004967d_MouseWheelMode.obj" "obj/android64-v7/101a27b5_DebugLuaText.obj" "obj/android64-v7/459e8ccf_FloatMap.obj" "obj/android64-v7/f439ec33_JNI.obj" "obj/android64-v7/969d992b_DrawEllipseView_Impl_.obj" "obj/android64-v7/cd0f6c38_RenderEvent.obj" "obj/android64-v7/c98ca693_State.obj" "obj/android64-v7/e6484e7d_Matrix.obj" "obj/android64-v7/6f858d00_CSSParser.obj" "obj/android64-v7/174e7f89_Promise_openfl_utils_ByteArray.obj" "obj/android64-v7/541d37d7_IBitmapDrawable.obj" "obj/android64-v7/ac3758ad_IDisplayObject.obj" "obj/android64-v7/101a27b5_GameOverSubstate.obj" "obj/android64-v7/5f85271f_Printer.obj" "obj/android64-v7/541d37d7_Shape.obj" "obj/android64-v7/440b6167_OES_texture_npot.obj" "obj/android64-v7/101a27b5_Sys.obj" "obj/android64-v7/d2d52c9a_FlxGamepadMotionValueList.obj" "obj/android64-v7/33de38a8_FlxGamepadDeadZoneMode.obj" "obj/android64-v7/0dc2d2db_FlxActionInputAnalogMousePosition.obj" "obj/android64-v7/440b6167_OES_EGL_image.obj" "obj/android64-v7/101a27b5___ASSET__flixel_sounds_beep_ogg.obj" "obj/android64-v7/355827b7_FlxSprite.obj" "obj/android64-v7/b52f139a_FlxUISlider.obj" "obj/android64-v7/3de7ff0a_DebuggerFrontEnd.obj" "obj/android64-v7/440b6167_OES_get_program_binary.obj" "obj/android64-v7/5f85271f_FieldKind.obj" "obj/android64-v7/101a27b5_MultiCallback.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_thin_png.obj" "obj/android64-v7/2abec4c0_TileData.obj" "obj/android64-v7/0e2d4ae5_ShaderPrecision_Impl_.obj" "obj/android64-v7/174e7f89_Promise_lime_text_Font.obj" "obj/android64-v7/25644932_LogitechID.obj" "obj/android64-v7/6f0a2992_TextScript_Impl_.obj" "obj/android64-v7/37fbc433_FlxAtlasFrames.obj" "obj/android64-v7/969d992b_WindingEvenOddView_Impl_.obj" "obj/android64-v7/6ac363f8_Orientation3D_Impl_.obj" "obj/android64-v7/f439ec33_ThreadPool.obj" "obj/android64-v7/c98ca693_Window.obj" "obj/android64-v7/541d37d7_ShaderParameter_Bool.obj" "obj/android64-v7/ce6a1a98_Sound.obj" "obj/android64-v7/84138d4c_NativeOpenGLRenderContext.obj" "obj/android64-v7/101a27b5_PhillyGlowParticle.obj" "obj/android64-v7/17c4a2ad_FlxAndroidKeys.obj" "obj/android64-v7/459e8ccf_UtilsObjectMap.obj" "obj/android64-v7/2a622aa6_DefaultPreloader.obj" "obj/android64-v7/ac3758ad_AbstractNoise.obj" "obj/android64-v7/ac3758ad_ShaderBuffer.obj" "obj/android64-v7/440b6167_FJ_shader_binary_GCCSO.obj" "obj/android64-v7/541d37d7_FPS.obj" "obj/android64-v7/84138d4c_TouchEventInfo.obj" "obj/android64-v7/d4ef89cc_BytePointer_Impl_.obj" "obj/android64-v7/101a27b5___ASSET__OPENFL__assets_fonts_vcr_ttf.obj" "obj/android64-v7/0dc2d2db_FlxActionInputAnalog.obj" "obj/android64-v7/75d37fd6_Lib.obj" "obj/android64-v7/3c2fc733_FlxSoundGroup.obj" "obj/android64-v7/cfb590ee_IResizable.obj" "obj/android64-v7/84138d4c_NativeApplication.obj" "obj/android64-v7/174e7f89__Event_Float_Float_Int_Void.obj" "obj/android64-v7/f7136796_AttribAccess_Impl_.obj" "obj/android64-v7/101a27b5_ColorSwap.obj" "obj/android64-v7/7c4d1c08_HBFeature.obj" "obj/android64-v7/101a27b5_Reflect.obj" "obj/android64-v7/440b6167_IMG_texture_compression_pvrtc.obj" "obj/android64-v7/51910811_BitmapFilter.obj" "obj/android64-v7/ac3758ad_CairoGraphics.obj" "obj/android64-v7/a2b8bbe6_AntiAliasType_Impl_.obj" "obj/android64-v7/cd0f6c38_FullScreenEvent.obj" "obj/android64-v7/969d992b_DrawQuadsView_Impl_.obj" "obj/android64-v7/7b175447_ImageDataUtil.obj" "obj/android64-v7/440b6167_EXT_map_buffer_range.obj" "obj/android64-v7/174e7f89_Promise_haxe_io_Bytes.obj" "obj/android64-v7/b52f139a_FlxUIGroup.obj" "obj/android64-v7/668a30dd_NotImplementedException.obj" "obj/android64-v7/ac3758ad_CairoSimpleButton.obj" "obj/android64-v7/440b6167_AMD_compressed_ATC_texture.obj" "obj/android64-v7/101a27b5_StoryMenuState.obj" "obj/android64-v7/d4ce3347_NoFiles.obj" "obj/android64-v7/d475158a_FlxAnimationController.obj" "obj/android64-v7/80920ac8_GLShader_Impl_.obj" "obj/android64-v7/7ae16519_DOMRenderContext_Impl_.obj" "obj/android64-v7/2f83846b_FlxSignal3.obj" "obj/android64-v7/e1dd5ac9_FlxNode.obj" "obj/android64-v7/101a27b5_EReg.obj" "obj/android64-v7/101a27b5_CreditsState.obj" "obj/android64-v7/101a27b5_CheckboxThingie.obj" "obj/android64-v7/cfb590ee_IFlxUIWidget.obj" "obj/android64-v7/101a27b5_MainMenuState.obj" "obj/android64-v7/8fa032a2_FlxExtendedSprite.obj" "obj/android64-v7/101a27b5_ModMetadata.obj" "obj/android64-v7/541d37d7_MovieClip.obj" "obj/android64-v7/3c2fc733_FlxLinkedList.obj" "obj/android64-v7/37858dd3_CURL.obj" "obj/android64-v7/a61ff9ac_XmlParserException.obj" "obj/android64-v7/f4be18aa_QuadMotion.obj" "obj/android64-v7/b4fd6866_FlxVector_Impl_.obj" "obj/android64-v7/440b6167_OES_texture_float.obj" "obj/android64-v7/440b6167_NV_read_depth_stencil.obj" "obj/android64-v7/d475158a_FlxAnimation.obj" "obj/android64-v7/0dc2d2db_FlxActionInputDigitalKeyboard.obj" "obj/android64-v7/8e7e4cc0_FlxTransitionSprite.obj" "obj/android64-v7/440b6167_EXT_bgra.obj" "obj/android64-v7/101a27b5_StringBuf.obj" "obj/android64-v7/f439ec33_Endian.obj" "obj/android64-v7/cd0f6c38_NetStatusEvent.obj" "obj/android64-v7/135885ef_AssetBundle.obj" "obj/android64-v7/fff78735_AGALMiniAssembler.obj" "obj/android64-v7/440b6167_EXT_texture_rg.obj" "obj/android64-v7/b52f139a_StrNameLabel.obj" "obj/android64-v7/35a55df5_ARGB_Impl_.obj" "obj/android64-v7/f0e47805_GraphicDiagonalGradient.obj" "obj/android64-v7/8f1df53f_SpreadMethod_Impl_.obj" "obj/android64-v7/440b6167_OES_vertex_type_10_10_10_2.obj" "obj/android64-v7/4c85aea4_MobileCompat.obj" "obj/android64-v7/4b97af01_URLLoaderDataFormat_Impl_.obj" "obj/android64-v7/440b6167_KHR_debug.obj" "obj/android64-v7/461d6101_CairoSurface_Impl_.obj" "obj/android64-v7/359015c5_HTTPRequestHeader.obj" "obj/android64-v7/3c2fc733_GraphicLogo.obj" "obj/android64-v7/541d37d7_IGraphicsPath.obj" "obj/android64-v7/ac3758ad_CairoShape.obj" "obj/android64-v7/4844150b_ShaderData_Impl_.obj" "obj/android64-v7/8c314384_HTML5AudioContext.obj" "obj/android64-v7/135885ef_AssetLibrary.obj" "obj/android64-v7/33de38a8_FlxGamepadModel.obj" "obj/android64-v7/b52f139a_FontDef.obj" "obj/android64-v7/355827b7_FlxSubState.obj" "obj/android64-v7/174e7f89__Event_Float_Float_Float_Void.obj" "obj/android64-v7/101a27b5___ASSET__flixel_flixel_ui_img_button_arrow_left_png.obj" "obj/android64-v7/4a8ff0c4_ControlsSubState.obj" "obj/android64-v7/101a27b5_PauseSubState.obj" "obj/android64-v7/101a27b5___ASSET__assets_fonts_fonts_go_here_txt.obj" "obj/android64-v7/ace70845_GameInputControl.obj" "obj/android64-v7/174e7f89_Promise_openfl_display_BitmapData.obj" "obj/android64-v7/ab87b140_FlxHorizontalAlign.obj" "obj/android64-v7/440b6167_IMG_shader_binary.obj" "obj/android64-v7/f7136796_HasNodeAccess_Impl_.obj" "obj/android64-v7/ac3758ad_FlashRenderer.obj" "obj/android64-v7/ac3758ad_DOMTextField.obj" "obj/android64-v7/1975d30b_FlxDirectionFlags_Impl_.obj" "obj/android64-v7/37fbc433_FlxImageFrame.obj" "obj/android64-v7/f439ec33_Clipboard.obj" "obj/android64-v7/33de38a8_FlxGamepadAttachment.obj" "obj/android64-v7/440b6167_OES_stencil1.obj" "obj/android64-v7/440b6167_NV_depth_nonlinear.obj" "obj/android64-v7/0dc2d2db_FlxActionInputAnalogSteam.obj" "obj/android64-v7/493bda35___main__.obj" "obj/android64-v7/fb0f6cf3___res_26.obj" "obj/android64-v7/fb0f6cf3___res_30.obj" "obj/android64-v7/fb0f6cf3___res_38.obj" "obj/android64-v7/fb0f6cf3___res_20.obj" "obj/android64-v7/fb0f6cf3___res_28.obj" "obj/android64-v7/fb0f6cf3___res_10.obj" "obj/android64-v7/fb0f6cf3___res_22.obj" "obj/android64-v7/fb0f6cf3___res_12.obj" "obj/android64-v7/fb0f6cf3___res_0.obj" "obj/android64-v7/fb0f6cf3___res_24.obj" "obj/android64-v7/fb0f6cf3___res_14.obj" "obj/android64-v7/fb0f6cf3___res_16.obj" "obj/android64-v7/fb0f6cf3___res_71.obj" "obj/android64-v7/fb0f6cf3___res_18.obj" "obj/android64-v7/fb0f6cf3___res_61.obj" "obj/android64-v7/fb0f6cf3___res_69.obj" "obj/android64-v7/fb0f6cf3___res_63.obj" "obj/android64-v7/fb0f6cf3___res_53.obj" "obj/android64-v7/fb0f6cf3___res_65.obj" "obj/android64-v7/fb0f6cf3___res_55.obj" "obj/android64-v7/fb0f6cf3___res_67.obj" "obj/android64-v7/fb0f6cf3___res_57.obj" "obj/android64-v7/fb0f6cf3___res_47.obj" "obj/android64-v7/fb0f6cf3___res_51.obj" "obj/android64-v7/fb0f6cf3___res_59.obj" "obj/android64-v7/fb0f6cf3___res_9.obj" "obj/android64-v7/fb0f6cf3___res_41.obj" "obj/android64-v7/fb0f6cf3___res_49.obj" "obj/android64-v7/fb0f6cf3___res_8.obj" "obj/android64-v7/fb0f6cf3___res_31.obj" "obj/android64-v7/fb0f6cf3___res_43.obj" "obj/android64-v7/fb0f6cf3___res_33.obj" "obj/android64-v7/fb0f6cf3___res_45.obj" "obj/android64-v7/fb0f6cf3___res_35.obj" "obj/android64-v7/fb0f6cf3___res_25.obj" "obj/android64-v7/fb0f6cf3___res_37.obj" "obj/android64-v7/fb0f6cf3___res_27.obj" "obj/android64-v7/fb0f6cf3___res_39.obj" "obj/android64-v7/fb0f6cf3___res_7.obj" "obj/android64-v7/fb0f6cf3___res_21.obj" "obj/android64-v7/fb0f6cf3___res_29.obj" "obj/android64-v7/fb0f6cf3___res_6.obj" "obj/android64-v7/fb0f6cf3___res_11.obj" "obj/android64-v7/fb0f6cf3___res_23.obj" "obj/android64-v7/fb0f6cf3___res_13.obj" "obj/android64-v7/fb0f6cf3___res_15.obj" "obj/android64-v7/fb0f6cf3___res_70.obj" "obj/android64-v7/fb0f6cf3___res_17.obj" "obj/android64-v7/fb0f6cf3___res_60.obj" "obj/android64-v7/fb0f6cf3___res_72.obj" "obj/android64-v7/fb0f6cf3___res_19.obj" "obj/android64-v7/fb0f6cf3___res_62.obj" "obj/android64-v7/fb0f6cf3___res_5.obj" "obj/android64-v7/fb0f6cf3___res_52.obj" "obj/android64-v7/fb0f6cf3___res_4.obj" "obj/android64-v7/fb0f6cf3___res_64.obj" "obj/android64-v7/fb0f6cf3___res_54.obj" "obj/android64-v7/fb0f6cf3___res_66.obj" "obj/android64-v7/fb0f6cf3___res_56.obj" "obj/android64-v7/fb0f6cf3___res_68.obj" "obj/android64-v7/fb0f6cf3___res_50.obj" "obj/android64-v7/fb0f6cf3___res_58.obj" "obj/android64-v7/fb0f6cf3___res_40.obj" "obj/android64-v7/fb0f6cf3___res_48.obj" "obj/android64-v7/fb0f6cf3___res_42.obj" "obj/android64-v7/fb0f6cf3___res_3.obj" "obj/android64-v7/fb0f6cf3___res_32.obj" "obj/android64-v7/fb0f6cf3___res_2.obj" "obj/android64-v7/fb0f6cf3___res_44.obj" "obj/android64-v7/fb0f6cf3___res_1.obj" "obj/android64-v7/fb0f6cf3___res_34.obj" "obj/android64-v7/fb0f6cf3___res_46.obj" "obj/android64-v7/fb0f6cf3___res_36.obj" "obj/android64-v7/497093e8_Array.obj" "obj/android64-v7/db5b943b_Interface.obj" "obj/android64-v7/db5b943b_Boot.obj" "obj/android64-v7/db5b943b_Date.obj" "obj/android64-v7/db5b943b_Object.obj" "obj/android64-v7/db5b943b_Anon.obj" "obj/android64-v7/497093e8_Enum.obj" "obj/android64-v7/db5b943b_AndroidCompat.obj" "obj/android64-v7/db5b943b_CFFI.obj" "obj/android64-v7/db5b943b_Class.obj" "obj/android64-v7/497093e8_Dynamic.obj" "obj/android64-v7/aa43b75c_GcRegCapture.obj" "obj/android64-v7/497093e8_Math.obj" "obj/android64-v7/db5b943b_Hash.obj" "obj/android64-v7/db5b943b_Thread.obj" "obj/android64-v7/aa43b75c_Immix.obj" "obj/android64-v7/db5b943b_Lib.obj" "obj/android64-v7/db5b943b_StdLibs.obj" "obj/android64-v7/db5b943b_Debug.obj" "obj/android64-v7/aa43b75c_GcCommon.obj" "obj/android64-v7/497093e8_String.obj" "obj/android64-v7/4e71fb69_RegExp.obj" "obj/android64-v7/83ffc4a4_pcre2_convert.obj" "obj/android64-v7/83ffc4a4_pcre2_find_bracket.obj" "obj/android64-v7/83ffc4a4_pcre2_ord2utf.obj" "obj/android64-v7/83ffc4a4_pcre2_serialize.obj" "obj/android64-v7/83ffc4a4_pcre2_valid_utf.obj" "obj/android64-v7/83ffc4a4_pcre2_chartables.obj" "obj/android64-v7/83ffc4a4_pcre2_compile.obj" "obj/android64-v7/83ffc4a4_pcre2_context.obj" "obj/android64-v7/83ffc4a4_pcre2_maketables.obj" "obj/android64-v7/83ffc4a4_pcre2_script_run.obj" "obj/android64-v7/83ffc4a4_pcre2_substring.obj" "obj/android64-v7/83ffc4a4_pcre2_auto_possess.obj" "obj/android64-v7/83ffc4a4_pcre2_dfa_match.obj" "obj/android64-v7/83ffc4a4_pcre2_extuni.obj" "obj/android64-v7/83ffc4a4_pcre2_jit_compile.obj" "obj/android64-v7/83ffc4a4_pcre2_match.obj" "obj/android64-v7/83ffc4a4_pcre2_tables.obj" "obj/android64-v7/83ffc4a4_pcre2_config.obj" "obj/android64-v7/83ffc4a4_pcre2_match_data.obj" "obj/android64-v7/83ffc4a4_pcre2_newline.obj" "obj/android64-v7/83ffc4a4_pcre2_ucd.obj" "obj/android64-v7/83ffc4a4_pcre2_string_utils.obj" "obj/android64-v7/83ffc4a4_pcre2_substitute.obj" "obj/android64-v7/83ffc4a4_pcre2_pattern_info.obj" "obj/android64-v7/83ffc4a4_pcre2_study.obj" "obj/android64-v7/83ffc4a4_pcre2_error.obj" "obj/android64-v7/83ffc4a4_pcre2_xclass.obj" "obj/android64-v7/316cb4a0_pcre2_convert.obj" "obj/android64-v7/316cb4a0_pcre2_find_bracket.obj" "obj/android64-v7/316cb4a0_pcre2_ord2utf.obj" "obj/android64-v7/316cb4a0_pcre2_serialize.obj" "obj/android64-v7/316cb4a0_pcre2_valid_utf.obj" "obj/android64-v7/316cb4a0_pcre2_chartables.obj" "obj/android64-v7/316cb4a0_pcre2_compile.obj" "obj/android64-v7/316cb4a0_pcre2_context.obj" "obj/android64-v7/316cb4a0_pcre2_maketables.obj" "obj/android64-v7/316cb4a0_pcre2_script_run.obj" "obj/android64-v7/316cb4a0_pcre2_substring.obj" "obj/android64-v7/316cb4a0_pcre2_auto_possess.obj" "obj/android64-v7/316cb4a0_pcre2_dfa_match.obj" "obj/android64-v7/316cb4a0_pcre2_extuni.obj" "obj/android64-v7/316cb4a0_pcre2_jit_compile.obj" "obj/android64-v7/316cb4a0_pcre2_match.obj" "obj/android64-v7/316cb4a0_pcre2_tables.obj" "obj/android64-v7/316cb4a0_pcre2_config.obj" "obj/android64-v7/316cb4a0_pcre2_match_data.obj" "obj/android64-v7/316cb4a0_pcre2_newline.obj" "obj/android64-v7/316cb4a0_pcre2_ucd.obj" "obj/android64-v7/316cb4a0_pcre2_string_utils.obj" "obj/android64-v7/316cb4a0_pcre2_substitute.obj" "obj/android64-v7/316cb4a0_pcre2_pattern_info.obj" "obj/android64-v7/316cb4a0_pcre2_study.obj" "obj/android64-v7/316cb4a0_pcre2_error.obj" "obj/android64-v7/316cb4a0_pcre2_xclass.obj" "obj/android64-v7/b5cfb7af_File.obj" "obj/android64-v7/b5cfb7af_Process.obj" "obj/android64-v7/b5cfb7af_Random.obj" "obj/android64-v7/b5cfb7af_Socket.obj" "obj/android64-v7/b5cfb7af_Sys.obj" "/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/linc_luajit/git//lib/lua/lib/Android/libluajit-v7.a" "-llog" "-Bstatic" "-lc++" "-Bdynamic" "-lm" "-lgcc" "-ldl" "-lc" "-lgcc" "-ldl" "/home/runner/android-sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/linux-x86_64/bin/../sysroot/usr/lib/arm-linux-androideabi/16/crtend_so.o" 
+1741:clang++ -Iinclude -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/linc_luajit/git//linc/ --target=aarch64-linux-android21 -DHXCPP_ARM64 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=21 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,static]
+1864: - src/llua/LuaException.cpp 
+1911: - src/hscript/ErrorDef.cpp 
+2071: - src/openfl/errors/Error.cpp  [haxe,release]
+2106: - src/hscript/Error.cpp 
+2203: - src/openfl/events/ErrorEvent.cpp  [haxe,release]
+2208: - src/openfl/events/IOErrorEvent.cpp  [haxe,release]
+2247: - src/haxe/io/Error.cpp 
+2290: - src/openfl/errors/IOError.cpp  [haxe,release]
+2333: - src/openfl/errors/IllegalOperationError.cpp  [haxe,release]
+2341: - src/lime/utils/TAError.cpp 
+2345: - src/openfl/errors/TypeError.cpp  [haxe,release]
+2369: - src/sys/thread/NoEventLoopException.cpp 
+2371: - src/haxe/exceptions/PosException.cpp 
+2390: - src/openfl/errors/ArgumentError.cpp  [haxe,release]
+2468: - src/openfl/errors/EOFError.cpp  [haxe,release]
+2512: - src/openfl/events/UncaughtErrorEvents.cpp  [haxe,release]
+2589: - src/openfl/errors/RangeError.cpp  [haxe,release]
+2712: - src/openfl/events/UncaughtErrorEvent.cpp  [haxe,release]
+2761: - src/openfl/events/SecurityErrorEvent.cpp  [haxe,release]
+2774: - src/haxe/ValueException.cpp 
+2819: - src/haxe/Exception.cpp 
+2988: - src/haxe/exceptions/NotImplementedException.cpp 
+3008: - src/haxe/xml/XmlParserException.cpp 
+3063:clang++ -Iinclude -DHX_DECLARE_MAIN -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/linc_luajit/git//linc/ --target=aarch64-linux-android21 -DHXCPP_ARM64 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=21 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,main,static]
+(nenhum)
 
 -- contexto dos primeiros erros --
 125-==> Músicas incluídas: tutorial bopeebo fresh dad-battle spookeez south monster pico philly-nice blammed
@@ -58,17 +128,17 @@ APK       : (nenhum APK gerado)
 148-
 149-########## STEP: dump_env ##########
 --
-187-########## OK: typecheck (7s) ##########
+187-########## OK: typecheck (8s) ##########
 188-
 189-########## STEP: build_nativo ##########
 190-source/Achievements.hx:132: characters 30-54 : Warning : `FlxCamera.defaultCameras` is deprecated, use `FlxG.cameras.setDefaultDrawTarget` instead
 191-
 192-Compiling group: haxe
 193:clang++ -Iinclude -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/linc_luajit/git//linc/ --target=arm-linux-androideabi16 -DHXCPP_ARMV7 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS(haxe) -DHX_SMART_STRINGS(haxe) -DHXCPP_API_LEVEL=400(haxe) -I/home/runner/work/Fnf-mobile-project/Fnf-mobile-project/.haxelib/hxcpp/4,3,2/include -Iinclude -DANDROID=ANDROID -DHX_ANDROID -DHXCPP_ANDROID_PLATFORM=16 -fvisibility=hidden -ffunction-sections -fstack-protector -fexceptions -c -fpic -O2 -Wno-invalid-offsetof -Wno-return-type-c-linkage -Wno-parentheses ... tags=[haxe,static]
-194- - src/sys/io/_Process/Stdout.cpp 
-195- - src/openfl/display/_internal/Context3DElementType.cpp 
-196- - src/flixel/input/actions/_FlxSteamController/FlxSteamControllerMetadata.cpp 
-197- - src/lime/_internal/backend/native/TextEventInfo.cpp 
+194- - src/flixel/input/actions/_FlxSteamController/FlxSteamControllerMetadata.cpp 
+195- - src/sys/io/_Process/Stdout.cpp 
+196- - src/lime/_internal/backend/native/TextEventInfo.cpp 
+197- - src/openfl/display/_internal/Context3DElementType.cpp 
 198- - src/flixel/system/debug/interaction/tools/Pointer.cpp 
 199- - src/flixel/input/actions/_FlxSteamController/FlxSteamUpdater.cpp 
 200- - src/openfl/system/SecurityDomain.cpp  [haxe,release]
@@ -85,203 +155,203 @@ APK       : (nenhum APK gerado)
 211- - src/sys/thread/NextEventTime.cpp 
 
 -- últimas 200 linhas do log --
- - src/hscript/Error.cpp 
- - src/Note.cpp 
- - src/options/NoteOffsetState.cpp 
- - src/flixel/addons/ui/FlxInputText.cpp 
- - src/openfl/display/_internal/_DrawCommandReader/WindingNonZeroView_Impl_.cpp 
- - src/haxe/NativeStackTrace.cpp 
- - src/LoadingState.cpp 
- - src/flixel/addons/ui/FlxUIDropDownMenuDropDirection.cpp 
- - src/sys/thread/_EventLoop/RegularEvent.cpp 
- - src/flixel/tweens/misc/AngleTween.cpp 
- - src/ValueType.cpp 
- - src/__ASSET__flixel_flixel_ui_img_check_box_png.cpp 
- - src/Paths.cpp 
- - src/lime/math/_BGRA/BGRA_Impl_.cpp 
- - src/lime/graphics/opengl/ext/QCOM_writeonly_rendering.cpp 
- - src/lime/_internal/graphics/StackBlur.cpp 
- - src/flixel/input/actions/FlxActionInputAnalogMouseMotion.cpp 
- - src/lime/_internal/backend/native/RenderEventInfo.cpp 
- - src/flixel/addons/ui/Rounding.cpp 
- - src/lime/system/JNIStaticField.cpp  [haxe,release]
- - src/flixel/addons/ui/FlxSlider.cpp 
- - src/lime/media/vorbis/VorbisFile.cpp 
- - src/flixel/system/debug/TooltipOverlay.cpp 
- - src/openfl/system/System.cpp  [haxe,release]
- - src/openfl/display/_internal/_DrawCommandReader/BeginGradientFillView_Impl_.cpp 
- - src/flixel/system/FlxSound.cpp 
- - src/flixel/graphics/tile/FlxDrawTrianglesItem.cpp 
- - src/flixel/addons/transition/GraphicTransTileSquare.cpp 
- - src/lime/media/openal/_ALFilter/ALFilter_Impl_.cpp 
- - src/flixel/system/frontEnds/SignalFrontEnd.cpp 
- - src/__ASSET__flixel_flixel_ui_img_chrome_flat_png.cpp 
- - src/haxe/ds/EnumValueMap.cpp 
- - src/DialogueBox.cpp 
- - src/lime/graphics/opengl/ext/ANGLE_texture_compression_dxt5.cpp 
- - src/flixel/input/touch/FlxTouchManager.cpp 
- - src/flixel/IFlxSprite.cpp 
- - src/hscript/_Interp/Stop.cpp 
- - src/haxe/io/Eof.cpp 
- - src/flixel/addons/ui/FlxUI.cpp 
- - src/lime/utils/_Bytes/Bytes_Impl_.cpp 
- - src/lime/graphics/opengl/ext/EXT_multisampled_render_to_texture.cpp 
- - src/openfl/display/CairoRenderer.cpp  [haxe,release]
- - src/lime/graphics/opengl/ext/EXT_texture_type_2_10_10_10_REV.cpp 
- - src/openfl/text/_internal/HTMLParser.cpp  [haxe,release]
- - src/lime/net/_HTTPRequest_lime_graphics_Image.cpp  [haxe,release]
- - src/lime/graphics/opengl/ext/ARM_rgba8.cpp 
- - src/flixel/system/FlxPreloader.cpp 
- - src/flixel/system/debug/FlxDebuggerLayout.cpp 
- - src/openfl/text/_internal/TextFormatRange.cpp  [haxe,release]
- - src/lime/utils/_UInt32Array/UInt32Array_Impl_.cpp 
- - src/openfl/display3D/textures/TextureBase.cpp  [haxe,release]
- - src/flixel/input/gamepad/FlxGamepadButton.cpp 
- - src/editors/MasterEditorMenu.cpp 
- - src/lime/graphics/_OpenGLRenderContext/OpenGLRenderContext_Impl_.cpp 
- - src/openfl/display/_internal/_DrawCommandReader/LineToView_Impl_.cpp 
- - src/__ASSET__assets_fonts_pixel_otf.cpp 
- - src/lime/utils/_Resource/Resource_Impl_.cpp 
- - src/flixel/input/actions/FlxActionInputDigitalSteam.cpp 
- - src/flixel/input/actions/FlxInputType.cpp 
- - src/openfl/net/URLRequestHeader.cpp  [haxe,release]
- - src/openfl/events/FocusEvent.cpp  [haxe,release]
- - src/lime/graphics/opengl/_GLTexture/GLTexture_Impl_.cpp 
- - src/openfl/display/Graphics.cpp  [haxe,release]
- - src/flixel/util/helpers/FlxBounds.cpp 
- - src/openfl/geom/Vector3D.cpp  [haxe,release]
- - src/lime/graphics/opengl/ext/ANGLE_instanced_arrays.cpp 
- - src/openfl/events/HTTPStatusEvent.cpp  [haxe,release]
- - src/openfl/utils/AssetLibrary.cpp  [haxe,release]
- - src/flixel/tweens/misc/NumTween.cpp 
- - src/flixel/system/debug/console/_ConsoleUtil/Interp.cpp 
- - src/openfl/display/GraphicsQuadPath.cpp  [haxe,release]
- - src/openfl/display/_internal/_DrawCommandReader/LineBitmapStyleView_Impl_.cpp 
- - src/lime/graphics/opengl/ext/OES_rgb8_rgba8.cpp 
- - src/openfl/utils/_Dictionary/Dictionary_Impl_.cpp 
- - src/lime/media/vorbis/VorbisComment.cpp 
- - src/lime/media/AudioBuffer.cpp  [haxe,release]
- - src/TankmenBG.cpp 
- - src/HealthIcon.cpp 
- - src/openfl/display/_JointStyle/JointStyle_Impl_.cpp 
- - src/flixel/addons/ui/FlxUI9SliceSprite.cpp 
- - src/flixel/math/FlxPoint.cpp 
- - src/haxe/IMap.cpp 
- - src/openfl/utils/_Dictionary/ClassMap.cpp  [haxe,release]
- - src/haxe/Resource.cpp 
- - src/flixel/system/debug/interaction/tools/Mover.cpp 
- - src/flixel/addons/ui/FlxUIBar.cpp 
- - src/flixel/input/actions/FlxActionSet.cpp 
- - src/sys/io/File.cpp 
- - src/lime/app/_Event_String_Void.cpp  [haxe,release]
- - src/flixel/system/debug/FlxDebugger.cpp 
- - src/lime/app/Promise_lime_media_AudioBuffer.cpp 
- - src/DocumentClass.cpp 
- - src/lime/utils/_Float64Array/Float64Array_Impl_.cpp 
- - src/lime/_internal/backend/native/JoystickEventInfo.cpp 
- - src/flixel/system/debug/completion/CompletionListEntry.cpp 
- - src/Lambda.cpp 
- - src/lime/media/AudioContext.cpp 
- - src/openfl/events/ErrorEvent.cpp  [haxe,release]
- - src/lime/graphics/opengl/ext/OES_element_index_uint.cpp 
- - src/lime/graphics/opengl/_GLFramebuffer/GLFramebuffer_Impl_.cpp 
- - src/CustomFadeTransition.cpp 
- - src/openfl/ui/Keyboard.cpp  [haxe,release]
- - src/openfl/events/IOErrorEvent.cpp  [haxe,release]
- - src/lime/utils/Assets.cpp  [haxe,release]
- - src/lime/graphics/opengl/_GLRenderbuffer/GLRenderbuffer_Impl_.cpp 
- - src/lime/graphics/opengl/ext/ANGLE_framebuffer_multisample.cpp 
- - src/flixel/input/gamepad/mappings/PS4Mapping.cpp 
- - src/flixel/input/actions/FlxActionInputAnalogGamepad.cpp 
- - src/flixel/util/FlxSave.cpp 
- - src/lime/text/harfbuzz/_HBFont/HBFont_Impl_.cpp 
- - src/openfl/display/_internal/CanvasBitmap.cpp 
- - src/mobile/MobileGestures.cpp 
- - src/mobile/MobileControls.cpp 
- - src/openfl/display/_StageDisplayState/StageDisplayState_Impl_.cpp 
- - src/flixel/input/gamepad/_FlxGamepadInputID/FlxGamepadInputID_Impl_.cpp 
- - src/flixel/input/actions/_FlxActionManager/ActionSetRegister.cpp 
- - src/flixel/system/debug/interaction/tools/_Transform/GraphicTransformCursorDefault.cpp 
- - src/openfl/events/_EventDispatcher/Listener.cpp  [haxe,release]
- - src/openfl/display/JPEGEncoderOptions.cpp  [haxe,release]
- - src/flixel/input/actions/_FlxSteamController/DigitalActionData.cpp 
- - src/hscript/Token.cpp 
- - src/flixel/input/gamepad/mappings/WiiRemoteMapping.cpp 
- - src/openfl/display/Tilemap.cpp  [haxe,release]
- - src/openfl/display/Stage.cpp  [haxe,release]
- - src/lime/utils/_UInt8Array/UInt8Array_Impl_.cpp 
- - src/lime/text/_Glyph/Glyph_Impl_.cpp 
- - src/haxe/ds/ArraySort.cpp 
- - src/flixel/input/IFlxInputManager.cpp 
- - src/flixel/addons/ui/FlxBaseMultiInput.cpp 
- - src/openfl/display/ShaderInput_openfl_display_BitmapData.cpp 
- - src/flixel/tile/FlxTileblock.cpp 
- - src/editors/EditorLua.cpp 
- - src/openfl/display/_internal/Context3DSimpleButton.cpp  [haxe,release]
- - src/__resources__.cpp 
- - src/lime/graphics/opengl/ext/EXT_multiview_draw_buffers.cpp 
- - src/lime/app/_Event_Void_Void.cpp  [haxe,release]
- - src/haxe/_Unserializer/NullResolver.cpp 
- - src/flixel/input/gamepad/lists/FlxGamepadAnalogValueList.cpp 
- - src/GameplayChangersSubstate.cpp 
- - src/flixel/group/FlxTypedGroup.cpp 
- - src/openfl/events/AccelerometerEvent.cpp  [haxe,release]
- - src/haxe/io/Error.cpp 
- - src/flixel/system/debug/GraphicBitmapLog.cpp 
- - src/openfl/display/_internal/Context3DVideo.cpp  [haxe,release]
- - src/haxe/zip/Reader.cpp 
- - src/flixel/effects/particles/FlxTypedEmitter.cpp 
- - src/openfl/text/_internal/GlyphPosition.cpp  [haxe,release]
- - src/openfl/display3D/textures/Texture.cpp  [haxe,release]
- - src/openfl/display/_internal/CanvasDisplayObjectContainer.cpp 
- - src/lime/utils/ArrayBufferIO.cpp 
- - src/flixel/addons/ui/Anchor.cpp 
- - src/lime/graphics/opengl/ext/OES_compressed_paletted_texture.cpp 
- - src/lime/app/_Event_lime_utils_Resource_Void.cpp  [haxe,release]
- - src/openfl/geom/Rectangle.cpp  [haxe,release]
- - src/FlashingState.cpp 
- - src/openfl/display/_PixelSnapping/PixelSnapping_Impl_.cpp 
- - src/Boyfriend.cpp 
- - src/lime/ui/_GamepadButton/GamepadButton_Impl_.cpp 
- - src/flixel/math/FlxCallbackPoint.cpp 
- - src/openfl/display/BitmapData.cpp  [haxe,release]
- - src/ClientPrefs.cpp 
- - src/openfl/display/DisplayObject.cpp  [haxe,release]
- - src/lime/app/_Event_Int_Float_Float_Void.cpp  [haxe,release]
- - src/lime/app/Promise_openfl_display_MovieClip.cpp 
- - src/flixel/FlxObject.cpp 
- - src/openfl/display/_internal/_DrawCommandReader/BeginBitmapFillView_Impl_.cpp 
- - src/lime/graphics/opengl/ext/QCOM_extended_get2.cpp 
- - src/flixel/effects/postprocess/PostProcess.cpp 
- - src/lime/ui/Joystick.cpp  [haxe,release]
- - src/flixel/system/debug/interaction/Interaction.cpp 
- - src/openfl/display/TileContainer.cpp  [haxe,release]
- - src/lime/graphics/opengl/ext/OES_packed_depth_stencil.cpp 
- - src/haxe/Serializer.cpp 
- - src/flixel/tweens/misc/ColorTween.cpp 
- - src/Conductor.cpp 
- - src/openfl/display3D/_internal/_AGALConverter/ProgramType.cpp 
- - src/lime/ui/Window.cpp  [haxe,release]
- - src/ModchartText.cpp 
- - src/lime/graphics/opengl/GL.cpp 
- - src/openfl/_Vector/Vector_Impl_.cpp 
- - src/flixel/system/debug/Tooltip.cpp 
- - src/flixel/system/FlxBasePreloader.cpp 
- - src/flixel/system/scaleModes/RatioScaleMode.cpp 
- - src/Achievements.cpp 
- - src/openfl/errors/IOError.cpp  [haxe,release]
- - src/lime/text/harfbuzz/HBSegmentProperties.cpp 
- - src/flixel/addons/ui/FlxUIState.cpp 
- - src/flixel/util/IFlxPooled.cpp 
- - src/flixel/system/frontEnds/PluginFrontEnd.cpp 
- - src/lime/_internal/backend/native/DropEventInfo.cpp 
- - src/lime/math/Matrix3.cpp  [haxe,release]
- - src/__ASSET__assets_fonts_vcr_ttf.cpp 
- - src/openfl/text/_internal/_TextLayout/TextDirection_Impl_.cpp 
- - src/openfl/display/_CapsStyle/CapsStyle_Impl_.cpp 
- - src/flixel/addons/effects/chainable/IFlxEffect.cpp 
- - src/flixel/util/_FlxSignal/FlxSignal1.cpp 
- - src/openfl/display/_internal/CanvasBitmapData.cpp 
- - src/flixel/addons/display/FlxGridOverlay.cpp 
- - src/openfl/display/GraphicsGradientFill.cpp  [haxe,release]
- - src/lime/graphics/_Canvas2DRenderContext/Canvas2DRenderContext_Impl_.cpp 
+
+Starting a Gradle Daemon (subsequent builds will be faster)
+Warning: Mapping new ns http://schemas.android.com/repository/android/common/02 to old ns http://schemas.android.com/repository/android/common/01
+Warning: Mapping new ns http://schemas.android.com/repository/android/generic/02 to old ns http://schemas.android.com/repository/android/generic/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/addon2/02 to old ns http://schemas.android.com/sdk/android/repo/addon2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/addon2/03 to old ns http://schemas.android.com/sdk/android/repo/addon2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/repository2/02 to old ns http://schemas.android.com/sdk/android/repo/repository2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/repository2/03 to old ns http://schemas.android.com/sdk/android/repo/repository2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/sys-img2/03 to old ns http://schemas.android.com/sdk/android/repo/sys-img2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/sys-img2/02 to old ns http://schemas.android.com/sdk/android/repo/sys-img2/01
+Warning: Mapping new ns http://schemas.android.com/repository/android/common/02 to old ns http://schemas.android.com/repository/android/common/01
+Warning: Mapping new ns http://schemas.android.com/repository/android/generic/02 to old ns http://schemas.android.com/repository/android/generic/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/addon2/02 to old ns http://schemas.android.com/sdk/android/repo/addon2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/addon2/03 to old ns http://schemas.android.com/sdk/android/repo/addon2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/repository2/02 to old ns http://schemas.android.com/sdk/android/repo/repository2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/repository2/03 to old ns http://schemas.android.com/sdk/android/repo/repository2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/sys-img2/03 to old ns http://schemas.android.com/sdk/android/repo/sys-img2/01
+Warning: Mapping new ns http://schemas.android.com/sdk/android/repo/sys-img2/02 to old ns http://schemas.android.com/sdk/android/repo/sys-img2/01
+Warning: unexpected element (uri:"", local:"base-extension"). Expected elements are <{}codename>,<{}layoutlib>,<{}api-level>
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :deps:extension-api:preBuild UP-TO-DATE
+> Task :deps:extension-api:preReleaseBuild UP-TO-DATE
+> Task :deps:extension-api:compileReleaseAidl NO-SOURCE
+> Task :app:compileReleaseAidl NO-SOURCE
+> Task :deps:extension-api:packageReleaseRenderscript NO-SOURCE
+> Task :app:compileReleaseRenderscript NO-SOURCE
+> Task :app:generateReleaseBuildConfig
+> Task :app:generateReleaseResValues
+> Task :app:generateReleaseResources
+> Task :deps:extension-api:compileReleaseRenderscript NO-SOURCE
+> Task :deps:extension-api:generateReleaseResValues
+> Task :deps:extension-api:generateReleaseResources
+> Task :deps:extension-api:writeReleaseAarMetadata
+> Task :app:javaPreCompileRelease
+> Task :deps:extension-api:packageReleaseResources
+> Task :app:checkReleaseAarMetadata
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :deps:extension-api:extractDeepLinksRelease
+> Task :deps:extension-api:compileReleaseLibraryResources
+> Task :app:mergeReleaseResources
+> Task :deps:extension-api:processReleaseManifest
+> Task :deps:extension-api:generateReleaseBuildConfig
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :deps:extension-api:javaPreCompileRelease
+> Task :app:processReleaseMainManifest
+> Task :deps:extension-api:parseReleaseLocalResources
+> Task :app:processReleaseManifest
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :deps:extension-api:mergeReleaseShaders
+> Task :deps:extension-api:compileReleaseShaders NO-SOURCE
+> Task :deps:extension-api:generateReleaseAssets UP-TO-DATE
+> Task :app:processReleaseManifestForPackage
+> Task :deps:extension-api:packageReleaseAssets
+> Task :deps:extension-api:generateReleaseRFile
+> Task :app:mergeReleaseAssets
+> Task :app:processReleaseResources
+> Task :app:compressReleaseAssets
+> Task :deps:extension-api:compileReleaseJavaWithJavac
+> Task :deps:extension-api:bundleLibCompileToJarRelease
+> Task :deps:extension-api:bundleLibRuntimeToJarRelease
+> Task :app:processReleaseJavaRes NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :deps:extension-api:processReleaseJavaRes NO-SOURCE
+> Task :deps:extension-api:bundleLibResRelease NO-SOURCE
+> Task :app:mergeExtDexRelease
+
+> Task :app:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /home/runner/work/Fnf-mobile-project/Fnf-mobile-project/export/release/android/bin/app/src/main/java/org/libsdl/app/SDL.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :app:compileReleaseSources
+> Task :app:dexBuilderRelease
+> Task :app:collectReleaseDependencies
+> Task :app:mergeReleaseJavaResource
+> Task :app:mergeDexRelease
+> Task :app:sdkReleaseDependencyData
+> Task :app:mergeReleaseJniLibFolders
+> Task :deps:extension-api:mergeReleaseJniLibFolders
+> Task :deps:extension-api:mergeReleaseNativeLibs NO-SOURCE
+> Task :deps:extension-api:stripReleaseDebugSymbols NO-SOURCE
+> Task :deps:extension-api:copyReleaseJniLibsProjectOnly
+> Task :app:validateSigningRelease
+> Task :deps:extension-api:copyReleaseJniLibsProjectAndLocalJars
+> Task :app:mergeReleaseNativeLibs
+> Task :deps:extension-api:extractReleaseAnnotations
+
+> Task :app:stripReleaseDebugSymbols
+WARNING: NDK was located by using ndk.dir property. This method is deprecated and will be removed in a future release. Please delete ndk.dir from local.properties and set android.ndkVersion to [21.4.7075529] in all native modules in the project. https://developer.android.com/r/studio-ui/ndk-dir
+NDK was located by using ndk.dir property. This method is deprecated and will be removed in a future release. Please delete ndk.dir from local.properties and set android.ndkVersion to [21.4.7075529] in all native modules in the project. https://developer.android.com/r/studio-ui/ndk-dir
+
+> Task :deps:extension-api:mergeReleaseGeneratedProguardFiles
+> Task :deps:extension-api:mergeReleaseConsumerProguardFiles
+> Task :deps:extension-api:prepareLintJarForPublish
+> Task :deps:extension-api:compileReleaseSources
+> Task :deps:extension-api:mergeReleaseJavaResource
+> Task :deps:extension-api:mergeReleaseResources
+> Task :deps:extension-api:syncReleaseLibJars
+> Task :deps:extension-api:bundleReleaseAar
+> Task :deps:extension-api:verifyReleaseResources
+> Task :deps:extension-api:assembleRelease
+> Task :app:packageRelease
+> Task :app:assembleRelease
+
+BUILD SUCCESSFUL in 46s
+54 actionable tasks: 54 executed
+########## OK: build_nativo (1048s) ##########
+
+########## STEP: localizar_apk ##########
+APK bruto: export/release/android/bin/app/build/outputs/apk/release/FNFMobile-release.apk
+########## OK: localizar_apk (0s) ##########
+
+########## STEP: assinar_e_verificar ##########
+APK de entrada: export/release/android/bin/app/build/outputs/apk/release/FNFMobile-release.apk (110M)
+assinatura atual do APK:
+Signer #1 certificate DN: CN=FNF Mobile, OU=Personal, O=Personal, C=BR
+Signer #1 certificate SHA-256 digest: 558fd9ce4401bb24ddb00ab7e6815025493accfc395d7f8f3d90b622ae492543
+Signer #1 certificate SHA-1 digest: 4082ac18ad20cdc6a510d9d633d86eca7d0b453c
+Signer #1 certificate MD5 digest: c2bfb38156f52a34ff2ceedaf37f5b37
+ERROR: unknown flag -P
+Zip alignment utility
+Copyright (C) 2009 The Android Open Source Project
+
+Usage: zipalign [-f] [-p] [-v] [-z] <align> infile.zip outfile.zip
+       zipalign -c [-p] [-v] <align> infile.zip
+
+  <align>: alignment in bytes, e.g. '4' provides 32-bit alignment
+  -c: check alignment only (does not modify file)
+  -f: overwrite existing outfile.zip
+  -p: memory page alignment for stored shared object files
+  -v: verbose output
+  -z: recompress using Zopfli
+AVISO: as duas sintaxes do zipalign falharam (veja acima)
+AVISO: seguindo sem zipalign
+==> Assinando com o keystore do projeto
+==> Verificando a assinatura final
+Verifies
+Verified using v1 scheme (JAR signing): true
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): true
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=FNF Mobile, OU=Personal, O=Personal, C=BR
+Signer #1 certificate SHA-256 digest: 558fd9ce4401bb24ddb00ab7e6815025493accfc395d7f8f3d90b622ae492543
+Signer #1 certificate SHA-1 digest: 4082ac18ad20cdc6a510d9d633d86eca7d0b453c
+Signer #1 certificate MD5 digest: c2bfb38156f52a34ff2ceedaf37f5b37
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 95a9768574d9d7d1e23242ccb5fdee8db7e9903895b65723aa6fa30e88386527
+Signer #1 public key SHA-1 digest: 7bb88845e9849b50fbd5b2b73065a28f20020b07
+Signer #1 public key MD5 digest: 7b97188dcd77a8692ebabacdb2636e56
+
+==> APK final: /home/runner/work/Fnf-mobile-project/Fnf-mobile-project/dist/FNF-Mobile-1.0.0.apk
+-rw-r--r-- 1 runner runner 115013293 Oct  2 01:25 /home/runner/work/Fnf-mobile-project/Fnf-mobile-project/dist/FNF-Mobile-1.0.0.apk
+sha256: 695148fa3f15e18ee53956d381f3fb83fbe42f530ed10b84b442006cd5cb6a7b
+
+==> Conteúdo (resumo):
+    55042  1981-01-01 01:01   META-INF/MANIFEST.MF
+---------                     -------
+158272386                     484 files
+assets no APK: 467
+libs nativas:
+  8084004  1981-01-01 01:01   lib/armeabi-v7a/liblime.so
+ 21280844  1981-01-01 01:01   lib/armeabi-v7a/libApplicationMain.so
+ 23259960  1981-01-01 01:01   lib/arm64-v8a/libApplicationMain.so
+ 10620520  1981-01-01 01:01   lib/arm64-v8a/liblime.so
+
+==> Assets empacotados (topo):
+assets/assets/characters
+assets/assets/data
+assets/assets/fonts
+assets/assets/images
+assets/assets/music
+assets/assets/shared
+assets/assets/songs
+assets/assets/sounds
+assets/assets/stages
+assets/assets/week2
+assets/assets/week3
+assets/assets/weeks
+assets/do
+assets/flixel/flixel-ui
+assets/flixel/fonts
+assets/flixel/images
+assets/flixel/sounds
+assets/manifest/default.json
+assets/manifest/shared.json
+assets/manifest/songs.json
+assets/manifest/week2.json
+assets/manifest/week3.json
+########## OK: assinar_e_verificar (7s) ##########
+
+########## BUILD COMPLETO ##########
+status: OK:FNF-Mobile-1.0.0.apk
