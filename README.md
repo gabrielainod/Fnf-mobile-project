@@ -22,7 +22,7 @@ mods.
 Confira o arquivo baixado (opcional):
 
 ```
-sha256: 22952105339cb569bd6d3285271a37b88918ee7d03d23f054424a64cf7f329fd
+sha256: 33090a70881010d3794e9ea78762538f5342a78d577b5fd10dec274636e5fbd8
 ```
 
 Requisitos: **Android 5.0+**, ~400 MB livres e **arm64 (arm64-v8a)** ou **armv7**
