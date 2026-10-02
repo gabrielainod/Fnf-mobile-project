@@ -405,6 +405,45 @@ public class FnfBoot
 		catch (Throwable t) { }
 	}
 
+	/**
+	 * Marca que a sessao terminou de forma limpa (o jogo foi para segundo plano
+	 * ou o jogador saiu). Se, na proxima abertura, essa marcacao nao existir, o
+	 * app morreu no meio - e o diagnostico aparece sozinho na tela, com o motivo
+	 * da morte lido do proprio Android.
+	 */
+	public static void markCleanSession ()
+	{
+		try
+		{
+			if (logDir == null) return;
+			FileOutputStream out = new FileOutputStream (new File (logDir, "sessao-limpa.txt"), false);
+			OutputStreamWriter w = new OutputStreamWriter (out, "UTF-8");
+			w.write (new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss", Locale.US).format (new Date ()));
+			w.close ();
+		}
+		catch (Throwable t) { }
+	}
+
+	/** A sessao anterior terminou de forma limpa? */
+	private static boolean lastSessionWasClean ()
+	{
+		try
+		{
+			if (logDir == null) return true;
+			File f = new File (logDir, "sessao-limpa.txt");
+			if (f.exists ())
+			{
+				f.delete ();
+				return true;
+			}
+			return false;
+		}
+		catch (Throwable t)
+		{
+			return true;
+		}
+	}
+
 	/** Aviso curto do sistema (nao depende do OpenGL). */
 	public static void toast (final String message)
 	{
@@ -640,9 +679,14 @@ public class FnfBoot
 			}
 
 			boolean ok = text.indexOf ("BOOT-OK") >= 0;
+			boolean limpa = lastSessionWasClean ();
 			write ("sessao anterior chegou ao menu: " + ok);
+			write ("sessao anterior terminou normalmente: " + limpa);
 
-			if (!ok)
+			// Mostra o diagnóstico quando: a sessão não chegou ao menu OU ela não
+			// terminou de forma limpa (ou seja: o app morreu no meio - foi assim
+			// que o fechamento ao abrir o Freeplay aparecia para o jogador).
+			if (!ok || !limpa)
 			{
 				previousSession = text;
 				writeFile (new File (logDir, "sessao-anterior.log"), text);
@@ -681,8 +725,14 @@ public class FnfBoot
 			}
 			else if (previousSession != null)
 			{
-				title = "A sessao anterior nao chegou ao menu";
+				title = "O app fechou sozinho na sessao anterior";
 				body = previousSession;
+			}
+
+			if (title != null && body != null)
+			{
+				// o motivo da morte (com o trace do Android) vai sempre junto
+				try { body = exitReasonReport () + "\n" + body; } catch (Throwable t) { }
 			}
 
 			if (title == null || body == null) return;

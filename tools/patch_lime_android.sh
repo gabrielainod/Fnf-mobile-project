@@ -104,6 +104,17 @@ public class MainActivity extends org.haxe.lime.GameActivity {
 
 	}
 
+	// Se o jogo foi para segundo plano (ou o usuário saiu pelo botão home), a
+	// sessão terminou de forma "limpa". Isso vira uma marcação em arquivo: se
+	// na próxima abertura a marcação NÃO existir, é porque a sessão anterior
+	// morreu no meio - e aí o diagnóstico aparece na tela automaticamente.
+	@Override protected void onPause () {
+
+		try { com.fnfmobile.game.FnfBoot.markCleanSession (); } catch (Throwable t) { }
+		super.onPause ();
+
+	}
+
 }
 JAVA_EOF
 			grep -n "FnfBoot" "$MAIN_ACTIVITY" | sed 's/^/    /'
