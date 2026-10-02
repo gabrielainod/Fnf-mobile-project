@@ -103,6 +103,27 @@ install_lib() {
 	return 0
 }
 
+# LuaJIT com suporte a Android (o fork traz as .a pré-compiladas para arm64/armv7,
+# então os scripts Lua dos mods também rodam no celular). O linc_luajit oficial
+# não tem binário para Android.
+install_lib_git() {
+	local name="$1" url="$2" sha="$3"
+	# já instalado na versão certa? então não mexe
+	if [ -f "$HAXELIB_PATH/$name/.current" ] || haxelib path "$name" >/dev/null 2>&1; then
+		echo "==> $name já instalado"
+		return 0
+	fi
+	echo "==> instalando $name (git $url @ ${sha:0:8})"
+	if haxelib git "$name" "$url" "$sha" </dev/null 2>&1 | tail -6; then
+		return 0
+	fi
+	echo "AVISO: haxelib git falhou para $name; tentando a versão do repositório oficial"
+	haxelib git "$name" "https://github.com/AndreiRudenko/linc_luajit" </dev/null 2>&1 | tail -6 || true
+	return 0
+}
+
+install_lib_git linc_luajit "https://github.com/Alex-Haxe/linc_luajit" "cb87550526db1298439c9b8881bd4ee31baf55b4"
+
 # Versões que casam com o Psych Engine 0.6.3 (openfl 9.2 / lime 8.0 / flixel 4.11)
 install_lib hxcpp 4.3.2
 install_lib lime 8.0.2
@@ -117,7 +138,7 @@ echo "==> bibliotecas instaladas (haxelib list):"
 haxelib list 2>&1 | tail -20
 
 MISSING=""
-for lib in hxcpp lime openfl flixel flixel-addons flixel-ui hscript; do
+for lib in hxcpp lime openfl flixel flixel-addons flixel-ui hscript linc_luajit; do
 	if ! haxelib path "$lib" >/dev/null 2>&1; then MISSING="$MISSING $lib"; fi
 done
 if [ -n "$MISSING" ]; then
