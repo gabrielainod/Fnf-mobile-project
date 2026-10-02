@@ -136,7 +136,7 @@ class Main extends Sprite
 			// se o motor falhar aqui, o log diz o motivo em vez de o app sumir
 			MobilePlatform.log('ERRO FATAL ao criar o FlxGame: ' + Std.string(e));
 			#if cpp
-			try { MobilePlatform.log(haxe.CallStack.exceptionStack()); } catch (x:Dynamic) {}
+			try { MobilePlatform.log(Std.string(haxe.CallStack.exceptionStack())); } catch (x:Dynamic) {}
 			#end
 			MobilePlatform.log('(o processo provavelmente vai encerrar agora)');
 			throw e;
