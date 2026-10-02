@@ -51,6 +51,14 @@ class MobilePlatform
 			ensureDir(storageFolder);
 			logPath = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
 
+			// se der para escrever na pasta pública (/sdcard/FNF-Mobile), o log vai
+			// para lá: em celular sem PC é o único jeito fácil de ler o log
+			var pubBase:String = publicBaseFolder();
+			if (pubBase != null && probeWritable(pubBase))
+			{
+				logPath = pubBase + '/fnf-mobile.log';
+			}
+
 			try
 			{
 				totalRamMB = openfl.system.System.totalMemory / (1024 * 1024);
@@ -135,6 +143,14 @@ class MobilePlatform
 		}
 		catch (e:Dynamic) {}
 		#end
+	}
+
+	/** Pasta pública visível no gerenciador de arquivos (/sdcard/FNF-Mobile), ou null. */
+	public static function publicBaseFolder():String
+	{
+		var external:String = detectExternalStorage();
+		if (external == null || external == '') return null;
+		return external + '/FNF-Mobile';
 	}
 
 	/** Cria a pasta e confirma que dá para escrever de verdade (não só existe). */

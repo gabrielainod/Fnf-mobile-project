@@ -96,6 +96,7 @@ class Main extends Sprite
 		//  gestos de menu e ciclo de vida do app)
 		// ------------------------------------------------------------------
 		MobilePlatform.init();
+		MobilePlatform.log('boot: setupGame inicio');
 
 		// O save precisa estar ligado ANTES de ler/escrever FlxG.save.data:
 		// o Psych só chama FlxG.save.bind() lá dentro do TitleState, e escrever
@@ -124,7 +125,9 @@ class Main extends Sprite
 			}
 		}
 
+		MobilePlatform.log('boot: criando FlxGame');
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+		MobilePlatform.log('boot: FlxGame criado');
 
 		// tudo daqui pra baixo é opcional: se algo falhar, o jogo tem que abrir
 		try
