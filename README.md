@@ -63,6 +63,8 @@ funcionando exatamente como no Psych.
 - **Fundo simplificado** — tira dançarinos/luzes de fundo das Semanas 1-3.
 - **Pausar ao sair do app** — pausa a música quando você troca de aplicativo.
 - **Vibração** — feedback curto ao tocar as setas.
+- **Ver log do jogo** — abre um painel com as últimas mensagens do app (útil
+  para descobrir a causa de qualquer problema; dá para tirar print e mandar).
 
 Na primeira execução o jogo lê a **RAM do aparelho**: até 2,9 GB ele liga o modo
 aparelho fraco e 30 FPS; até 4,2 GB ele só simplifica o fundo. Dá para mudar tudo
