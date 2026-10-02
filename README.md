@@ -97,10 +97,14 @@ MeuMod|1
 OutroMod|0
 ```
 
-**Suporte a Lua:** nesta versão o `LUA_ALLOWED` está ligado apenas no desktop
-(o LuaJIT exige compilar código nativo extra no Android). Mods que só trocam
-assets, charts, personagens, cenários, semanas e sons funcionam normalmente;
-mods com `scripts/*.lua` ainda não executam os scripts. É o próximo passo.
+**Suporte a Lua:** ligado também no Android. O projeto usa um fork do
+`linc_luajit` com LuaJIT pré-compilado para `arm64-v8a` e `armeabi-v7a`
+(`libluajit-64.a` / `libluajit-v7.a`), então os mods com `scripts/*.lua`
+executam no celular igual ao Psych de PC — incluindo as callbacks como
+`onCreate`, `onUpdate`, `onBeatHit`, `onStepHit`, `onKeyPress`, `onNoteHit`,
+`onNoteMiss`, `setProperty`, `getProperty`, `makeLuaSprite`, `playSound`
+etc. Continua valendo a regra do Psych: o script tem acesso ao que a API Lua
+dele expõe (não é sandbox de segurança, é compatibilidade).
 
 ---
 
@@ -111,9 +115,10 @@ mods com `scripts/*.lua` ainda não executam os scripts. É o próximo passo.
 - Todo o resto do Psych Engine 0.6.3: menu principal, freeplay, story mode,
   opções, notas especiais, hold notes, ratings, achievements, practice, botplay,
   editor de chart (dentro do jogo), etc.
-- **Mods** (assets/charts/personagens/cenários) via pasta no aparelho.
-- Não incluído (fora do escopo): Semanas 4-7, vídeos (`VIDEOS_ALLOWED`),
-  Discord RPC, atualização automática e scripts Lua.
+- **Mods** (assets, charts, personagens, cenários, semanas, áudio **e scripts
+  Lua**) via pasta no aparelho.
+- Não incluído (fora do escopo): Semanas 4-7, vídeos (`VIDEOS_ALLOWED` —
+  depende do hxCodec, que não compila para Android), Discord RPC e updater.
 
 ---
 
