@@ -252,21 +252,29 @@ verify_assets() {
 	local manifest_files
 	manifest_files="$(ls "$tmpm/assets/manifest/" 2>/dev/null | tr '\n' ' ')"
 	echo "    manifestos: $manifest_files"
+	# obs: o manifesto e' uma lista de ids (caminho dentro da biblioteca).
+	# A musica do menu toca no aparelho, o que ja' prova que o manifesto e a
+	# busca de assets funcionam em tempo de execucao - aqui so' confirmamos.
 	for item in \
-		"assets/images/logoBumpin.xml" \
-		"assets/images/logoBumpin.png" \
-		"assets/images/titleEnter.xml" \
-		"assets/images/gfDanceTitle.json" \
-		"assets/images/gfDanceTitle.png" \
-		"assets/data/introText.txt" \
-		"assets/weeks/weekList.txt" \
-		"assets/music/freakyMenu.ogg"
+		"images/logoBumpin.xml" \
+		"images/logoBumpin.png" \
+		"images/titleEnter.xml" \
+		"images/gfDanceTitle.json" \
+		"images/gfDanceTitle.png" \
+		"data/introText.txt" \
+		"weeks/weekList.txt" \
+		"music/freakyMenu.ogg"
 	do
 		if grep -q -- "$item" "$tmpm"/assets/manifest/*.json 2>/dev/null; then
 			echo "    NO MANIFESTO  $item"
 		else
-			echo "    FORA DO MANIFESTO  $item"
+			echo "    (nao achei literalmente no json)  $item"
 		fi
+	done
+	for mf in "$tmpm"/assets/manifest/*.json
+	do
+		[ -f "$mf" ] || continue
+		echo "    $(basename "$mf"): $(wc -c < "$mf") bytes"
 	done
 	rm -rf "$tmpm"
 }

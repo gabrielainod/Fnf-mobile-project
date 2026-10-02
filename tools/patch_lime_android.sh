@@ -72,6 +72,13 @@ if [ -f "$BOOT_SRC" ]; then
 	echo "==> Instalando o diário de bordo Java (FnfBoot)"
 	mkdir -p "$JAVA_DIR"
 	cp -f "$BOOT_SRC" "$JAVA_DIR/FnfBoot.java"
+
+	# marca qual build esta instalada (aparece no aviso/dialogo do diagnostico,
+	# para nao existir duvida se o APK novo foi mesmo instalado)
+	BUILD_TAG="${GITHUB_RUN_NUMBER:-local}-$(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo 'x')"
+	sed -i "s/__FNF_BUILD_TAG__/$BUILD_TAG/" "$JAVA_DIR/FnfBoot.java"
+	grep -n "BUILD_TAG = " "$JAVA_DIR/FnfBoot.java" | sed 's/^/    /'
+
 	ls -la "$JAVA_DIR/FnfBoot.java"
 
 	if [ -f "$MAIN_ACTIVITY" ]; then

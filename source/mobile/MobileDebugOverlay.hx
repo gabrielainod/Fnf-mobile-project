@@ -85,6 +85,15 @@ class MobileDebugOverlay
 			return;
 		}
 
+		// batimento: de 3 em 3 segundos grava no log (e na tela) um resumo do
+		// estado, para o ultimo registro antes de um defeito dizer tudo.
+		if (frame % 180 == 0)
+		{
+			var estado:String = '?';
+			try { estado = MobilePlatform.currentStateName(); } catch (e:Dynamic) { }
+			MobilePlatform.log('batimento: tela ' + estado + ' | update ' + updates + ' | desenho ' + draws);
+		}
+
 		if (frame % 10 != 0) return; // nao mexe no texto todo frame (custo no celular)
 		refreshPanel();
 	}
@@ -270,6 +279,9 @@ class MobileDebugOverlay
 				body += '\n\n--- últimas mensagens ---\n' + MobilePlatform.logTail(14);
 			}
 			catch (e:Dynamic) { }
+
+			// aviso do sistema tambem (aparece mesmo com o OpenGL morto)
+			MobileNative.toastCritico(title + ' | ' + details);
 
 			text.defaultTextFormat = new TextFormat('_sans', 15, 0xFFFFFF);
 			text.text = body;

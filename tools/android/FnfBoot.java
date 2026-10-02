@@ -2,12 +2,19 @@ package com.fnfmobile.game;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,6 +45,12 @@ import java.util.Locale;
  */
 public class FnfBoot
 {
+	/** Identificacao desta build (o CI troca este texto pelo numero do run). */
+	public static final String BUILD_TAG = "__FNF_BUILD_TAG__";
+
+	/** Depois de quanto tempo mostrar o diagnostico na tela (ms). */
+	private static final long DIAGNOSTIC_DELAY_MS = 15000L;
+
 	private static Activity activity = null;
 	private static File logDir = null;
 	private static File logFile = null;
@@ -82,10 +95,192 @@ public class FnfBoot
 				{
 					try { requestStorage (); } catch (Throwable t) { }
 					try { showDialog (); } catch (Throwable t) { }
+					try { toast ("FNF Mobile - diagnostico " + BUILD_TAG + " (aguarde 15s)"); } catch (Throwable t) { }
 				}
 			});
 		}
 		catch (Throwable t) { }
+
+		// Depois de 15s mostra, numa janela DO ANDROID (aparece mesmo se o
+		// OpenGL nao desenhar nada), o resumo do log do jogo. Tem botao
+		// "Copiar": da' para colar o texto em qualquer conversa.
+		try
+		{
+			new Handler (Looper.getMainLooper ()).postDelayed (new Runnable ()
+			{
+				public void run ()
+				{
+					try { showDiagnostics (); } catch (Throwable t) { }
+				}
+			}, DIAGNOSTIC_DELAY_MS);
+		}
+		catch (Throwable t) { }
+
+		startHeartbeat ();
+	}
+
+	/**
+	 * Repete, num aviso do sistema (Toast), as ultimas linhas do log do jogo.
+	 *
+	 * Serve para o caso em que o OpenGL nao desenha NADA: o jogo continua
+	 * rodando e gravando o log, e o aviso do sistema (desenhado pelo proprio
+	 * Android) mostra na tela o que esta acontecendo, sem precisar de PC.
+	 */
+	private static void startHeartbeat ()
+	{
+		try
+		{
+			final Handler handler = new Handler (Looper.getMainLooper ());
+			handler.postDelayed (new Runnable ()
+			{
+				int count = 0;
+
+				public void run ()
+				{
+					try
+					{
+						if (count >= 15) return;
+						count++;
+
+						String tail = (logDir != null) ? readTail (new File (logDir, "fnf-mobile.log"), 300) : null;
+						if (tail != null)
+						{
+							String[] lines = tail.split ("\n");
+							String last = "";
+							int achou = 0;
+							for (int i = lines.length - 1; i >= 0 && achou < 3; i--)
+							{
+								String l = lines[i].trim ();
+								if (l.length () == 0) continue;
+								last = l + "\n" + last;
+								achou++;
+							}
+							toast (last.length () > 240 ? last.substring (0, 240) : last);
+						}
+
+						handler.postDelayed (this, 4000L);
+					}
+					catch (Throwable t) { }
+				}
+			}, 3000L);
+		}
+		catch (Throwable t) { }
+	}
+
+	/** Aviso curto do sistema (nao depende do OpenGL). */
+	public static void toast (final String message)
+	{
+		try
+		{
+			if (activity == null) return;
+			activity.runOnUiThread (new Runnable ()
+			{
+				public void run ()
+				{
+					try { Toast.makeText (activity, message, Toast.LENGTH_LONG).show (); } catch (Throwable t) { }
+				}
+			});
+		}
+		catch (Throwable t) { }
+	}
+
+	// --------------------------------------------------------- diagnostico
+
+	/** Monta o texto com tudo o que interessa para descobrir a tela preta. */
+	private static String buildDiagnostics ()
+	{
+		StringBuilder sb = new StringBuilder ();
+
+		sb.append ("build: ").append (BUILD_TAG).append ("\n");
+		sb.append ("instalado em: ").append (installTime ()).append ("\n");
+		sb.append ("aparelho: ").append (Build.MANUFACTURER).append (" ").append (Build.MODEL).append ("\n");
+		sb.append ("android: ").append (Build.VERSION.RELEASE).append (" (SDK ").append (Build.VERSION.SDK_INT).append (")\n");
+		sb.append ("abis: ").append (joinAbis ()).append ("\n");
+		sb.append ("heap max: ").append (Runtime.getRuntime ().maxMemory () / 1048576).append (" MB\n");
+		sb.append ("pasta do log: ").append (logDir != null ? logDir.getAbsolutePath () : "?").append ("\n");
+
+		if (logDir != null)
+		{
+			sb.append ("\n--- fnf-mobile.log (ultimas linhas do jogo) ---\n");
+			sb.append (orNone (readTail (new File (logDir, "fnf-mobile.log"), 5000)));
+			sb.append ("\n--- fnf-boot.log (lado Android) ---\n");
+			sb.append (orNone (readTail (new File (logDir, "fnf-boot.log"), 2000)));
+		}
+
+		return sb.toString ();
+	}
+
+	/** Mostra o diagnostico numa janela nativa do Android (com botao Copiar). */
+	private static void showDiagnostics ()
+	{
+		try
+		{
+			if (activity == null || logDir == null) return;
+
+			final String text = buildDiagnostics ();
+			writeFile (new File (logDir, "diagnostico.txt"), text);
+			write ("mostrando o diagnostico na tela (build " + BUILD_TAG + ")");
+
+			activity.runOnUiThread (new Runnable ()
+			{
+				public void run ()
+				{
+					try
+					{
+						TextView tv = new TextView (activity);
+						tv.setText (text);
+						tv.setTextSize (9f);
+						tv.setPadding (22, 22, 22, 22);
+
+						ScrollView sv = new ScrollView (activity);
+						sv.addView (tv);
+
+						new AlertDialog.Builder (activity)
+							.setTitle ("Diagnostico FNF Mobile " + BUILD_TAG)
+							.setView (sv)
+							.setPositiveButton ("Copiar", new DialogInterface.OnClickListener ()
+							{
+								public void onClick (DialogInterface dialog, int which)
+								{
+									try
+									{
+										ClipboardManager cm = (ClipboardManager) activity.getSystemService (Context.CLIPBOARD_SERVICE);
+										cm.setPrimaryClip (ClipData.newPlainText ("FNF Mobile", text));
+										toast ("Copiado! agora e' so colar na conversa.");
+									}
+									catch (Throwable t)
+									{
+										toast ("Nao consegui copiar - tire print da tela.");
+									}
+								}
+							})
+							.setNegativeButton ("Fechar", null)
+							.show ();
+					}
+					catch (Throwable t) { }
+				}
+			});
+		}
+		catch (Throwable t) { }
+	}
+
+	private static String installTime ()
+	{
+		try
+		{
+			PackageInfo info = activity.getPackageManager ().getPackageInfo (activity.getPackageName (), 0);
+			return new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss", Locale.US).format (new Date (info.lastUpdateTime));
+		}
+		catch (Throwable t)
+		{
+			return "?";
+		}
+	}
+
+	private static String orNone (String text)
+	{
+		if (text == null || text.trim ().length () == 0) return "(vazio)\n";
+		return text;
 	}
 
 	/** Acrescenta uma linha no log (usado tambem pelo lado Haxe, via JNI). */

@@ -234,6 +234,11 @@ class MobilePlatform
 			MobileDebugOverlay.showError('FNF Mobile - algo deu errado', message);
 		}
 
+		// E TAMBEM como aviso do proprio Android (Toast): esse aviso e' desenhado
+		// pelo sistema operacional, entao aparece mesmo quando o OpenGL nao
+		// desenha nada - que e' exatamente o caso da tela preta.
+		MobileNative.toast(message);
+
 		#if sys
 		var content:String = logLines.join('\n') + '\n';
 		for (folder in logFolders)

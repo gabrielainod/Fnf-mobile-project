@@ -16,6 +16,7 @@ import mobile.MobileGestures;
 import mobile.MobileKeys;
 import mobile.MobilePerf;
 import mobile.MobileDebugOverlay;
+import mobile.MobileNative;
 import mobile.MobilePlatform;
 
 //crash handler stuff
@@ -42,6 +43,26 @@ class Main extends Sprite
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 	public static var fpsVar:FPS;
+
+	#if mobile
+	/** Quantos quadros já esperamos a janela informar um tamanho. */
+	var windowTries:Int = 0;
+
+	/** Reagenda a criação do jogo até a janela ter tamanho (ver setupGame). */
+	function tentaDeNovo(_:Event):Void
+	{
+		if (stage == null) return;
+		if (stage.stageWidth >= 64 && stage.stageHeight >= 64)
+		{
+			removeEventListener(Event.ENTER_FRAME, tentaDeNovo);
+			setupGame();
+		}
+		else
+		{
+			setupGame(); // continua contando as tentativas
+		}
+	}
+	#end
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -79,6 +100,50 @@ class Main extends Sprite
 		var stageWidth:Int = Lib.current.stage.stageWidth;
 		var stageHeight:Int = Lib.current.stage.stageHeight;
 
+		#if mobile
+		// ---------------------------------------------------------------
+		// TELA PRETA: aqui é onde ela nasce ou não.
+		//
+		// O zoom é calculado dividindo o tamanho da janela pelo tamanho do jogo.
+		// Se a janela chega sem tamanho (0x0) - o que acontece em alguns
+		// aparelhos por causa do modo tela cheia -, o zoom vira 0, o jogo fica
+		// com uma área de desenho 0x0 e o resultado é exatamente o pior tipo de
+		// defeito: o app roda, a música toca, e a tela fica preta.
+		//
+		// Então aqui a gente espera a janela ter tamanho de verdade antes de
+		// criar o jogo, e o tamanho medido vai para o log.
+		// ---------------------------------------------------------------
+		MobilePlatform.log('janela na hora de criar o jogo: ' + stageWidth + 'x' + stageHeight);
+
+		if (stageWidth < 64 || stageHeight < 64)
+		{
+			windowTries++;
+
+			if (windowTries == 1)
+			{
+				MobilePlatform.log('AVISO: a janela ainda nao tem tamanho (' + stageWidth + 'x' + stageHeight + ')');
+				MobileNative.toast('FNF: janela sem tamanho (' + stageWidth + 'x' + stageHeight + '). Esperando...');
+			}
+
+			if (windowTries <= 900) // ~15 segundos
+			{
+				// tenta de novo no próximo quadro
+				removeEventListener(Event.ENTER_FRAME, tentaDeNovo);
+				addEventListener(Event.ENTER_FRAME, tentaDeNovo);
+				return;
+			}
+
+			// desistiu de esperar: usa o tamanho padrao para o jogo existir e
+			// registrar o tamanho real no log
+			MobilePlatform.log('AVISO: a janela nunca informou tamanho; usando 1280x720 como padrao');
+			MobileNative.toastCritico('FNF: tela do aparelho nao informou tamanho. Usando 1280x720.');
+			stageWidth = 1280;
+			stageHeight = 720;
+		}
+
+		removeEventListener(Event.ENTER_FRAME, tentaDeNovo);
+		#end
+
 		if (zoom == -1)
 		{
 			var ratioX:Float = stageWidth / gameWidth;
@@ -87,6 +152,11 @@ class Main extends Sprite
 			gameWidth = Math.ceil(stageWidth / zoom);
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
+
+		#if mobile
+		MobilePlatform.log('configuracao de tela: janela ' + stageWidth + 'x' + stageHeight + ' | jogo ' + gameWidth + 'x' + gameHeight
+			+ ' | zoom ' + zoom);
+		#end
 	
 		ClientPrefs.loadDefaultKeys();
 
@@ -98,6 +168,8 @@ class Main extends Sprite
 		// ------------------------------------------------------------------
 		MobilePlatform.init();
 		MobilePlatform.log('boot: setupGame inicio');
+		MobileNative.init();
+		MobilePlatform.log('aviso na tela (toast): ' + MobileNative.isAvailable());
 
 		// O save precisa estar ligado ANTES de ler/escrever FlxG.save.data:
 		// o Psych só chama FlxG.save.bind() lá dentro do TitleState, e escrever
