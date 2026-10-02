@@ -30,7 +30,11 @@ class MobilePlatform
 	public static var totalRamMB(default, null):Float = 0;
 
 	static var logPath:String = null;
+	static var logFolders:Array<String> = [];
 	static var logLines:Array<String> = [];
+	static var stateTrail:Array<String> = [];
+	static var lastState:String = null;
+	static var bootOk:Bool = false;
 	static var initialized:Bool = false;
 
 	public static function init():Void
@@ -49,15 +53,13 @@ class MobilePlatform
 			storageFolder = normalizePath(LimeSystem.applicationStorageDirectory);
 			packageName = detectPackageName(storageFolder);
 			ensureDir(storageFolder);
-			logPath = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
 
-			// se der para escrever na pasta pública (/sdcard/FNF-Mobile), o log vai
-			// para lá: em celular sem PC é o único jeito fácil de ler o log
-			var pubBase:String = publicBaseFolder();
-			if (pubBase != null && probeWritable(pubBase))
-			{
-				logPath = pubBase + '/fnf-mobile.log';
-			}
+			// O log vai para TODAS as pastas em que der para escrever. Ordem de
+			// prioridade (a primeira é a que o jogador vê mais fácil):
+			//   1. /sdcard/FNF-Mobile              (raiz da memória interna)
+			//   2. /sdcard/Android/media/<pacote>  (visível, NÃO precisa de permissão)
+			//   3. pasta privada do app            (sempre funciona, invisível)
+			pickLogFolders();
 
 			try
 			{
@@ -145,6 +147,19 @@ class MobilePlatform
 		#end
 	}
 
+	/**
+	 * /sdcard/Android/media/<pacote>: pasta do app que aparece no gerenciador de
+	 * arquivos e NÃO precisa de permissão (Android 10+). É por aqui que o jogador
+	 * lê o log mesmo sem permissão de armazenamento.
+	 */
+	public static function appMediaFolder():String
+	{
+		var external:String = detectExternalStorage();
+		if (external == null || external == '') return null;
+		var pkg:String = packageName != null ? packageName : 'com.fnfmobile.game';
+		return external + '/Android/media/' + pkg;
+	}
+
 	/** Pasta pública visível no gerenciador de arquivos (/sdcard/FNF-Mobile), ou null. */
 	public static function publicBaseFolder():String
 	{
@@ -211,17 +226,48 @@ class MobilePlatform
 	{
 		var line:String = Date.now().toString() + '  ' + message;
 		logLines.push(line);
-		while (logLines.length > 120) logLines.shift();
+		while (logLines.length > 200) logLines.shift();
 
 		#if sys
-		try
+		var content:String = logLines.join('\n') + '\n';
+		for (folder in logFolders)
 		{
-			var path:String = logPath;
-			if (path == null) path = (storageFolder != null ? storageFolder : '.') + '/fnf-mobile.log';
-			File.saveContent(path, logLines.join('\n') + '\n');
+			try
+			{
+				File.saveContent(folder + '/fnf-mobile.log', content);
+			}
+			catch (e:Dynamic) {}
 		}
-		catch (e:Dynamic) {}
 		#end
+	}
+
+	/**
+	 * Monta a lista de pastas onde o log será gravado (só as que aceitam
+	 * escrita de verdade). É o que permite ler o log no celular sem PC.
+	 */
+	static function pickLogFolders():Void
+	{
+		var candidates:Array<String> = [];
+
+		var pubBase:String = publicBaseFolder();
+		if (pubBase != null) candidates.push(pubBase);
+
+		var media:String = appMediaFolder();
+		if (media != null) candidates.push(media);
+
+		if (storageFolder != null) candidates.push(storageFolder);
+		candidates.push('.');
+
+		for (c in candidates)
+		{
+			if (c == null || c == '') continue;
+			if (logFolders.indexOf(c) != -1) continue;
+			if (c != '.' && !probeWritable(c)) continue;
+			logFolders.push(c);
+		}
+
+		if (logFolders.length == 0) logFolders.push('.');
+		logPath = logFolders[0] + '/fnf-mobile.log';
 	}
 
 	/**
@@ -255,6 +301,30 @@ class MobilePlatform
 		}
 		return out;
 	}
+
+	/**
+	 * Trilha de navegação: anota cada tela que o jogo cria. Se o app morrer no
+	 * meio, a última linha do log diz exatamente onde ele parou.
+	 */
+	public static function trackState(stateName:String):Void
+	{
+		if (stateName == null) return;
+		if (lastState == stateName) return;
+		lastState = stateName;
+
+		stateTrail.push(stateName);
+		log('estado: ' + stateName);
+
+		if (!bootOk && (stateName.indexOf('Title') != -1 || stateName.indexOf('MainMenu') != -1))
+		{
+			bootOk = true;
+			log('BOOT-OK: menu inicial carregado');
+		}
+	}
+
+	/** Já chegou ao menu principal alguma vez nesta sessão? */
+	public static function isBootOk():Bool
+		return bootOk;
 
 	public static function ensureDir(path:String):Bool
 	{

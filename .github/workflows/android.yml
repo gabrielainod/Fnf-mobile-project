@@ -66,6 +66,9 @@ jobs:
       - name: Ajustes no template Android do Lime
         run: bash tools/patch_lime_android.sh >> "$LOGFILE" 2>&1
 
+      - name: Patch de diagnóstico no flixel (captura de erros)
+        run: bash tools/patch_flixel_mobile.sh >> "$LOGFILE" 2>&1
+
       - name: Compilar
         id: build
         continue-on-error: true

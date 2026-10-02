@@ -207,6 +207,42 @@ package_apk() {
 	echo "$out" > "$ROOT/.apk-final"
 }
 
+verify_assets() {
+	local out
+	out="$(cat "$ROOT/.apk-final")"
+	echo "==> Conferindo os assets que o jogo precisa para ABRIR:"
+	local missing=0
+	for item in \
+		"assets/assets/data/introText.txt" \
+		"assets/assets/weeks/weekList.txt" \
+		"assets/assets/weeks/week1.json" \
+		"assets/assets/music/freakyMenu.ogg" \
+		"assets/assets/fonts/vcr.ttf" \
+		"assets/assets/images/logoBumpin.png" \
+		"assets/assets/shared/images/noteStrumline.png" \
+		"assets/assets/characters/BOYFRIEND.xml" \
+		"lib/arm64-v8a/libApplicationMain.so"
+	do
+		if unzip -l "$out" | grep -q -- "$item"; then
+			echo "    OK      $item"
+		else
+			echo "    FALTANDO $item"
+			missing=$((missing + 1))
+		fi
+	done
+	echo "    (faltando: $missing)"
+	echo ""
+	echo "==> Contagem de assets por pasta:"
+	for d in data images shared songs week2 week3 weeks characters stages music sounds fonts; do
+		local n
+		n="$(unzip -l "$out" | grep -c "assets/assets/$d/")"
+		echo "    assets/assets/$d: $n arquivos"
+	done
+	echo ""
+	echo "==> Amostra de arquivos de dados (o jogo lê estes no boot):"
+	unzip -l "$out" | grep -E "assets/assets/(data|weeks|music)/" | head -25
+}
+
 main() {
 	run_step dump_env dump_env || exit 1
 	run_step configure_abis configure_abis || exit 1
@@ -223,6 +259,7 @@ main() {
 	run_step build_nativo build_apk || exit 1
 	run_step localizar_apk find_apk || exit 1
 	run_step assinar_e_verificar package_apk || exit 1
+	run_step verificar_assets verify_assets || exit 1
 
 	echo "OK:$(basename "$(cat "$ROOT/.apk-final" 2>/dev/null)")" > "$STATUS_FILE"
 	log ""

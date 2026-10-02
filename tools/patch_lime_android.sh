@@ -60,6 +60,54 @@ PYEOF_GRADLE
 	grep -n "checkReleaseBuilds\|abortOnError" "$APP_GRADLE" | sed 's/^/    /'
 fi
 
+# ---------------------------------------------------- diário de bordo (Java)
+# O jogo precisa se reportar sozinho: no Android o jogador não tem logcat.
+# A classe FnfBoot grava o log numa pasta visível (Android/media/<pacote>), pede
+# a permissão de armazenamento e mostra na tela o erro da sessão anterior.
+JAVA_DIR="$TPL/app/src/main/java/com/fnfmobile/game"
+MAIN_ACTIVITY="$LIME_DIR/templates/android/MainActivity.java"
+BOOT_SRC="$ROOT/tools/android/FnfBoot.java"
+
+if [ -f "$BOOT_SRC" ]; then
+	echo "==> Instalando o diário de bordo Java (FnfBoot)"
+	mkdir -p "$JAVA_DIR"
+	cp -f "$BOOT_SRC" "$JAVA_DIR/FnfBoot.java"
+	ls -la "$JAVA_DIR/FnfBoot.java"
+
+	if [ -f "$MAIN_ACTIVITY" ]; then
+		if grep -q "FnfBoot" "$MAIN_ACTIVITY"; then
+			echo "    MainActivity já estava ajustada"
+		else
+			echo "    Ajustando o MainActivity para chamar o FnfBoot"
+			cp -f "$MAIN_ACTIVITY" "$MAIN_ACTIVITY.orig"
+			cat > "$MAIN_ACTIVITY" <<'JAVA_EOF'
+package ::APP_PACKAGE::;
+
+import android.os.Bundle;
+
+public class MainActivity extends org.haxe.lime.GameActivity {
+
+	@Override protected void onCreate (Bundle state) {
+
+		// FNF Mobile: liga o diário de bordo antes de qualquer coisa.
+		// (grava o log numa pasta visível e mostra o erro da sessão anterior)
+		try { com.fnfmobile.game.FnfBoot.start (this); } catch (Throwable t) { }
+
+		super.onCreate (state);
+
+	}
+
+}
+JAVA_EOF
+			grep -n "FnfBoot" "$MAIN_ACTIVITY" | sed 's/^/    /'
+		fi
+	else
+		echo "    AVISO: $MAIN_ACTIVITY não existe"
+	fi
+else
+	echo "    AVISO: $BOOT_SRC não existe (sem diário de bordo Java)"
+fi
+
 MANIFEST="$TPL/app/src/main/AndroidManifest.xml"
 if [ -f "$MANIFEST" ]; then
 	echo "==> Ajustando AndroidManifest (largeHeap + extractNativeLibs)"

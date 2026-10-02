@@ -126,8 +126,21 @@ class Main extends Sprite
 		}
 
 		MobilePlatform.log('boot: criando FlxGame');
-		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
-		MobilePlatform.log('boot: FlxGame criado');
+		try
+		{
+			addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+			MobilePlatform.log('boot: FlxGame criado');
+		}
+		catch (e:Dynamic)
+		{
+			// se o motor falhar aqui, o log diz o motivo em vez de o app sumir
+			MobilePlatform.log('ERRO FATAL ao criar o FlxGame: ' + Std.string(e));
+			#if cpp
+			try { MobilePlatform.log(haxe.CallStack.exceptionStack()); } catch (x:Dynamic) {}
+			#end
+			MobilePlatform.log('(o processo provavelmente vai encerrar agora)');
+			throw e;
+		}
 
 		// tudo daqui pra baixo é opcional: se algo falhar, o jogo tem que abrir
 		try

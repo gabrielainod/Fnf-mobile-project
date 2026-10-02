@@ -169,5 +169,16 @@ private class MobileKeysPlugin extends FlxBasic
 	override public function update(elapsed:Float):Void
 	{
 		MobileKeys.tick();
+
+		// anota em que tela o jogo está (diagnóstico de travamento no boot)
+		try
+		{
+			var state = FlxG.state;
+			if (state != null)
+			{
+				MobilePlatform.trackState(Type.getClassName(Type.getClass(state)));
+			}
+		}
+		catch (e:Dynamic) {}
 	}
 }

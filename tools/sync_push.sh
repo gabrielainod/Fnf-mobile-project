@@ -7,9 +7,19 @@ set -uo pipefail
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BRANCH="arena/01a0f99d-fnf-mobile-project"
 
-git fetch -q origin "$BRANCH" || true
-if ! git merge-base --is-ancestor HEAD "origin/$BRANCH" 2>/dev/null; then
-  git reset --mixed "origin/$BRANCH" >/dev/null
+if ! git fetch -q --force origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"; then
+  echo "ERRO: git fetch falhou (sem isso, o push seria rejeitado)"
+  exit 1
+fi
+LOCAL="$(git rev-parse HEAD)"
+REMOTE="$(git rev-parse "origin/$BRANCH")"
+echo "local:  $LOCAL"
+echo "remoto: $REMOTE"
+if [ "$LOCAL" != "$REMOTE" ]; then
+  if ! git merge-base --is-ancestor "$REMOTE" HEAD 2>/dev/null; then
+    echo "==> recolocando o HEAD no topo do remoto (arvore preservada)"
+    git reset --mixed "origin/$BRANCH" >/dev/null
+  fi
 fi
 git add -A
 git -c user.email=agent@arena.ai -c user.name=agent commit -q -m "$1" || echo "(nada para commitar)"

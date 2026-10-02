@@ -1,0 +1,384 @@
+package com.fnfmobile.game;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+/**
+ * Diario de bordo do FNF Mobile no lado Java.
+ *
+ * Por que isso existe: no Android, se o jogo morre durante a abertura, o
+ * jogador nao tem como descobrir o motivo (o Android guarda o erro no logcat,
+ * que so aparece com cabo/PC). Este arquivo resolve dois problemas:
+ *
+ *  1. escolhe uma pasta de log que da para abrir no proprio celular
+ *     (Android/media/<pacote>, que nao precisa de permissao nenhuma) e tambem
+ *     tenta /sdcard/FNF-Mobile (que precisa de permissao);
+ *  2. instala um "salva-vidas": se o app travar, o erro completo (com a pilha)
+ *     e gravado em ultimo-erro.txt e, na proxima abertura, o jogo mostra uma
+ *     telinha com o texto - basta tirar print e mandar.
+ *
+ * O pacote precisa ser este (com.fnfmobile.game) porque este arquivo e copiado
+ * para app/src/main/java/com/fnfmobile/game/FnfBoot.java.
+ */
+public class FnfBoot
+{
+	private static Activity activity = null;
+	private static File logDir = null;
+	private static File logFile = null;
+	private static File crashFile = null;
+	private static String previousSession = null;
+	private static boolean started = false;
+
+	/** Chamado pelo MainActivity antes de tudo (antes do super.onCreate). */
+	public static void start (Activity a)
+	{
+		if (started) return;
+		started = true;
+		activity = a;
+
+		try
+		{
+			logDir = pickDir (a);
+			if (logDir != null)
+			{
+				logFile = new File (logDir, "fnf-boot.log");
+				crashFile = new File (logDir, "ultimo-erro.txt");
+			}
+		}
+		catch (Throwable t) { }
+
+		write ("=== FNF Mobile (lado Android) ===");
+		write ("pacote: " + a.getPackageName ());
+		write ("android: " + Build.VERSION.RELEASE + " (SDK " + Build.VERSION.SDK_INT + ")");
+		write ("aparelho: " + Build.MANUFACTURER + " " + Build.MODEL);
+		write ("abis: " + joinAbis ());
+		write ("heap max: " + (Runtime.getRuntime ().maxMemory () / 1048576) + " MB");
+		write ("pasta do log: " + (logDir != null ? logDir.getAbsolutePath () : "?"));
+
+		checkPreviousSession ();
+		installCrashHandler ();
+
+		try
+		{
+			a.runOnUiThread (new Runnable ()
+			{
+				public void run ()
+				{
+					try { requestStorage (); } catch (Throwable t) { }
+					try { showDialog (); } catch (Throwable t) { }
+				}
+			});
+		}
+		catch (Throwable t) { }
+	}
+
+	/** Acrescenta uma linha no log (usado tambem pelo lado Haxe, via JNI). */
+	public static void write (String message)
+	{
+		if (logFile == null) return;
+		try
+		{
+			String stamp = new SimpleDateFormat ("HH:mm:ss", Locale.US).format (new Date ());
+			FileOutputStream out = new FileOutputStream (logFile, true);
+			OutputStreamWriter w = new OutputStreamWriter (out, "UTF-8");
+			w.write (stamp + "  " + message + "\n");
+			w.close ();
+		}
+		catch (Throwable t) { }
+	}
+
+	// ------------------------------------------------------------- pastas
+
+	/**
+	 * Ordem de preferencia:
+	 *  1. Android/media/<pacote>  -> visivel no gerenciador de arquivos, sem permissao
+	 *  2. /sdcard/FNF-Mobile      -> visivel na raiz da memoria interna (precisa de permissao)
+	 *  3. pasta privada do app    -> sempre funciona, mas so o app ve
+	 */
+	private static File pickDir (Activity a)
+	{
+		try
+		{
+			File[] dirs = a.getExternalMediaDirs ();
+			if (dirs != null && dirs.length > 0 && dirs[0] != null)
+			{
+				File d = dirs[0];
+				if (d.exists () || d.mkdirs ())
+				{
+					if (canWrite (d)) return d;
+				}
+			}
+		}
+		catch (Throwable t) { }
+
+		try
+		{
+			File d = new File (Environment.getExternalStorageDirectory (), "FNF-Mobile");
+			if (d.exists () || d.mkdirs ())
+			{
+				if (canWrite (d)) return d;
+			}
+		}
+		catch (Throwable t) { }
+
+		try
+		{
+			File d = new File (a.getFilesDir (), "log");
+			if (d.exists () || d.mkdirs ()) return d;
+		}
+		catch (Throwable t) { }
+
+		return null;
+	}
+
+	private static boolean canWrite (File dir)
+	{
+		try
+		{
+			File probe = new File (dir, "escrita.teste");
+			FileOutputStream out = new FileOutputStream (probe);
+			out.write (1);
+			out.close ();
+			probe.delete ();
+			return true;
+		}
+		catch (Throwable t)
+		{
+			return false;
+		}
+	}
+
+	// -------------------------------------------------------------- erro
+
+	private static void installCrashHandler ()
+	{
+		try
+		{
+			final Thread.UncaughtExceptionHandler previous = Thread.getDefaultUncaughtExceptionHandler ();
+			Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler ()
+			{
+				public void uncaughtException (Thread t, Throwable e)
+				{
+					try
+					{
+						write ("CRASH na thread " + t.getName ());
+						write (stack (e));
+						writeFile (crashFile, "thread: " + t.getName () + "\n" + stack (e));
+					}
+					catch (Throwable x) { }
+
+					if (previous != null) previous.uncaughtException (t, e);
+				}
+			});
+		}
+		catch (Throwable t) { }
+	}
+
+	/** Guarda o log da sessao anterior quando ela nao chegou ao menu. */
+	private static void checkPreviousSession ()
+	{
+		try
+		{
+			if (logDir == null) return;
+
+			String text = readTail (new File (logDir, "fnf-mobile.log"), 4000);
+			if (text == null)
+			{
+				write ("sessao anterior: ainda nao existe log do jogo");
+				return;
+			}
+
+			boolean ok = text.indexOf ("BOOT-OK") >= 0;
+			write ("sessao anterior chegou ao menu: " + ok);
+
+			if (!ok)
+			{
+				previousSession = text;
+				writeFile (new File (logDir, "sessao-anterior.log"), text);
+				write ("log da sessao que falhou guardado em sessao-anterior.log");
+			}
+		}
+		catch (Throwable t) { }
+	}
+
+	/** Mostra na tela o erro da sessao anterior (se houver). */
+	private static void showDialog ()
+	{
+		try
+		{
+			if (activity == null || logDir == null) return;
+
+			String title = null;
+			String body = null;
+
+			String androidCrash = readTail (crashFile, 2500);
+			String gameCrash = readTail (new File (logDir, "fnf-erro.txt"), 2500);
+
+			if (androidCrash != null && androidCrash.length () > 0)
+			{
+				title = "O app travou (erro do Android)";
+				body = androidCrash;
+				if (gameCrash != null && gameCrash.length () > 0)
+				{
+					body += "\n--- erro dentro do jogo ---\n" + gameCrash;
+				}
+			}
+			else if (gameCrash != null && gameCrash.length () > 0)
+			{
+				title = "O jogo teve um erro";
+				body = gameCrash;
+			}
+			else if (previousSession != null)
+			{
+				title = "A sessao anterior nao chegou ao menu";
+				body = previousSession;
+			}
+
+			if (title == null || body == null) return;
+
+			// mostra uma vez so, para nao ficar aparecendo toda vez
+			try { if (crashFile != null) crashFile.delete (); } catch (Throwable t) { }
+			try { new File (logDir, "fnf-erro.txt").delete (); } catch (Throwable t) { }
+			previousSession = null;
+
+			write ("mostrando diagnostico na tela");
+
+			TextView tv = new TextView (activity);
+			tv.setText (body);
+			tv.setTextSize (10f);
+			tv.setPadding (24, 24, 24, 24);
+
+			ScrollView sv = new ScrollView (activity);
+			sv.addView (tv);
+
+			AlertDialog.Builder builder = new AlertDialog.Builder (activity);
+			builder.setTitle (title + " — tire print e mande");
+			builder.setView (sv);
+			builder.setPositiveButton ("Fechar", new DialogInterface.OnClickListener ()
+			{
+				public void onClick (DialogInterface dialog, int which) { }
+			});
+			builder.show ();
+		}
+		catch (Throwable t) { }
+	}
+
+	// -------------------------------------------------------- permissao
+
+	private static void requestStorage ()
+	{
+		try
+		{
+			if (activity == null) return;
+
+			if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT <= 29)
+			{
+				if (activity.checkSelfPermission ("android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED)
+				{
+					write ("pedindo permissao de armazenamento (para usar /sdcard/FNF-Mobile)");
+					activity.requestPermissions (new String[] { "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.READ_EXTERNAL_STORAGE" }, 1001);
+				}
+				else
+				{
+					write ("permissao de armazenamento ja concedida");
+				}
+			}
+			else
+			{
+				write ("android " + Build.VERSION.SDK_INT + ": pasta publica via Android/media (sem permissao)");
+			}
+		}
+		catch (Throwable t) { }
+	}
+
+	// ------------------------------------------------------------ apoio
+
+	private static String joinAbis ()
+	{
+		try
+		{
+			String out = "";
+			for (int i = 0; i < Build.SUPPORTED_ABIS.length; i++)
+			{
+				if (i > 0) out += ",";
+				out += Build.SUPPORTED_ABIS[i];
+			}
+			return out;
+		}
+		catch (Throwable t)
+		{
+			return "?";
+		}
+	}
+
+	private static String stack (Throwable e)
+	{
+		try
+		{
+			java.io.StringWriter sw = new java.io.StringWriter ();
+			java.io.PrintWriter pw = new java.io.PrintWriter (sw);
+			e.printStackTrace (pw);
+			pw.close ();
+			return sw.toString ();
+		}
+		catch (Throwable t)
+		{
+			return String.valueOf (e);
+		}
+	}
+
+	private static void writeFile (File f, String text)
+	{
+		try
+		{
+			if (f == null) return;
+			FileOutputStream out = new FileOutputStream (f, false);
+			OutputStreamWriter w = new OutputStreamWriter (out, "UTF-8");
+			w.write (text);
+			w.close ();
+		}
+		catch (Throwable t) { }
+	}
+
+	private static String readTail (File f, int maxChars)
+	{
+		try
+		{
+			if (f == null || !f.exists ()) return null;
+
+			BufferedReader r = new BufferedReader (new InputStreamReader (new FileInputStream (f), "UTF-8"));
+			StringBuilder sb = new StringBuilder ();
+			String line;
+			while ((line = r.readLine ()) != null)
+			{
+				sb.append (line).append ("\n");
+				if (sb.length () > maxChars * 2)
+				{
+					sb.delete (0, sb.length () - maxChars);
+				}
+			}
+			r.close ();
+			return sb.toString ();
+		}
+		catch (Throwable t)
+		{
+			return null;
+		}
+	}
+}
